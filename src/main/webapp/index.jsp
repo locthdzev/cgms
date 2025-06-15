@@ -1537,34 +1537,20 @@
                     </div>
                   </li>
                   <li class="nav-item ms-lg-auto">
-                    <a
-                      class="nav-link nav-link-icon me-2"
-                      href="https://github.com/creativetimofficial/soft-ui-design-system"
-                      target="_blank"
-                    >
-                      <i class="fa fa-github me-1"></i>
-                      <p
-                        class="d-inline text-sm z-index-1 font-weight-bold"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="bottom"
-                        title="Star us on Github"
-                      >
-                        Github
-                      </p>
-                    </a>
+                    <!-- Đã xóa nút Github -->
                   </li>
                   <li class="nav-item my-auto ms-3 ms-lg-0">
                     <a
-                      href="https://www.creative-tim.com/builder?ref=navbar-soft-design-system"
+                      href="/login"
                       class="btn btn-sm btn-outline-dark btn-round mb-0 me-1 mt-2 mt-md-0"
-                      >Online Builder</a
+                      >Đăng nhập</a
                     >
                   </li>
                   <li class="nav-item my-auto ms-3 ms-lg-0">
                     <a
-                      href="https://www.creative-tim.com/product/soft-ui-design-system-pro"
+                      href="/register"
                       class="btn btn-sm text-white bg-dark btn-round mb-0 me-1 mt-2 mt-md-0"
-                      >Upgrade to Pro</a
+                      >Đăng ký</a
                     >
                   </li>
                 </ul>
@@ -1579,7 +1565,7 @@
       <div
         class="page-header min-vh-75 relative"
         style="
-          background-image: url('https://images.unsplash.com/photo-1445452916036-9022dfd33aa8?q=80&w=2973&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+          background-image: url('https://images.pexels.com/photos/16513600/pexels-photo-16513600/free-photo-of-phong-th-d-c-thi-t-b-t-p-th-d-c-ren-luy-n-s-c-m-nh-trung-tam-th-d-c.jpeg?q=80&w=2973&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
         "
       >
         <div class="container">
@@ -1589,7 +1575,8 @@
                 CoreFit Gym Management System
               </h1>
               <p class="lead text-white mt-3">
-                A powerful and user-friendly platform to manage your gym operations with ease.<br />
+                A powerful and user-friendly platform to manage your gym
+                operations with ease.<br />
                 Designed for trainers, staff, and members – all in one place.
               </p>
             </div>
@@ -1666,7 +1653,8 @@
                   </h1>
                   <h5 class="mt-3">Active Members</h5>
                   <p class="text-sm">
-                    Easily track and manage all your gym members in one centralized system.
+                    Easily track and manage all your gym members in one
+                    centralized system.
                   </p>
                 </div>
                 <hr class="vertical dark" />
@@ -1678,17 +1666,21 @@
                   </h1>
                   <h5 class="mt-3">Customizable Modules</h5>
                   <p class="text-sm">
-                    Flexible features for scheduling, payments, staff, and package management.
+                    Flexible features for scheduling, payments, staff, and
+                    package management.
                   </p>
                 </div>
                 <hr class="vertical dark" />
               </div>
               <div class="col-md-4">
                 <div class="p-3 text-center">
-                  <h1 class="text-gradient text-dark" id="state3" countTo="4">0</h1>
+                  <h1 class="text-gradient text-dark" id="state3" countTo="4">
+                    0
+                  </h1>
                   <h5 class="mt-3">Ready-to-Use Pages</h5>
                   <p class="text-sm">
-                    Start faster with built-in pages like Dashboard, Members, Trainers, and Reports.
+                    Start faster with built-in pages like Dashboard, Members,
+                    Trainers, and Reports.
                   </p>
                 </div>
               </div>
