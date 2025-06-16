@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Table(name = "Vouchers")
 public class Voucher {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "VoucherId", nullable = false)
     private Integer id;
 
@@ -124,5 +125,4 @@ public class Voucher {
     public void setStatus(String status) {
         this.status = status;
     }
-
 }
