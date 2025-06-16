@@ -27,12 +27,26 @@
                 <p class="mb-0">Nhập email và mật khẩu để đăng nhập</p>
               </div>
               <div class="card-body">
-                <form role="form">
+                <% if (request.getAttribute("message") != null) { %>
+                  <div class="alert alert-success" role="alert">
+                    <%= request.getAttribute("message") %>
+                  </div>
+                <% } %>
+                <%
+                  String error = (String) session.getAttribute("error");
+                  if (error != null) {
+                    session.removeAttribute("error");
+                %>
+                  <div class="alert alert-danger" role="alert">
+                    <%= error %>
+                  </div>
+                <% } %>
+                <form role="form" method="post" action="LoginController">
                   <div class="mb-3">
-                    <input type="email" class="form-control form-control-lg" placeholder="Email" aria-label="Email" aria-describedby="email-addon">
+                    <input type="text" name="username" class="form-control form-control-lg" placeholder="Tên đăng nhập" aria-label="Username" aria-describedby="username-addon" required>
                   </div>
                   <div class="mb-3">
-                    <input type="password" class="form-control form-control-lg" placeholder="Mật khẩu" aria-label="Password" aria-describedby="password-addon">
+                    <input type="password" name="password" class="form-control form-control-lg" placeholder="Mật khẩu" aria-label="Password" aria-describedby="password-addon" required>
                   </div>
                   <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="rememberMe">
