@@ -8,8 +8,8 @@ import jakarta.mail.internet.MimeUtility;
 
 public class EmailSender {
     public static void send(String to, String subject, String content) {
-        final String username = "academix.verify@gmail.com"; // Thay bằng email gửi
-        final String password = "ntwk imbk eqbs fsht"; // Thay bằng app password
+        final String username = "academix.verify@gmail.com";
+        final String password = "ntwk imbk eqbs fsht";
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
