@@ -16,7 +16,6 @@
         <location>/error404.jsp</location>
     </error-page>
 
-
     <!-- login.jsp -->
     <servlet>
         <servlet-name>login</servlet-name>
@@ -37,14 +36,14 @@
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
 
-    <!-- VoucherController mapped to /admin/voucher -->
+    <!-- VoucherController mapped to /voucher -->
     <servlet>
         <servlet-name>VoucherController</servlet-name>
         <servlet-class>Controllers.VoucherController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>VoucherController</servlet-name>
-        <url-pattern>/admin/voucher</url-pattern>
+        <url-pattern>/voucher</url-pattern>
     </servlet-mapping>
 
 </web-app>

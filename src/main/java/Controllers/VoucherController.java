@@ -22,22 +22,22 @@ public class VoucherController extends HttpServlet {
         switch (action) {
             case "create":
                 req.setAttribute("voucher", new Voucher());
-                req.getRequestDispatcher("/admin/voucher-form.jsp").forward(req, resp);
+                req.getRequestDispatcher("/voucher-form.jsp").forward(req, resp);
                 break;
             case "edit":
                 int id = Integer.parseInt(req.getParameter("id"));
                 Voucher v = service.getVoucherById(id);
                 req.setAttribute("voucher", v);
-                req.getRequestDispatcher("/admin/voucher-form.jsp").forward(req, resp);
+                req.getRequestDispatcher("/voucher-form.jsp").forward(req, resp);
                 break;
             case "delete":
                 service.deleteVoucher(Integer.parseInt(req.getParameter("id")));
-                resp.sendRedirect(req.getContextPath() + "/admin/voucher?action=list");
+                resp.sendRedirect(req.getContextPath() + "/voucher?action=list");
                 break;
             default:
                 List<Voucher> list = service.getAllVouchers();
                 req.setAttribute("voucherList", list);
-                req.getRequestDispatcher("/admin/voucher-list.jsp").forward(req, resp);
+                req.getRequestDispatcher("/voucher-list.jsp").forward(req, resp);
                 break;
         }
     }
@@ -90,10 +90,10 @@ public class VoucherController extends HttpServlet {
             e.printStackTrace();
             req.setAttribute("error", "Invalid input: " + e.getMessage());
             req.setAttribute("voucher", v);
-            req.getRequestDispatcher("/admin/voucher-form.jsp").forward(req, resp);
+            req.getRequestDispatcher("/voucher-form.jsp").forward(req, resp);
             return;
         }
 
-        resp.sendRedirect(req.getContextPath() + "/admin/voucher?action=list");
+        resp.sendRedirect(req.getContextPath() + "/voucher?action=list");
     }
 }
