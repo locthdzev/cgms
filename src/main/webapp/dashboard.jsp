@@ -37,10 +37,10 @@
         flex-wrap: wrap;
       }
 
-      .dashboard-stats-row>[class^='col-'] {
-        display: flex;
-        flex-direction: column;
-      }
+            .dashboard-stats-row>[class^='col-'] {
+                display: flex;
+                flex-direction: column;
+            }
 
       .dashboard-stats-row .card {
         flex: 1 1 100%;
@@ -79,7 +79,7 @@
       <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link active" href="../pages/dashboard.html">
+            <a class="nav-link active" href="/dashboard">
               <div
                 class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
@@ -88,19 +88,13 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="listPackage">
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
-              </div>
-              <span class="nav-link-text ms-1">Gói tập Gym</span>
-            </a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="../pages/tables.html">
               <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
+                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+              >
+                <i
+                  class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"
+                ></i>
               </div>
               <span class="nav-link-text ms-1">Tables</span>
             </a>
@@ -133,9 +127,18 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../pages/rtl.html">
+
+            <a class="nav-link" href="${pageContext.request.contextPath}/voucher?action=list">
               <div
                 class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+
+            <a
+              class="nav-link"
+              href="${pageContext.request.contextPath}/voucher?action=list"
+            >
+              <div
+                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+              >
                 <i class="ni ni-world-2 text-dark text-sm opacity-10"></i>
               </div>
               <span class="nav-link-text ms-1">RTL</span>
@@ -156,7 +159,7 @@
             </h6>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../pages/profile.html">
+            <a class="nav-link" href="/profile">
               <div
                 class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
@@ -451,7 +454,8 @@
                 <h6 class="text-capitalize">Tổng quan doanh thu phòng tập</h6>
                 <p class="text-sm mb-0">
                   <i class="fa fa-arrow-up text-success"></i>
-                  <span class="font-weight-bold">4% tăng trưởng</span> trong năm 2024
+                  <span class="font-weight-bold">4% tăng trưởng</span> trong năm
+                  2024
                 </p>
               </div>
               <div class="card-body p-3">
@@ -684,15 +688,23 @@
               </div>
               <div class="card-body p-3">
                 <ul class="list-group">
-                  <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
+                  <li
+                    class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg"
+                  >
                     <div class="d-flex align-items-center">
-                      <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                        <i class="ni ni-mobile-button text-white opacity-10"></i>
+                      <div
+                        class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center"
+                      >
+                        <i
+                          class="ni ni-mobile-button text-white opacity-10"
+                        ></i>
                       </div>
                       <div class="d-flex flex-column">
                         <h6 class="mb-1 text-dark text-sm">Gói tập Gym</h6>
-                        <span class="text-xs">50 đang hoạt động,
-                          <span class="font-weight-bold">200+ đã bán</span></span>
+                        <span class="text-xs"
+                          >50 đang hoạt động,
+                          <span class="font-weight-bold">200+ đã bán</span></span
+                        >
                       </div>
                     </div>
                     <div class="d-flex">
@@ -707,9 +719,12 @@
                         <i class="ni ni-tag text-white opacity-10"></i>
                       </div>
                       <div class="d-flex flex-column">
+
                         <h6 class="mb-1 text-dark text-sm">Huấn luyện viên cá nhân</h6>
-                        <span class="text-xs">10 đang hoạt động,
-                          <span class="font-weight-bold">30+ khách hàng</span></span>
+                        <span class="text-xs"
+                          >10 đang hoạt động,
+                          <span class="font-weight-bold">30+ khách hàng</span></span
+                        >
                       </div>
                     </div>
                     <div class="d-flex">
@@ -725,8 +740,10 @@
                       </div>
                       <div class="d-flex flex-column">
                         <h6 class="mb-1 text-dark text-sm">Lớp nhóm</h6>
-                        <span class="text-xs">5 lớp đang mở,
-                          <span class="font-weight-bold">100+ học viên</span></span>
+                        <span class="text-xs"
+                          >5 lớp đang mở,
+                          <span class="font-weight-bold">100+ học viên</span></span
+                        >
                       </div>
                     </div>
                     <div class="d-flex">
@@ -741,7 +758,9 @@
                         <i class="ni ni-satisfied text-white opacity-10"></i>
                       </div>
                       <div class="d-flex flex-column">
-                        <h6 class="mb-1 text-dark text-sm">Khách hàng hài lòng</h6>
+                        <h6 class="mb-1 text-dark text-sm">
+                          Khách hàng hài lòng
+                        </h6>
                         <span class="text-xs font-weight-bold">+ 430</span>
                       </div>
                     </div>
