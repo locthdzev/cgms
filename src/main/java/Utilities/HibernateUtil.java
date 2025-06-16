@@ -17,10 +17,11 @@ public class HibernateUtil {
             configuration.addAnnotatedClass(User.class);
             configuration.addAnnotatedClass(MemberLevel.class);
 
-            
-            configuration.setProperty("hibernate.connection.driver_class", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            configuration.setProperty("hibernate.connection.driver_class",
+                    "com.microsoft.sqlserver.jdbc.SQLServerDriver");
             configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.SQLServerDialect");
-            configuration.setProperty("hibernate.connection.url", "jdbc:sqlserver://sql.truongvu.id.vn:58833;databaseName=CGMS;encrypt=true;trustServerCertificate=true");
+            configuration.setProperty("hibernate.connection.url",
+                    "jdbc:sqlserver://sql.truongvu.id.vn:58833;databaseName=CGMS;encrypt=true;trustServerCertificate=true");
             configuration.setProperty("hibernate.connection.username", "admin");
             configuration.setProperty("hibernate.connection.password", "FMCSystem@1234");
             configuration.setProperty("hibernate.show_sql", "true");
