@@ -67,4 +67,41 @@
         <servlet-name>dashboard</servlet-name>
         <url-pattern>/dashboard</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AddPackageServlet</servlet-name>
+        <servlet-class>Controllers.AddPackageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddPackageServlet</servlet-name>
+        <url-pattern>/addPackage</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ListPackageServlet</servlet-name>
+        <servlet-class>Controllers.ListPackageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ListPackageServlet</servlet-name>
+        <url-pattern>/listPackage</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>EditPackageServlet</servlet-name>
+        <servlet-class>Controllers.EditPackageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>EditPackageServlet</servlet-name>
+        <url-pattern>/editPackage</url-pattern>
+    </servlet-mapping>
+
+    <!-- Servlet cập nhật trạng thái gói tập -->
+    <servlet>
+        <servlet-name>UpdatePackageStatusServlet</servlet-name>
+        <servlet-class>Controllers.UpdatePackageStatusServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdatePackageStatusServlet</servlet-name>
+        <url-pattern>/updatePackageStatus</url-pattern>
+    </servlet-mapping>
 </web-app>
