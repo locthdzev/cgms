@@ -27,21 +27,31 @@ public class FeedbackController extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("action");
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    String action = req.getParameter("action");
 
-        if ("delete".equals(action)) {
-            String idParam = req.getParameter("id");
-            try {
-                int feedbackId = Integer.parseInt(idParam);
-                feedbackService.deleteFeedback(feedbackId);
-            } catch (NumberFormatException ignored) {
-            }
+    if ("delete".equals(action)) {
+        String idParam = req.getParameter("id");
+        try {
+            int feedbackId = Integer.parseInt(idParam);
+            feedbackService.deleteFeedback(feedbackId);
+        } catch (NumberFormatException ignored) {
         }
-
         List<Feedback> feedbacks = feedbackService.getAllFeedbacks();
         req.setAttribute("feedbacks", feedbacks);
-        req.getRequestDispatcher("feedback-list.jsp").forward(req, resp);
+        req.getRequestDispatcher("/pt-feedback.jsp").forward(req, resp);
+    } else if ("detail".equals(action)) {
+        String idParam = req.getParameter("id");
+        try {
+            int feedbackId = Integer.parseInt(idParam);
+            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
+            req.setAttribute("feedback", feedback);
+            req.getRequestDispatcher("/pt-feedback-detail.jsp").forward(req, resp);
+        } catch (NumberFormatException ignored) {
+            resp.sendRedirect("pt-feedback");
+        }
     }
+}
+
 
 }

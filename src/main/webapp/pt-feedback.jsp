@@ -176,6 +176,14 @@
                                                                 <button class="btn btn-sm btn-danger" type="submit">Xóa</button>
                                                             </form>
                                                         </td>
+                                                        <td class="text-center">
+                                                            <form method="post" action="pt-feedback">
+                                                                <input type="hidden" name="id" value="${fb.id}" />
+                                                                <input type="hidden" name="action" value="detail" />
+                                                                <button class="btn btn-sm btn-info" type="submit">Chi tiết</button>
+                                                            </form>
+                                                        </td>
+
                                                     </tr>
                                                 </c:forEach>
                                             </tbody>
