@@ -1,7 +1,7 @@
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
-         version="5.0">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+    version="5.0">
 
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
@@ -34,6 +34,70 @@
     <servlet-mapping>
         <servlet-name>register</servlet-name>
         <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>verify-email</servlet-name>
+        <jsp-file>/verify-email.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>verify-email</servlet-name>
+        <url-pattern>/verify-email</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>VerifyEmail</servlet-name>
+        <servlet-class>Controllers.VerifyEmail</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VerifyEmail</servlet-name>
+        <url-pattern>/VerifyEmail</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>dashboard</servlet-name>
+        <jsp-file>/dashboard.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>dashboard</servlet-name>
+        <url-pattern>/dashboard</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AddPackageServlet</servlet-name>
+        <servlet-class>Controllers.AddPackageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddPackageServlet</servlet-name>
+        <url-pattern>/addPackage</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ListPackageServlet</servlet-name>
+        <servlet-class>Controllers.ListPackageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ListPackageServlet</servlet-name>
+        <url-pattern>/listPackage</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>EditPackageServlet</servlet-name>
+        <servlet-class>Controllers.EditPackageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>EditPackageServlet</servlet-name>
+        <url-pattern>/editPackage</url-pattern>
+    </servlet-mapping>
+
+    <!-- Servlet cập nhật trạng thái gói tập -->
+    <servlet>
+        <servlet-name>UpdatePackageStatusServlet</servlet-name>
+        <servlet-class>Controllers.UpdatePackageStatusServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdatePackageStatusServlet</servlet-name>
+        <url-pattern>/updatePackageStatus</url-pattern>
     </servlet-mapping>
 
     <!-- VoucherController mapped to /voucher -->
