@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
@@ -17,12 +16,8 @@
         <location>/error404.jsp</location>
     </error-page>
 
-    <error-page>
-        <error-code>500</error-code>
-        <location>/error500.jsp</location>
-    </error-page>
 
-    <!-- Ánh xạ /login về login.jsp -->
+    <!-- login.jsp -->
     <servlet>
         <servlet-name>login</servlet-name>
         <jsp-file>/login.jsp</jsp-file>
@@ -32,6 +27,7 @@
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
 
+    <!-- register.jsp -->
     <servlet>
         <servlet-name>register</servlet-name>
         <jsp-file>/register.jsp</jsp-file>
@@ -40,4 +36,15 @@
         <servlet-name>register</servlet-name>
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
+
+    <!-- VoucherController mapped to /admin/voucher -->
+    <servlet>
+        <servlet-name>VoucherController</servlet-name>
+        <servlet-class>Controllers.VoucherController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VoucherController</servlet-name>
+        <url-pattern>/admin/voucher</url-pattern>
+    </servlet-mapping>
+
 </web-app>
