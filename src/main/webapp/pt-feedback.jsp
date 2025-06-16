@@ -40,6 +40,16 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="listPackage">
+                            <div
+                                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                                >
+                                <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Gói tập Gym</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="../pages/tables.html">
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
@@ -61,6 +71,16 @@
                                 <i class="ni ni-app text-dark text-sm opacity-10"></i>
                             </div>
                             <span class="nav-link-text ms-1">Virtual Reality</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/voucher?action=list">
+                            <div
+                                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                                >
+                                <i class="ni ni-tag text-dark text-sm opacity-10"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Manage Vouchers</span>
                         </a>
                     </li>
                     <li class="nav-item">
