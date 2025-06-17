@@ -1,65 +1,45 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Utilities;
 
-
+import Models.Voucher;
+import Models.User;
+import Models.MemberLevel;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-/**
- *
- * @author Admin
- */
+import org.hibernate.cfg.Configuration;
+
 public class HibernateUtil {
-    // StandardServiceRegistry chứa các dịch vụ cần thiết cho Hibernate
-    private static StandardServiceRegistry registry;
-    
-    // SessionFactory dùng để tạo các Session, là cầu nối giữa ứng dụng và cơ sở dữ liệu
     private static SessionFactory sessionFactory;
 
-    /**
-     * Phương thức để lấy SessionFactory
-     * Nếu SessionFactory chưa được tạo, phương thức sẽ tạo mới
-     * @return SessionFactory đã được cấu hình
-     */
-    public static SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
-            try {
-                // Tạo registry từ file cấu hình hibernate.cfg.xml
-                registry = new StandardServiceRegistryBuilder()
-                        .configure() // Mặc định sẽ tìm file hibernate.cfg.xml trong thư mục resources
-                        .build();
+    static {
+        try {
+            Configuration configuration = new Configuration();
+            configuration.addAnnotatedClass(Voucher.class);
+            configuration.addAnnotatedClass(User.class);
+            configuration.addAnnotatedClass(MemberLevel.class);
 
-                // Tạo MetadataSources từ registry
-                MetadataSources sources = new MetadataSources(registry);
+            configuration.setProperty("hibernate.connection.driver_class",
+                    "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.SQLServerDialect");
+            configuration.setProperty("hibernate.connection.url",
+                    "jdbc:sqlserver://sql.truongvu.id.vn:58833;databaseName=CGMS;encrypt=true;trustServerCertificate=true");
+            configuration.setProperty("hibernate.connection.username", "admin");
+            configuration.setProperty("hibernate.connection.password", "FMCSystem@1234");
+            configuration.setProperty("hibernate.show_sql", "true");
+            configuration.setProperty("hibernate.format_sql", "true");
+            configuration.setProperty("hibernate.hbm2ddl.auto", "validate");
 
-                // Tạo Metadata từ MetadataSources
-                Metadata metadata = sources.getMetadataBuilder().build();
+            StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties());
 
-                // Tạo SessionFactory từ Metadata
-                sessionFactory = metadata.getSessionFactoryBuilder().build();
-            } catch (Exception e) {
-                e.printStackTrace();
-                // Nếu có lỗi xảy ra, hủy registry để giải phóng tài nguyên
-                if (registry != null) {
-                    StandardServiceRegistryBuilder.destroy(registry);
-                }
-            }
+            sessionFactory = configuration.buildSessionFactory(builder.build());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new RuntimeException("Failed to initialize Hibernate session factory: " + ex.getMessage());
         }
-        return sessionFactory;
     }
 
-    /**
-     * Phương thức để đóng SessionFactory và giải phóng tài nguyên
-     * Nên gọi phương thức này khi ứng dụng kết thúc
-     */
-    public static void shutdown() {
-        if (registry != null) {
-            StandardServiceRegistryBuilder.destroy(registry);
-        }
+    public static SessionFactory getSessionFactory() {
+        return sessionFactory;
     }
 }
