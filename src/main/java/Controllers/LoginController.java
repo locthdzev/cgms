@@ -22,9 +22,16 @@ public class LoginController extends HttpServlet {
         String password = request.getParameter("password");
         User user = userService.authenticate(username, password);
         if (user != null && "admin".equalsIgnoreCase(user.getRole())) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-            response.sendRedirect("dashboard");
+            User fullUser = userService.getUserById(user.getId());
+            if (fullUser != null) {
+                HttpSession session = request.getSession();
+                session.setAttribute("loggedInUser", fullUser);
+                response.sendRedirect("dashboard");
+            } else {
+                HttpSession session = request.getSession();
+                session.setAttribute("error", "Không thể lấy thông tin người dùng!");
+                response.sendRedirect("login");
+            }
         } else {
             HttpSession session = request.getSession();
             session.setAttribute("error", "Sai tên đăng nhập hoặc mật khẩu, hoặc bạn không phải Admin!");

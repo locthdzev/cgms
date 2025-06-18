@@ -1,16 +1,44 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@page import="Models.User"%>
+<%@page import="Models.Voucher"%>
+<%
+    // Lấy thông tin người dùng đăng nhập từ session
+    User loggedInUser = (User) session.getAttribute("loggedInUser");
+    // Lấy thông tin voucher nếu đang chỉnh sửa
+    Voucher voucher = (Voucher) request.getAttribute("voucher");
+    boolean isEdit = voucher != null;
+%>
 <c:set var="uri" value="${pageContext.request.requestURI}" />
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
 <head>
     <meta charset="UTF-8">
-    <title>${voucher.id == null ? "Create Voucher" : "Edit Voucher"}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
+    <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
+    <title><%= isEdit ? "Chỉnh sửa voucher" : "Thêm voucher mới" %> - CGMS</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="${pageContext.request.contextPath}/assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <link id="pagestyle" href="./assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <style>
+        .user-welcome {
+            text-align: right;
+            margin-left: auto;
+        }
+        .user-welcome .user-name {
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+        .user-welcome .user-email {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+        }
+    </style>
 </head>
 <body class="g-sidenav-show bg-gray-100">
 <div class="min-height-300 bg-dark position-absolute w-100"></div>
@@ -98,24 +126,39 @@
     <div class="container-fluid py-1 px-3">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-          <li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="javascript:;">Pages</a></li>
-          <li class="breadcrumb-item text-sm text-white active" aria-current="page">Vouchers</li>
+          <li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="dashboard.jsp">Dashboard</a></li>
+          <li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="voucher">Danh sách voucher</a></li>
+          <li class="breadcrumb-item text-sm text-white active" aria-current="page"><%= isEdit ? "Chỉnh sửa voucher" : "Thêm voucher mới" %></li>
         </ol>
-        <h6 class="font-weight-bolder text-white mb-0">${voucher.id == null ? "Create Voucher" : "Edit Voucher"}</h6>
+        <h6 class="font-weight-bolder text-white mb-0"><%= isEdit ? "Chỉnh sửa voucher" : "Thêm voucher mới" %></h6>
       </nav>
+      
+      <!-- User Welcome Section -->
+      <% if (loggedInUser != null) { %>
+      <div class="user-welcome">
+          <p class="user-name">Xin chào, <%= loggedInUser.getFullName() %></p>
+          <p class="user-email"><%= loggedInUser.getEmail() %></p>
+      </div>
+      <% } %>
     </div>
   </nav>
 
   <!-- Form -->
   <div class="container-fluid py-4">
     <div class="card mb-4">
-      <div class="card-header pb-0">
-        <h6>${voucher.id == null ? "Create Voucher" : "Edit Voucher"}</h6>
+      <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+        <h6><%= isEdit ? "Chỉnh sửa voucher" : "Thêm voucher mới" %></h6>
+        <a href="voucher" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+        </a>
       </div>
       <div class="card-body">
-        <c:if test="${not empty error}">
-          <div class="alert alert-danger">${error}</div>
-        </c:if>
+        <% if (request.getAttribute("errorMessage") != null) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fas fa-exclamation-circle me-2"></i> <%= request.getAttribute("errorMessage") %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <% } %>
 
         <form method="post" action="${pageContext.request.contextPath}/voucher">
           <c:if test="${voucher.id != null}">

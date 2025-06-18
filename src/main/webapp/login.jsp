@@ -27,9 +27,20 @@
                 <p class="mb-0">Nhập email và mật khẩu để đăng nhập</p>
               </div>
               <div class="card-body">
-                <% if (request.getAttribute("message") != null) { %>
+                <% 
+                  // Lấy thông báo từ request hoặc session
+                  String message = (String) request.getAttribute("message");
+                  if (message == null) {
+                    message = (String) session.getAttribute("message");
+                    if (message != null) {
+                      session.removeAttribute("message");
+                    }
+                  }
+                  
+                  if (message != null) { 
+                %>
                   <div class="alert alert-success" role="alert">
-                    <%= request.getAttribute("message") %>
+                    <%= message %>
                   </div>
                 <% } %>
                 <%

@@ -1,8 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@page import="Models.User"%>
+<%@page import="Models.Voucher"%>
+<%@page import="java.util.List"%>
+<%
+    // Lấy thông tin người dùng đăng nhập từ session
+    User loggedInUser = (User) session.getAttribute("loggedInUser");
+    List<Voucher> vouchers = (List<Voucher>) request.getAttribute("vouchers");
+%>
 <c:set var="uri" value="${pageContext.request.requestURI}" />
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -16,6 +24,22 @@
   <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
   <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
   <link id="pagestyle" href="${pageContext.request.contextPath}/assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+  <style>
+    .user-welcome {
+      text-align: right;
+      margin-left: auto;
+    }
+    .user-welcome .user-name {
+      font-weight: 600;
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 0;
+    }
+    .user-welcome .user-email {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.875rem;
+    }
+  </style>
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
@@ -109,6 +133,14 @@
           </ol>
           <h6 class="font-weight-bolder text-white mb-0">Manage Vouchers</h6>
         </nav>
+        
+        <!-- User Welcome Section -->
+        <% if (loggedInUser != null) { %>
+        <div class="user-welcome">
+          <p class="user-name">Xin chào, <%= loggedInUser.getFullName() %></p>
+          <p class="user-email"><%= loggedInUser.getEmail() %></p>
+        </div>
+        <% } %>
       </div>
     </nav>
 

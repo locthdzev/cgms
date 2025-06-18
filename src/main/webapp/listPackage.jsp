@@ -5,7 +5,7 @@
     List<Package> packageList = (List<Package>) request.getAttribute("packageList");
 %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
     <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
@@ -60,24 +60,13 @@
 <%@ include file="sidebar.jsp" %>
 
         <main class="main-content position-relative border-radius-lg">
-            <!-- Navbar -->
-    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur"
-         data-scroll="false">
-                <div class="container-fluid py-1 px-3">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-                    <li class="breadcrumb-item text-sm">
-                        <a class="opacity-5 text-white" href="javascript:;">Pages</a>
-                    </li>
-                    <li class="breadcrumb-item text-sm text-white active" aria-current="page">
-                        Gói tập Gym
-                    </li>
-                        </ol>
-                <h6 class="font-weight-bolder text-white mb-0">Gói tập Gym</h6>
-                    </nav>
-                </div>
-            </nav>
-            <!-- End Navbar -->
+            <!-- Include Navbar Component with parameters -->
+            <jsp:include page="navbar.jsp">
+                <jsp:param name="pageTitle" value="Gói tập Gym" />
+                <jsp:param name="parentPage" value="Dashboard" />
+                <jsp:param name="parentPageUrl" value="dashboard.jsp" />
+                <jsp:param name="currentPage" value="Gói tập Gym" />
+            </jsp:include>
             
             <div class="container-fluid py-4">
         <div class="row mb-4">
