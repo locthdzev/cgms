@@ -2,7 +2,7 @@
 <%@ page import="Models.Package" %>
 <%@ page import="java.util.List" %>
 <%
-    List<Package> packageList = (List<Package>) request.getAttribute("packageList");
+    List<Package> packageList = (List<Package>) request.getAttribute("packages");
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -88,13 +88,13 @@
                                                     <% } else { %>
                     <span class="badge bg-gradient-secondary status-badge">Không hoạt động</span>
                                                     <% } %>
-                    <img src="<%= pkg.getImage() != null && !pkg.getImage().isEmpty() ? pkg.getImage() : "https://via.placeholder.com/300x200?text=No+Image" %>"
+                    <img src="assets/svg/rain-7750488.svg"
                          class="card-img-top package-image" alt="<%= pkg.getName() %>">
                     <div class="card-body">
                         <h5 class="card-title"><%= pkg.getName() %></h5>
                         <p class="card-text text-sm mb-2"><%= pkg.getDescription() %></p>
                         <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="text-dark font-weight-bold"><%= String.format("%,d", pkg.getPrice()) %> VNĐ</span>
+                            <span class="text-dark font-weight-bold"><%= String.format("%,.0f", pkg.getPrice()) %> VNĐ</span>
                             <span class="badge bg-gradient-info"><%= pkg.getDuration() %> tháng</span>
                         </div>
                     </div>

@@ -76,46 +76,50 @@
                             <table class="table align-items-center mb-0">
                                 <thead>
                                 <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Email</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tên đăng nhập</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Họ tên</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Số điện thoại</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vai trò</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thao tác</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">ID</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Email</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tên đăng nhập</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Họ tên</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Số điện thoại</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Vai trò</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Trạng thái</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Thao tác</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <% for (User u : userList) { %>
                                     <tr>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getId() %></h6></td>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getEmail() %></h6></td>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getUserName() %></h6></td>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getFullName() %></h6></td>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getPhoneNumber() %></h6></td>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getRole() %></h6></td>
-                                        <td>
+                                        <td class="text-center"><h6 class="mb-0 text-sm"><%= u.getId() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getEmail() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getUserName() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getFullName() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getPhoneNumber() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getRole() %></h6></td>
+                                        <td class="ps-2">
                                             <% if ("Active".equals(u.getStatus())) { %>
                                                 <span class="badge badge-sm bg-gradient-success">Hoạt động</span>
                                             <% } else { %>
                                                 <span class="badge badge-sm bg-gradient-secondary">Không hoạt động</span>
                                             <% } %>
                                         </td>
-                                        <td>
-                                            <a href="#" class="btn btn-info btn-sm" title="Xem chi tiết">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="editUser?id=<%= u.getId() %>" class="btn btn-warning btn-sm" title="Chỉnh sửa">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-primary btn-sm update-status-btn" 
-                                                data-id="<%= u.getId() %>" 
-                                                data-name="<%= u.getFullName() %>" 
-                                                data-status="<%= u.getStatus() %>" 
-                                                title="Cập nhật trạng thái">
-                                                <i class="fas fa-rotate"></i>
-                                            </button>
+                                        <td class="text-center">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-icon-only text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i>Xem chi tiết</a></li>
+                                                    <li><a class="dropdown-item" href="editUser?id=<%= u.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
+                                                    <li>
+                                                        <a class="dropdown-item update-status-btn" href="#" 
+                                                            data-id="<%= u.getId() %>" 
+                                                            data-name="<%= u.getFullName() %>" 
+                                                            data-status="<%= u.getStatus() %>">
+                                                            <i class="fas fa-rotate me-2"></i>Cập nhật trạng thái
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 <% } %>

@@ -14,6 +14,13 @@ import java.time.Instant;
 public class UpdatePackageStatusServlet extends HttpServlet {
 
     @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Chuyển hướng từ GET sang POST để xử lý
+        doPost(request, response);
+    }
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
