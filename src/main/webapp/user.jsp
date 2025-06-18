@@ -23,44 +23,10 @@
 </head>
 <body class="g-sidenav-show bg-gray-100">
 <div class="min-height-300 bg-dark position-absolute w-100"></div>
-<aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4" id="sidenav-main">
-    <div class="sidenav-header">
-        <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-        <a class="navbar-brand m-0" href="dashboard.jsp">
-            <img src="./assets/img/weightlifting.png" width="26px" height="26px" class="navbar-brand-img h-100" alt="main_logo" />
-            <span class="ms-1 font-weight-bold">CGMS</span>
-        </a>
-    </div>
-    <hr class="horizontal dark mt-0" />
-    <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="dashboard.jsp">
-                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="listPackage">
-                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Gói tập Gym</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="user">
-                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Quản lý người dùng</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-</aside>
+
+<!-- Include Sidebar Component -->
+<%@ include file="sidebar.jsp" %>
+
 <main class="main-content position-relative border-radius-lg">
     <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" data-scroll="false">
         <div class="container-fluid py-1 px-3">
@@ -127,9 +93,13 @@
                                             <a href="editUser?id=<%= u.getId() %>" class="btn btn-warning btn-sm" title="Chỉnh sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="javascript:void(0)" onclick="openUpdateStatusModal(<%= u.getId() %>, '<%= u.getFullName() %>', '<%= u.getStatus() %>')" class="btn btn-primary btn-sm" title="Cập nhật trạng thái">
+                                            <button type="button" class="btn btn-primary btn-sm update-status-btn" 
+                                                data-id="<%= u.getId() %>" 
+                                                data-name="<%= u.getFullName() %>" 
+                                                data-status="<%= u.getStatus() %>" 
+                                                title="Cập nhật trạng thái">
                                                 <i class="fas fa-rotate"></i>
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                 <% } %>
@@ -228,38 +198,44 @@
                                 <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật trạng thái người dùng</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form id="updateStatusForm" action="updateUserStatus" method="post">
-                                <div class="modal-body">
+                            <div class="modal-body">
+                                <p>Bạn có chắc chắn muốn thay đổi trạng thái của người dùng <span id="userName"></span>?</p>
+                                <form id="updateStatusForm" action="updateUserStatus" method="post">
                                     <input type="hidden" id="userId" name="id" value="">
-                                    <input type="hidden" name="action" value="status">
                                     <div class="mb-3">
-                                        <label class="form-label">Họ tên:</label>
-                                        <p id="userName" class="form-control-static fw-bold"></p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="statusSelect" class="form-label">Trạng thái mới:</label>
-                                        <select class="form-control" id="statusSelect" name="status" required>
+                                        <label class="form-label">Trạng thái mới</label>
+                                        <select name="status" id="userStatus" class="form-control">
                                             <option value="Active">Hoạt động</option>
                                             <option value="Inactive">Không hoạt động</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                    <button type="submit" class="btn btn-primary">Cập nhật</button>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-primary" onclick="document.getElementById('updateStatusForm').submit();">Xác nhận</button>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <script>
-                    function openUpdateStatusModal(id, name, status) {
-                        document.getElementById('userId').value = id;
-                        document.getElementById('userName').textContent = name;
-                        document.getElementById('statusSelect').value = status;
-                        var myModal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
-                        myModal.show();
-                    }
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Thêm sự kiện click cho các nút cập nhật trạng thái
+                        document.querySelectorAll('.update-status-btn').forEach(function(button) {
+                            button.addEventListener('click', function() {
+                                const id = this.getAttribute('data-id');
+                                const name = this.getAttribute('data-name');
+                                const status = this.getAttribute('data-status');
+                                
+                                document.getElementById('userId').value = id;
+                                document.getElementById('userName').textContent = name;
+                                document.getElementById('userStatus').value = status === 'Active' ? 'Inactive' : 'Active';
+                                
+                                var myModal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+                                myModal.show();
+                            });
+                        });
+                    });
                 </script>
                 <script src="assets/js/core/popper.min.js" type="text/javascript"></script>
                 <script src="assets/js/core/bootstrap.min.js" type="text/javascript"></script>
