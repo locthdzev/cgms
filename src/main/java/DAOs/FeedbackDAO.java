@@ -46,27 +46,5 @@ public class FeedbackDAO {
             return false;
         }
     }
-    public Feedback getFeedbackById(int id) {
-    String query = "SELECT * FROM Feedbacks WHERE FeedbackId = ?";
-    try (Connection con = DbConnection.getConnection(); PreparedStatement ps = con.prepareStatement(query)) {
-        ps.setInt(1, id);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            Feedback fb = new Feedback();
-            fb.setId(rs.getInt("FeedbackId"));
-            fb.setGuestEmail(rs.getString("GuestEmail"));
-            fb.setContent(rs.getString("Content"));
-            fb.setResponse(rs.getString("Response"));
-            fb.setCreatedAt(rs.getTimestamp("CreatedAt").toInstant());
-            fb.setRespondedAt(rs.getTimestamp("RespondedAt") != null ? rs.getTimestamp("RespondedAt").toInstant() : null);
-            fb.setStatus(rs.getString("Status"));
-            return fb;
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return null;
-}
-
 
 }
