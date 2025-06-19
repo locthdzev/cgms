@@ -14,9 +14,8 @@ public class FeedbackService {
     private FeedbackDAO feedbackDAO = new FeedbackDAO();
 
     public List<Feedback> getAllFeedbacks() {
-    return feedbackDAO.getAllFeedbacks();
-}
-
+        return feedbackDAO.getAllFeedbacks();
+    }
 
     public boolean deleteFeedback(int feedbackId) {
         return feedbackDAO.deleteFeedbackById(feedbackId);

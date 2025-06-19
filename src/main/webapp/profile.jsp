@@ -177,7 +177,7 @@
             <div class="col-auto">
               <div class="avatar avatar-xl position-relative">
                 <img
-                  src="./assets/img/team-1.jpg"
+                  src="./assets/svg/user-37448.svg"
                   alt="profile_image"
                   class="w-100 border-radius-lg shadow-sm"
                 />
@@ -196,30 +196,30 @@
             >
               <div class="nav-wrapper position-relative end-0">
                 <ul class="nav nav-pills nav-fill p-1" role="tablist">
-                  <li class="nav-item">
-                    <a
-                      class="nav-link mb-0 px-0 py-1 active d-flex align-items-center justify-content-center"
-                      data-bs-toggle="tab"
-                      href="javascript:;"
-                      role="tab"
-                      aria-selected="true"
-                    >
-                      <i class="ni ni-app"></i>
-                      <span class="ms-2">App</span>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      class="nav-link mb-0 px-0 py-1 d-flex align-items-center justify-content-center"
-                      data-bs-toggle="tab"
-                      href="javascript:;"
-                      role="tab"
-                      aria-selected="false"
-                    >
-                      <i class="ni ni-email-83"></i>
-                      <span class="ms-2">Messages</span>
-                    </a>
-                  </li>
+<%--                  <li class="nav-item">--%>
+<%--                    <a--%>
+<%--                      class="nav-link mb-0 px-0 py-1 active d-flex align-items-center justify-content-center"--%>
+<%--                      data-bs-toggle="tab"--%>
+<%--                      href="javascript:;"--%>
+<%--                      role="tab"--%>
+<%--                      aria-selected="true"--%>
+<%--                    >--%>
+<%--                      <i class="ni ni-app"></i>--%>
+<%--                      <span class="ms-2">App</span>--%>
+<%--                    </a>--%>
+<%--                  </li>--%>
+<%--                  <li class="nav-item">--%>
+<%--                    <a--%>
+<%--                      class="nav-link mb-0 px-0 py-1 d-flex align-items-center justify-content-center"--%>
+<%--                      data-bs-toggle="tab"--%>
+<%--                      href="javascript:;"--%>
+<%--                      role="tab"--%>
+<%--                      aria-selected="false"--%>
+<%--                    >--%>
+<%--                      <i class="ni ni-email-83"></i>--%>
+<%--                      <span class="ms-2">Messages</span>--%>
+<%--                    </a>--%>
+<%--                  </li>--%>
                   <li class="nav-item">
                     <a
                       class="nav-link mb-0 px-0 py-1 d-flex align-items-center justify-content-center"
@@ -328,32 +328,32 @@
                     </div>
                   </div>
                 </div>
-                <hr class="horizontal dark" />
-                <p class="text-uppercase text-sm">Đổi mật khẩu</p>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label class="form-control-label"
-                        >Mật khẩu hiện tại</label
-                      >
-                      <input class="form-control" type="password" />
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label class="form-control-label">Mật khẩu mới</label>
-                      <input class="form-control" type="password" />
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label class="form-control-label"
-                        >Xác nhận mật khẩu mới</label
-                      >
-                      <input class="form-control" type="password" />
-                    </div>
-                  </div>
-                </div>
+<%--                <hr class="horizontal dark" />--%>
+<%--                <p class="text-uppercase text-sm">Đổi mật khẩu</p>--%>
+<%--                <div class="row">--%>
+<%--                  <div class="col-md-6">--%>
+<%--                    <div class="form-group">--%>
+<%--                      <label class="form-control-label"--%>
+<%--                        >Mật khẩu hiện tại</label--%>
+<%--                      >--%>
+<%--                      <input class="form-control" type="password" />--%>
+<%--                    </div>--%>
+<%--                  </div>--%>
+<%--                  <div class="col-md-6">--%>
+<%--                    <div class="form-group">--%>
+<%--                      <label class="form-control-label">Mật khẩu mới</label>--%>
+<%--                      <input class="form-control" type="password" />--%>
+<%--                    </div>--%>
+<%--                  </div>--%>
+<%--                  <div class="col-md-6">--%>
+<%--                    <div class="form-group">--%>
+<%--                      <label class="form-control-label"--%>
+<%--                        >Xác nhận mật khẩu mới</label--%>
+<%--                      >--%>
+<%--                      <input class="form-control" type="password" />--%>
+<%--                    </div>--%>
+<%--                  </div>--%>
+<%--                </div>--%>
               </div>
             </div>
           </div>
@@ -369,7 +369,7 @@
                   <div class="mt-n4 mt-lg-n6 mb-4 mb-lg-0">
                     <a href="javascript:;">
                       <img
-                        src="./assets/img/team-2.jpg"
+                        src="./assets/svg/user-37448.svg"
                         class="rounded-circle img-fluid border border-2 border-white"
                       />
                     </a>
