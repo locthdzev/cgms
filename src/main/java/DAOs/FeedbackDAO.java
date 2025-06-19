@@ -24,8 +24,9 @@ public class FeedbackDAO {
                 fb.setGuestEmail(rs.getString("GuestEmail"));
                 fb.setContent(rs.getString("Content"));
                 fb.setResponse(rs.getString("Response"));
-                fb.setCreatedAt(rs.getTimestamp("CreatedAt").toInstant());
-                fb.setRespondedAt(rs.getTimestamp("RespondedAt") != null ? rs.getTimestamp("RespondedAt").toInstant() : null);
+                fb.setCreatedAt(rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toInstant() : null);
+                fb.setRespondedAt(
+                        rs.getTimestamp("RespondedAt") != null ? rs.getTimestamp("RespondedAt").toInstant() : null);
                 fb.setStatus(rs.getString("Status"));
                 list.add(fb);
             }

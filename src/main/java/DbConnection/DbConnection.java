@@ -19,8 +19,14 @@ public class DbConnection {
         if (!INSTANCE_NAME.isEmpty()) {
             url += ";instance=" + INSTANCE_NAME;
         }
-        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-        return DriverManager.getConnection(url, USER_ID, PASSWORD);
+
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection conn = DriverManager.getConnection(url, USER_ID, PASSWORD);
+            return conn;
+        } catch (ClassNotFoundException | SQLException e) {
+            throw e;
+        }
     }
 
     public static void closeConnection(Connection connection) {
@@ -29,7 +35,7 @@ public class DbConnection {
                 connection.close();
             }
         } catch (SQLException e) {
-            System.out.println("Error closing connection: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

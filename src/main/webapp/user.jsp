@@ -320,71 +320,56 @@
                 <div class="modal fade" id="viewUserModal" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
-                            <div class="modal-header bg-gradient-primary">
-                                <h5 class="modal-title text-white" id="viewUserModalLabel">Chi tiết người dùng</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="viewUserModalLabel">Chi tiết người dùng</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body p-0">
-                                <div class="row g-0">
-                                    <div class="col-md-5 d-flex align-items-center justify-content-center p-4" style="background-color: #f8f9fa; border-right: 1px solid #eee;">
-                                        <img src="assets/svg/user-profile.svg" class="img-fluid rounded-3 shadow-sm" id="userDetailImage" alt="User Image" style="max-height: 300px;">
+                            <div class="modal-body">
+                                <!-- Thông tin cơ bản -->
+                                <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                                    <div class="avatar avatar-xl bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-user text-white"></i>
                                     </div>
-                                    <div class="col-md-7 p-4">
-                                        <div class="d-flex justify-content-between align-items-center mb-4">
-                                            <h4 id="userFullName" class="fw-bold mb-0"></h4>
-                                            <span id="viewUserStatus" class="badge"></span>
+                                    <div>
+                                        <h4 id="userFullName" class="fw-bold mb-0"></h4>
+                                        <div class="d-flex align-items-center mt-1">
+                                            <span id="viewUserStatus" class="badge me-2"></span>
+                                            <span id="userRole" class="text-sm"></span>
                                         </div>
-                                        
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card border-0 shadow-sm h-100">
-                                                    <div class="card-body">
-                                                        <h6 class="text-uppercase text-muted small mb-2">Email</h6>
-                                                        <p id="userEmail" class="mb-0 text-dark"></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card border-0 shadow-sm h-100">
-                                                    <div class="card-body">
-                                                        <h6 class="text-uppercase text-muted small mb-2">Tên đăng nhập</h6>
-                                                        <p id="userUsername" class="mb-0 text-dark"></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card border-0 shadow-sm h-100">
-                                                    <div class="card-body">
-                                                        <h6 class="text-uppercase text-muted small mb-2">Số điện thoại</h6>
-                                                        <p id="userPhone" class="mb-0 text-dark"></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card border-0 shadow-sm h-100">
-                                                    <div class="card-body">
-                                                        <h6 class="text-uppercase text-muted small mb-2">Giới tính</h6>
-                                                        <p id="userGender" class="mb-0 text-dark"></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card border-0 shadow-sm h-100">
-                                                    <div class="card-body">
-                                                        <h6 class="text-uppercase text-muted small mb-2">Vai trò</h6>
-                                                        <p id="userRole" class="mb-0 text-dark"></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card border-0 shadow-sm h-100">
-                                                    <div class="card-body">
-                                                        <h6 class="text-uppercase text-muted small mb-2">Địa chỉ</h6>
-                                                        <p id="userAddress" class="mb-0 text-dark"></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Thông tin chi tiết -->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="fw-bold" style="width: 30%;">Email</td>
+                                                    <td id="userEmail"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Tên đăng nhập</td>
+                                                    <td id="userUsername"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Số điện thoại</td>
+                                                    <td id="userPhone"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Giới tính</td>
+                                                    <td id="userGender"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Địa chỉ</td>
+                                                    <td id="userAddress"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Ngày sinh</td>
+                                                    <td id="userDob"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -442,14 +427,16 @@
                                 const gender = this.getAttribute('data-gender');
                                 const role = this.getAttribute('data-role');
                                 const status = this.getAttribute('data-status');
+                                const dob = this.getAttribute('data-dob');
                                 
                                 document.getElementById('userFullName').textContent = fullName;
-                                document.getElementById('userEmail').textContent = email;
-                                document.getElementById('userUsername').textContent = username;
+                                document.getElementById('userEmail').textContent = email || 'Không có';
+                                document.getElementById('userUsername').textContent = username || 'Không có';
                                 document.getElementById('userPhone').textContent = phone || 'Không có';
                                 document.getElementById('userAddress').textContent = address || 'Không có';
                                 document.getElementById('userGender').textContent = gender || 'Không có';
-                                document.getElementById('userRole').textContent = role;
+                                document.getElementById('userRole').textContent = role || 'Không có';
+                                document.getElementById('userDob').textContent = dob || 'Không có';
                                 
                                 // Cập nhật trạng thái với badge
                                 const statusBadge = document.getElementById('viewUserStatus');

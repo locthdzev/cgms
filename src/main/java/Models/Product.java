@@ -25,6 +25,10 @@ public class Product {
     @Column(name = "Price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Nationalized
+    @Column(name = "ImageUrl")
+    private String imageUrl;
+
     @Column(name = "CreatedAt", nullable = false)
     private Instant createdAt;
 
@@ -65,6 +69,14 @@ public class Product {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Instant getCreatedAt() {
