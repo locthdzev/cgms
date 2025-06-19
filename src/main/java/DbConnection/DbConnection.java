@@ -3,14 +3,41 @@ package DbConnection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class DbConnection {
-    private static final String SERVER_NAME = "sql.truongvu.id.vn";
-    private static final String DB_NAME = "CGMS";
-    private static final String PORT_NUMBER = "58833";
-    private static final String INSTANCE_NAME = "";
-    private static final String USER_ID = "admin";
-    private static final String PASSWORD = "FMCSystem@1234";
+    private static String SERVER_NAME;
+    private static String DB_NAME;
+    private static String PORT_NUMBER;
+    private static String INSTANCE_NAME;
+    private static String USER_ID;
+    private static String PASSWORD;
+
+    static {
+        loadDatabaseProperties();
+    }
+
+    private static void loadDatabaseProperties() {
+        Properties props = new Properties();
+        try (InputStream input = DbConnection.class.getClassLoader().getResourceAsStream("database.properties")) {
+            if (input == null) {
+                System.out.println("Sorry, unable to find database.properties");
+                return;
+            }
+            props.load(input);
+
+            SERVER_NAME = props.getProperty("db.server");
+            DB_NAME = props.getProperty("db.name");
+            PORT_NUMBER = props.getProperty("db.port");
+            INSTANCE_NAME = props.getProperty("db.instance", "");
+            USER_ID = props.getProperty("db.user");
+            PASSWORD = props.getProperty("db.password");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 
     public static Connection getConnection() throws ClassNotFoundException, SQLException {
         String url = "jdbc:sqlserver://" + SERVER_NAME + ":" + PORT_NUMBER
