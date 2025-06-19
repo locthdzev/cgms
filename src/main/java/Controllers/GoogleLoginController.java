@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -25,6 +26,10 @@ public class GoogleLoginController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            // Đảm bảo request sử dụng UTF-8
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+
             // Lấy thông tin từ Google response
             String credential = request.getParameter("credential");
             String g_csrf_token = request.getParameter("g_csrf_token");
@@ -41,7 +46,7 @@ public class GoogleLoginController extends HttpServlet {
             }
 
             // Decode phần payload của JWT
-            String payload = new String(java.util.Base64.getUrlDecoder().decode(parts[1]));
+            String payload = new String(java.util.Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
             JsonNode payloadJson = objectMapper.readTree(payload);
 
             // Kiểm tra client ID trong token có khớp với client ID của ứng dụng không
@@ -70,7 +75,7 @@ public class GoogleLoginController extends HttpServlet {
                     // Tạo người dùng mới
                     user = new User();
                     user.setEmail(email);
-                    user.setFullName(name);
+                    user.setFullName(name); // Tên đã được xử lý UTF-8 ở trên
                     user.setUserName(email); // Sử dụng email làm username
                     user.setGoogleId(googleId);
                     user.setRole("Member");
