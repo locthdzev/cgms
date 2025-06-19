@@ -320,9 +320,9 @@
                 <div class="modal fade" id="viewUserModal" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
-                            <div class="modal-header bg-gradient-primary">
-                                <h5 class="modal-title text-white" id="viewUserModalLabel">Chi tiết người dùng</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="viewUserModalLabel">Chi tiết người dùng</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body p-0">
                                 <div class="row g-0">
