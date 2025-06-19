@@ -47,7 +47,13 @@ public class UserDAO {
             } else {
                 ps.setNull(11, java.sql.Types.DATE);
             }
-            ps.setInt(12, user.getLevel().getId());
+            // LevelId - Handle null level
+            if (user.getLevel() != null) {
+                ps.setInt(12, user.getLevel().getId());
+            } else {
+                // Set default level ID (1) if level is null
+                ps.setInt(12, 1);
+            }
             // CreatedAt
             if (user.getCreatedAt() != null) {
                 ps.setTimestamp(13, java.sql.Timestamp.from(user.getCreatedAt()));

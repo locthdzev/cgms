@@ -1,6 +1,7 @@
 package Controllers;
 
 import Models.User;
+import Models.MemberLevel;
 import Services.UserService;
 import DAOs.UserDAO;
 import Utilities.ConfigUtil;
@@ -74,6 +75,11 @@ public class GoogleLoginController extends HttpServlet {
                     user.setGoogleId(googleId);
                     user.setRole("Member");
                     user.setStatus("Active");
+
+                    // Thiết lập MemberLevel mặc định (Level 1)
+                    MemberLevel defaultLevel = new MemberLevel();
+                    defaultLevel.setId(1); // Giả sử level ID 1 là level mặc định
+                    user.setLevel(defaultLevel);
 
                     // Tạo một mật khẩu ngẫu nhiên (người dùng sẽ không cần dùng nó)
                     String randomPassword = java.util.UUID.randomUUID().toString();

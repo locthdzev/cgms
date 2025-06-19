@@ -68,6 +68,13 @@ public class UserService {
         user.setSalt(salt);
         user.setPassword(hashedPassword);
 
+        // Đảm bảo MemberLevel được thiết lập
+        if (user.getLevel() == null) {
+            Models.MemberLevel defaultLevel = new Models.MemberLevel();
+            defaultLevel.setId(1); // Level mặc định
+            user.setLevel(defaultLevel);
+        }
+
         // Người dùng Google đã được xác thực qua Google OAuth
         user.setCreatedAt(java.time.Instant.now());
         boolean created = userDAO.createUser(user);
