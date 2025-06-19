@@ -3,9 +3,7 @@ package DbConnection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import Utilities.ConfigUtil;
 
 public class DbConnection {
     private static String SERVER_NAME;
@@ -20,23 +18,12 @@ public class DbConnection {
     }
 
     private static void loadDatabaseProperties() {
-        Properties props = new Properties();
-        try (InputStream input = DbConnection.class.getClassLoader().getResourceAsStream("database.properties")) {
-            if (input == null) {
-                System.out.println("Sorry, unable to find database.properties");
-                return;
-            }
-            props.load(input);
-
-            SERVER_NAME = props.getProperty("db.server");
-            DB_NAME = props.getProperty("db.name");
-            PORT_NUMBER = props.getProperty("db.port");
-            INSTANCE_NAME = props.getProperty("db.instance", "");
-            USER_ID = props.getProperty("db.user");
-            PASSWORD = props.getProperty("db.password");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        SERVER_NAME = ConfigUtil.getProperty("db.server");
+        DB_NAME = ConfigUtil.getProperty("db.name");
+        PORT_NUMBER = ConfigUtil.getProperty("db.port");
+        INSTANCE_NAME = ConfigUtil.getProperty("db.instance", "");
+        USER_ID = ConfigUtil.getProperty("db.user");
+        PASSWORD = ConfigUtil.getProperty("db.password");
     }
 
     public static Connection getConnection() throws ClassNotFoundException, SQLException {

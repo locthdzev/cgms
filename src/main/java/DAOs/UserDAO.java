@@ -87,6 +87,70 @@ public class UserDAO {
         return false;
     }
 
+    public User getUserByGoogleId(String googleId) {
+        User user = null;
+        String sql = "SELECT * FROM Users WHERE GoogleId = ?";
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, googleId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                user = new User();
+                user.setId(rs.getInt("UserId"));
+                user.setUserName(rs.getString("UserName"));
+                user.setEmail(rs.getString("Email"));
+                user.setPassword(rs.getString("Password"));
+                user.setSalt(rs.getString("Salt"));
+                user.setGoogleId(rs.getString("GoogleId"));
+                user.setRole(rs.getString("Role"));
+                user.setFullName(rs.getString("FullName"));
+                user.setPhoneNumber(rs.getString("PhoneNumber"));
+                user.setAddress(rs.getString("Address"));
+                user.setGender(rs.getString("Gender"));
+                if (rs.getDate("DOB") != null) {
+                    user.setDob(rs.getDate("DOB").toLocalDate());
+                }
+                user.setStatus(rs.getString("Status"));
+                // Set other fields as needed
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+
+    public User getUserByEmail(String email) {
+        User user = null;
+        String sql = "SELECT * FROM Users WHERE Email = ?";
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                user = new User();
+                user.setId(rs.getInt("UserId"));
+                user.setUserName(rs.getString("UserName"));
+                user.setEmail(rs.getString("Email"));
+                user.setPassword(rs.getString("Password"));
+                user.setSalt(rs.getString("Salt"));
+                user.setGoogleId(rs.getString("GoogleId"));
+                user.setRole(rs.getString("Role"));
+                user.setFullName(rs.getString("FullName"));
+                user.setPhoneNumber(rs.getString("PhoneNumber"));
+                user.setAddress(rs.getString("Address"));
+                user.setGender(rs.getString("Gender"));
+                if (rs.getDate("DOB") != null) {
+                    user.setDob(rs.getDate("DOB").toLocalDate());
+                }
+                user.setStatus(rs.getString("Status"));
+                // Set other fields as needed
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+
     public java.util.List<User> getAllUsers() {
         java.util.List<User> users = new java.util.ArrayList<>();
         String sql = "SELECT * FROM Users";

@@ -35,8 +35,8 @@ nb-configuration.xml
 ### Mac OS ###
 .DS_Store
 
-# Database configuration
-src/main/resources/database.properties
+# Application configuration
+src/main/resources/app.properties
 
 # Logs
 *.log
