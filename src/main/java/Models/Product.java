@@ -2,10 +2,7 @@ package Models;
 
 import org.hibernate.annotations.Nationalized;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -13,6 +10,7 @@ import java.time.Instant;
 @Table(name = "Products")
 public class Product {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ProductId", nullable = false)
     private Integer id;
 

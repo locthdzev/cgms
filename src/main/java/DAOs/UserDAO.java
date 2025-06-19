@@ -86,4 +86,107 @@ public class UserDAO {
         }
         return false;
     }
+
+    public java.util.List<User> getAllUsers() {
+        java.util.List<User> users = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM Users";
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("UserId"));
+                user.setEmail(rs.getString("Email"));
+                user.setUserName(rs.getString("UserName"));
+                user.setFullName(rs.getString("FullName"));
+                user.setPhoneNumber(rs.getString("PhoneNumber"));
+                user.setAddress(rs.getString("Address"));
+                user.setGender(rs.getString("Gender"));
+                user.setDob(rs.getDate("DOB") != null ? rs.getDate("DOB").toLocalDate() : null);
+                user.setRole(rs.getString("Role"));
+                user.setStatus(rs.getString("Status"));
+                user.setCreatedAt(
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toInstant() : null);
+                user.setUpdatedAt(
+                        rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toInstant() : null);
+                // ... set các trường khác nếu cần ...
+                users.add(user);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public User getUserById(int id) {
+        String sql = "SELECT * FROM Users WHERE UserId = ?";
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("UserId"));
+                user.setEmail(rs.getString("Email"));
+                user.setUserName(rs.getString("UserName"));
+                user.setFullName(rs.getString("FullName"));
+                user.setPhoneNumber(rs.getString("PhoneNumber"));
+                user.setAddress(rs.getString("Address"));
+                user.setGender(rs.getString("Gender"));
+                user.setDob(rs.getDate("DOB") != null ? rs.getDate("DOB").toLocalDate() : null);
+                user.setRole(rs.getString("Role"));
+                user.setStatus(rs.getString("Status"));
+                user.setCreatedAt(
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toInstant() : null);
+                user.setUpdatedAt(
+                        rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toInstant() : null);
+                // ... set các trường khác nếu cần ...
+                return user;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean updateUser(User user) {
+        String sql = "UPDATE Users SET Email=?, UserName=?, FullName=?, PhoneNumber=?, Address=?, Gender=?, DOB=?, Role=?, Status=?, UpdatedAt=? WHERE UserId=?";
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, user.getEmail());
+            ps.setString(2, user.getUserName());
+            ps.setString(3, user.getFullName());
+            ps.setString(4, user.getPhoneNumber());
+            ps.setString(5, user.getAddress());
+            ps.setString(6, user.getGender());
+            if (user.getDob() != null) {
+                ps.setDate(7, java.sql.Date.valueOf(user.getDob()));
+            } else {
+                ps.setNull(7, java.sql.Types.DATE);
+            }
+            ps.setString(8, user.getRole());
+            ps.setString(9, user.getStatus());
+            ps.setTimestamp(10, user.getUpdatedAt() != null ? java.sql.Timestamp.from(user.getUpdatedAt())
+                    : new java.sql.Timestamp(System.currentTimeMillis()));
+            ps.setInt(11, user.getId());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updateUserStatus(int userId, String status) {
+        String sql = "UPDATE Users SET Status = ?, UpdatedAt = ? WHERE UserId = ?";
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
+            ps.setInt(3, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

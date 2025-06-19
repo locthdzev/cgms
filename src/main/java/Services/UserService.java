@@ -60,4 +60,31 @@ public class UserService {
         }
         return "fail";
     }
+
+    public java.util.List<User> getAllUsers() {
+        return userDAO.getAllUsers();
+    }
+
+    public User getUserById(int id) {
+        return userDAO.getUserById(id);
+    }
+
+    public boolean updateUser(User user) {
+        user.setUpdatedAt(java.time.Instant.now());
+        return userDAO.updateUser(user);
+    }
+
+    public boolean updateUserStatus(int userId, String status) {
+        return userDAO.updateUserStatus(userId, status);
+    }
+
+    public boolean createUser(User user, String rawPassword) {
+        // Tạo salt và hash password
+        String salt = java.util.UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16);
+        String hashedPassword = hashPassword(rawPassword, salt);
+        user.setSalt(salt);
+        user.setPassword(hashedPassword);
+        user.setCreatedAt(java.time.Instant.now());
+        return userDAO.createUser(user);
+    }
 }

@@ -8,22 +8,32 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.time.Instant;
 
 @WebServlet(name = "UpdatePackageStatusServlet", urlPatterns = { "/updatePackageStatus" })
 public class UpdatePackageStatusServlet extends HttpServlet {
 
     @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Chuyển hướng từ GET sang POST để xử lý
+        doPost(request, response);
+    }
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+        HttpSession session = request.getSession();
 
         try {
             String idStr = request.getParameter("id");
             String status = request.getParameter("status");
 
             if (idStr == null || idStr.trim().isEmpty() || status == null || status.trim().isEmpty()) {
-                response.sendRedirect("listPackage?error=Dữ+liệu+không+hợp+lệ");
+                session.setAttribute("errorMessage", "Dữ liệu không hợp lệ");
+                response.sendRedirect("listPackage");
                 return;
             }
 
@@ -32,7 +42,8 @@ public class UpdatePackageStatusServlet extends HttpServlet {
             Package pkg = packageDAO.getPackageById(id);
 
             if (pkg == null) {
-                response.sendRedirect("listPackage?error=Không+tìm+thấy+gói+tập");
+                session.setAttribute("errorMessage", "Không tìm thấy gói tập");
+                response.sendRedirect("listPackage");
                 return;
             }
 
@@ -43,16 +54,19 @@ public class UpdatePackageStatusServlet extends HttpServlet {
             boolean success = packageDAO.updatePackage(pkg);
 
             if (success) {
-                response.sendRedirect("listPackage?message=status_update_success");
+                session.setAttribute("successMessage", "Cập nhật trạng thái gói tập thành công");
             } else {
-                response.sendRedirect("listPackage?error=Cập+nhật+trạng+thái+thất+bại");
+                session.setAttribute("errorMessage", "Cập nhật trạng thái thất bại");
             }
+            response.sendRedirect("listPackage");
 
         } catch (NumberFormatException e) {
-            response.sendRedirect("listPackage?error=ID+gói+tập+không+hợp+lệ");
+            session.setAttribute("errorMessage", "ID gói tập không hợp lệ");
+            response.sendRedirect("listPackage");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("listPackage?error=" + e.getMessage());
+            session.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            response.sendRedirect("listPackage");
         }
     }
 }

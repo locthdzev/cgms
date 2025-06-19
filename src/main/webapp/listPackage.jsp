@@ -1,337 +1,458 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List"%>
-<%@page import="Models.Package"%>
-<%@page import="DAOs.PackageDAO"%>
-<%@page import="java.text.NumberFormat"%>
-<%@page import="java.util.Locale"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="Models.Package" %>
+<%@ page import="java.util.List" %>
+<%
+    List<Package> packageList = (List<Package>) request.getAttribute("packages");
+    
+    // Lấy thông báo từ request hoặc session
+    String successMessage = (String) request.getAttribute("successMessage");
+    if (successMessage == null) {
+        successMessage = (String) session.getAttribute("successMessage");
+        if (successMessage != null) {
+            session.removeAttribute("successMessage");
+        }
+    }
+    
+    String errorMessage = (String) request.getAttribute("errorMessage");
+    if (errorMessage == null) {
+        errorMessage = (String) session.getAttribute("errorMessage");
+        if (errorMessage != null) {
+            session.removeAttribute("errorMessage");
+        }
+    }
+    
+    boolean hasSuccessMessage = successMessage != null;
+    boolean hasErrorMessage = errorMessage != null;
+%>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
     <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
-        <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
-        <title>Danh sách gói tập - CoreFit Gym</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png"/>
+    <link rel="icon" type="image/png" href="assets/img/weightlifting.png"/>
+    <title>CoreFit Gym Management System</title>
         <!-- Fonts and icons -->
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet"/>
         <!-- Nucleo Icons -->
-        <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
-        <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet"/>
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet"/>
         <!-- Font Awesome Icons -->
-        <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
         <!-- CSS Files -->
-        <link id="pagestyle" href="./assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <link id="pagestyle" href="./assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet"/>
+    <style>
+        .package-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .package-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .package-card .card-footer {
+            margin-top: auto;
+        }
+
+        .package-image {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 2;
+        }
+        
+        .package-actions {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 2;
+        }
+        
+        /* Toast styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .toast {
+            min-width: 300px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #344767;
+        }
+        
+        .package-detail-img {
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+    </style>
     </head>
+
     <body class="g-sidenav-show bg-gray-100">
         <div class="min-height-300 bg-dark position-absolute w-100"></div>
         
-        <!-- Sidebar -->
-        <aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4" id="sidenav-main">
-            <div class="sidenav-header">
-                <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-                <a class="navbar-brand m-0" href="dashboard.jsp">
-                    <img src="./assets/img/weightlifting.png" width="26px" height="26px" class="navbar-brand-img h-100" alt="main_logo" />
-                    <span class="ms-1 font-weight-bold">CGMS</span>
-                </a>
-            </div>
-            <hr class="horizontal dark mt-0" />
-            <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.jsp">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="listPackage">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Gói tập Gym</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/tables.html">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Tables</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/billing.html">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-credit-card text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Billing</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/virtual-reality.html">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-app text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Virtual Reality</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/rtl.html">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-world-2 text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">RTL</span>
-                        </a>
-                    </li>
-                    <li class="nav-item mt-3">
-                        <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">
-                            Account pages
-                        </h6>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/profile.html">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Profile</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </aside>
-        
-        <!-- Main content -->
-        <main class="main-content position-relative border-radius-lg">
-            <!-- Navbar -->
-            <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" data-scroll="false">
-                <div class="container-fluid py-1 px-3">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-                            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="dashboard.jsp">Dashboard</a></li>
-                            <li class="breadcrumb-item text-sm text-white active" aria-current="page">Danh sách gói tập</li>
-                        </ol>
-                        <h6 class="font-weight-bolder text-white mb-0">Danh sách gói tập</h6>
-                    </nav>
+        <!-- Toast Container -->
+        <div class="toast-container">
+            <% if (hasSuccessMessage) { %>
+            <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-check-circle me-2"></i> <%= successMessage %>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
-            </nav>
-            <!-- End Navbar -->
+            </div>
+            <% } %>
+            <% if (hasErrorMessage) { %>
+            <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" id="errorToast">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-exclamation-circle me-2"></i> <%= errorMessage %>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+            <% } %>
+        </div>
+        
+<!-- Include Sidebar Component -->
+<%@ include file="sidebar.jsp" %>
+
+        <main class="main-content position-relative border-radius-lg">
+            <!-- Include Navbar Component with parameters -->
+            <jsp:include page="navbar.jsp">
+                <jsp:param name="pageTitle" value="Gói tập Gym" />
+                <jsp:param name="parentPage" value="Dashboard" />
+                <jsp:param name="parentPageUrl" value="dashboard.jsp" />
+                <jsp:param name="currentPage" value="Gói tập Gym" />
+            </jsp:include>
             
-            <!-- Hiển thị thông báo thành công/lỗi -->
             <div class="container-fluid py-4">
-                <% if (request.getParameter("message") != null) { %>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
-                        <% if ("add_success".equals(request.getParameter("message"))) { %>
-                            <i class="fas fa-check-circle me-2"></i> Thêm gói tập mới thành công!
-                        <% } else if ("update_success".equals(request.getParameter("message"))) { %>
-                            <i class="fas fa-check-circle me-2"></i> Cập nhật gói tập thành công!
-                        <% } else if ("status_update_success".equals(request.getParameter("message"))) { %>
-                            <i class="fas fa-check-circle me-2"></i> Cập nhật trạng thái gói tập thành công!
-                        <% } %>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="row mb-4">
+                    <div class="col-12 d-flex justify-content-between align-items-center">
+                        <h4 class="text-white mb-0">Danh sách gói tập</h4>
+                        <div>
+                            <a href="dashboard.jsp" class="btn btn-outline-secondary btn-sm me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Quay lại
+                            </a>
+                            <a href="addPackage" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus me-2"></i>Thêm gói tập mới
+                            </a>
+                        </div>
                     </div>
-                    
-                    <script>
-                        // Tự động đóng thông báo sau 1 giây
-                        setTimeout(function() {
-                            var alert = document.getElementById('successAlert');
-                            if (alert) {
-                                var bsAlert = new bootstrap.Alert(alert);
-                                bsAlert.close();
-                            }
-                        }, 1000);
-                    </script>
-                <% } %>
-
-                <% if (request.getParameter("error") != null) { %>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-circle me-2"></i> <%= request.getParameter("error") %>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <% } %>
-
+                </div>
+                            
                 <div class="row">
-                    <div class="col-12">
-                        <div class="card mb-4">
-                            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                                <h6>Danh sách gói tập</h6>
-                                <div>
-                                    <a href="dashboard.jsp" class="btn btn-outline-secondary btn-sm me-2">
-                                        <i class="fas fa-arrow-left me-2"></i>Quay lại
-                                    </a>
-                                    <a href="addPackage.jsp" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-plus me-2"></i>Thêm gói tập mới
-                                    </a>
+                    <% if (packageList != null && !packageList.isEmpty()) {
+                        for (Package pkg : packageList) { %>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card package-card">
+                            <% if ("Active".equals(pkg.getStatus())) { %>
+                            <span class="badge bg-gradient-success status-badge">Hoạt động</span>
+                            <% } else { %>
+                            <span class="badge bg-gradient-secondary status-badge">Không hoạt động</span>
+                            <% } %>
+                            
+                            <div class="package-actions">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-icon-only bg-gradient-light text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="editPackage?id=<%= pkg.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
+                                        <li>
+                                            <a class="dropdown-item view-details-btn" href="#" 
+                                               data-id="<%= pkg.getId() %>" 
+                                               data-name="<%= pkg.getName() %>" 
+                                               data-price="<%= String.format("%,.0f", pkg.getPrice()) %>" 
+                                               data-duration="<%= pkg.getDuration() %>" 
+                                               data-sessions="<%= pkg.getSessions() != null ? pkg.getSessions() : "Không giới hạn" %>" 
+                                               data-description="<%= pkg.getDescription() != null ? pkg.getDescription() : "Không có mô tả" %>" 
+                                               data-status="<%= pkg.getStatus() %>"
+                                               data-created="<%= pkg.getCreatedAt() != null ? pkg.getCreatedAt() : "N/A" %>"
+                                               data-updated="<%= pkg.getUpdatedAt() != null ? pkg.getUpdatedAt() : "N/A" %>">
+                                                <i class="fas fa-eye me-2"></i>Xem chi tiết
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item toggle-status-btn" href="#" 
+                                               data-id="<%= pkg.getId() %>" 
+                                               data-name="<%= pkg.getName() %>" 
+                                               data-status="<%= pkg.getStatus() %>">
+                                                <i class="fas fa-<%= "Active".equals(pkg.getStatus()) ? "ban" : "check" %> me-2"></i>
+                                                <%= "Active".equals(pkg.getStatus()) ? "Vô hiệu hóa" : "Kích hoạt" %>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                             
-                            <!-- Thêm form tìm kiếm -->
-                            <div class="card-header pb-0">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <form action="listPackage" method="get" class="d-flex">
-                                            <input type="text" name="search" class="form-control me-2" placeholder="Tìm kiếm theo tên..." 
-                                                   value="<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">
-                                            <button type="submit" class="btn btn-primary btn-sm">Tìm kiếm</button>
-                                        </form>
-                                    </div>
-                                    <div class="col-md-6 text-end">
-                                        <select name="status" class="form-select d-inline-block w-auto" onchange="window.location.href='listPackage?status='+this.value">
-                                            <option value="">Tất cả trạng thái</option>
-                                            <option value="Active" <%= "Active".equals(request.getParameter("status")) ? "selected" : "" %>>Hoạt động</option>
-                                            <option value="Inactive" <%= "Inactive".equals(request.getParameter("status")) ? "selected" : "" %>>Không hoạt động</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="card-body px-0 pt-0 pb-2">
-                                <div class="table-responsive p-0">
-                                    <table class="table align-items-center mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
-                                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tên gói tập</th>
-                                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Giá</th>
-                                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thời gian</th>
-                                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Số buổi tập</th>
-                                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <%
-                                                List<Package> packages = (List<Package>) request.getAttribute("packages");
-                                                if (packages != null) {
-                                                    for(Package pkg : packages) {
-                                            %>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex px-2 py-1">
-                                                        <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm"><%= pkg.getId() %></h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex px-2 py-1">
-                                                        <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm"><%= pkg.getName() %></h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex px-2 py-1">
-                                                        <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm">
-                                                                <% 
-                                                                    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-                                                                    String formattedPrice = currencyFormat.format(pkg.getPrice());
-                                                                %>
-                                                                <%= formattedPrice %>
-                                                            </h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex px-2 py-1">
-                                                        <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm"><%= pkg.getDuration() %> ngày</h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex px-2 py-1">
-                                                        <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm"><%= pkg.getSessions() %></h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <% if ("Active".equals(pkg.getStatus())) { %>
-                                                        <span class="badge badge-sm bg-gradient-success">Hoạt động</span>
-                                                    <% } else { %>
-                                                        <span class="badge badge-sm bg-gradient-secondary">Không hoạt động</span>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <a href="editPackage?id=<%= pkg.getId() %>" class="btn btn-link text-secondary mb-0" title="Chỉnh sửa">
-                                                        <i class="fa fa-edit text-xs">Cập nhật gói</i>
-                                                    </a>
-                                                    <a href="javascript:void(0)" onclick="openUpdateStatusModal(<%= pkg.getId() %>, '<%= pkg.getName() %>', '<%= pkg.getStatus() %>')" class="btn btn-link text-info mb-0" title="Cập nhật trạng thái">
-                                                        <i class="fa fa-refresh text-xs"> Cập nhật trạng thái</i>
-                                                    </a>
-                                                    <a href="#" class="btn btn-link text-danger mb-0" title="Xóa">
-                                                        <i class="fa fa-trash text-xs"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            <% 
-                                                    }
-                                                } 
-                                            %>
-                                        </tbody>
-                                    </table>
+                            <img src="assets/svg/rain-7750488.svg"
+                                 class="card-img-top package-image" alt="<%= pkg.getName() %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= pkg.getName() %></h5>
+                                <p class="card-text text-sm mb-2"><%= pkg.getDescription() %></p>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span class="text-dark font-weight-bold"><%= String.format("%,.0f", pkg.getPrice()) %> VNĐ</span>
+                                    <span class="badge bg-gradient-info"><%= pkg.getDuration() %> tháng</span>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <% }
+                    } else { %>
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body text-center py-5">
+                                <h5>Không có gói tập nào.</h5>
+                                <p>Hãy thêm gói tập mới để bắt đầu.</p>
+                                <a href="addPackage" class="btn btn-primary mt-3">
+                                    <i class="fas fa-plus me-2"></i>Thêm gói tập mới
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
                 </div>
             </div>
         </main>
-        
-        <!-- Modal cập nhật trạng thái gói tập -->
-        <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
+
+        <!-- Modal xác nhận thay đổi trạng thái gói tập -->
+        <div class="modal fade" id="toggleStatusModal" tabindex="-1" aria-labelledby="toggleStatusModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật trạng thái gói tập</h5>
+                        <h5 class="modal-title" id="toggleStatusModalLabel">Xác nhận thay đổi trạng thái</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form id="updateStatusForm" action="updatePackageStatus" method="post">
-                        <div class="modal-body">
-                            <input type="hidden" id="packageId" name="id" value="">
-                            <div class="mb-3">
-                                <label class="form-label">Tên gói tập:</label>
-                                <p id="packageName" class="form-control-static fw-bold"></p>
-                            </div>
-                            <div class="mb-3">
-                                <label for="statusSelect" class="form-label">Trạng thái mới:</label>
-                                <select class="form-control" id="statusSelect" name="status" required>
-                                    <option value="Active">Hoạt động</option>
-                                    <option value="Inactive">Không hoạt động</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                            <button type="submit" class="btn btn-primary">Cập nhật</button>
-                        </div>
-                    </form>
+                    <div class="modal-body">
+                        <p>Bạn có chắc chắn muốn <span id="actionType"></span> gói tập <span id="packageName" class="fw-bold"></span>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <a href="#" id="confirmToggleBtn" class="btn btn-primary">Xác nhận</a>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- JavaScript xử lý modal -->
+        <!-- Modal xem chi tiết gói tập -->
+        <div class="modal fade" id="packageDetailModal" tabindex="-1" aria-labelledby="packageDetailModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="packageDetailModalLabel">Chi tiết gói tập</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-5 mb-3">
+                                <img src="assets/svg/rain-7750488.svg" class="img-fluid package-detail-img" id="packageDetailImage" alt="Package Image">
+                            </div>
+                            <div class="col-md-7">
+                                <h4 id="packageDetailName" class="mb-3"></h4>
+                                <div class="mb-2">
+                                    <span id="packageDetailStatus" class="badge"></span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="detail-label">Giá:</span> 
+                                    <span id="packageDetailPrice" class="ms-2"></span> VNĐ
+                                </div>
+                                <div class="mb-2">
+                                    <span class="detail-label">Thời hạn:</span> 
+                                    <span id="packageDetailDuration" class="ms-2"></span> tháng
+                                </div>
+                                <div class="mb-2">
+                                    <span class="detail-label">Số buổi tập:</span> 
+                                    <span id="packageDetailSessions" class="ms-2"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="detail-label">Mô tả:</span>
+                                    <p id="packageDetailDescription" class="mt-1"></p>
+                                </div>
+                                <div class="mb-2 small text-muted">
+                                    <span class="detail-label">Ngày tạo:</span> 
+                                    <span id="packageDetailCreated" class="ms-2"></span>
+                                </div>
+                                <div class="small text-muted">
+                                    <span class="detail-label">Cập nhật lần cuối:</span> 
+                                    <span id="packageDetailUpdated" class="ms-2"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <a href="#" id="editPackageBtn" class="btn btn-primary">Chỉnh sửa</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--   Core JS Files   -->
+        <script src="./assets/js/core/popper.min.js"></script>
+        <script src="./assets/js/core/bootstrap.min.js"></script>
+        <script src="./assets/js/plugins/perfect-scrollbar.min.js"></script>
+        <script src="./assets/js/plugins/smooth-scrollbar.min.js"></script>
         <script>
-            function openUpdateStatusModal(id, name, status) {
-                document.getElementById('packageId').value = id;
-                document.getElementById('packageName').textContent = name;
-                document.getElementById('statusSelect').value = status;
+            var win = navigator.platform.indexOf('Win') > -1;
+            if (win && document.querySelector('#sidenav-scrollbar')) {
+                var options = {
+                    damping: '0.5'
+                }
+                Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+            }
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                // Hiển thị toast thông báo nếu có
+                if (document.getElementById('successToast')) {
+                    var successToast = new bootstrap.Toast(document.getElementById('successToast'), {
+                        delay: 5000,
+                        animation: true
+                    });
+                    successToast.show();
+                }
                 
-                // Mở modal
-                var myModal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
-                myModal.show();
+                if (document.getElementById('errorToast')) {
+                    var errorToast = new bootstrap.Toast(document.getElementById('errorToast'), {
+                        delay: 5000,
+                        animation: true
+                    });
+                    errorToast.show();
+                }
+                
+                // Xử lý sự kiện click cho các nút thay đổi trạng thái
+                document.querySelectorAll('.toggle-status-btn').forEach(function(button) {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const id = this.getAttribute('data-id');
+                        const name = this.getAttribute('data-name');
+                        const status = this.getAttribute('data-status');
+                        const newStatus = status === 'Active' ? 'Inactive' : 'Active';
+                        const actionText = status === 'Active' ? 'vô hiệu hóa' : 'kích hoạt';
+                        
+                        document.getElementById('packageName').textContent = name;
+                        document.getElementById('actionType').textContent = actionText;
+                        document.getElementById('confirmToggleBtn').href = 'updatePackageStatus?id=' + id + '&status=' + newStatus;
+                        
+                        var toggleModal = new bootstrap.Modal(document.getElementById('toggleStatusModal'));
+                        toggleModal.show();
+                    });
+                });
+                
+                // Xử lý sự kiện click cho nút xem chi tiết
+                document.querySelectorAll('.view-details-btn').forEach(function(button) {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const id = this.getAttribute('data-id');
+                        const name = this.getAttribute('data-name');
+                        const price = this.getAttribute('data-price');
+                        const duration = this.getAttribute('data-duration');
+                        const sessions = this.getAttribute('data-sessions');
+                        const description = this.getAttribute('data-description');
+                        const status = this.getAttribute('data-status');
+                        const created = this.getAttribute('data-created');
+                        const updated = this.getAttribute('data-updated');
+                        
+                        // Cập nhật nội dung modal
+                        document.getElementById('packageDetailName').textContent = name;
+                        document.getElementById('packageDetailPrice').textContent = price;
+                        document.getElementById('packageDetailDuration').textContent = duration;
+                        document.getElementById('packageDetailSessions').textContent = sessions;
+                        document.getElementById('packageDetailDescription').textContent = description;
+                        document.getElementById('packageDetailCreated').textContent = formatDateWithTime(created) || 'N/A';
+                        document.getElementById('packageDetailUpdated').textContent = formatDateWithTime(updated) || 'N/A';
+                        
+                        // Cập nhật trạng thái
+                        const statusBadge = document.getElementById('packageDetailStatus');
+                        if (status === 'Active') {
+                            statusBadge.className = 'badge bg-gradient-success';
+                            statusBadge.textContent = 'Hoạt động';
+                        } else {
+                            statusBadge.className = 'badge bg-gradient-secondary';
+                            statusBadge.textContent = 'Không hoạt động';
+                        }
+                        
+                        // Cập nhật link chỉnh sửa
+                        document.getElementById('editPackageBtn').href = 'editPackage?id=' + id;
+                        
+                        // Hiển thị modal
+                        var detailModal = new bootstrap.Modal(document.getElementById('packageDetailModal'));
+                        detailModal.show();
+                    });
+                });
+            });
+            
+            // Hàm định dạng ngày tháng kèm giờ phút giây
+            function formatDateWithTime(dateStr) {
+                if (!dateStr || dateStr === 'N/A') return 'N/A';
+                try {
+                    // Xử lý định dạng timestamp kiểu ISO
+                    if (dateStr.includes('T') && dateStr.includes('Z')) {
+                        const date = new Date(dateStr);
+                        if (!isNaN(date.getTime())) {
+                            return date.getDate().toString().padStart(2, '0') + '/' + 
+                                (date.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                                date.getFullYear() + ' ' +
+                                date.getHours().toString().padStart(2, '0') + ':' +
+                                date.getMinutes().toString().padStart(2, '0') + ':' +
+                                date.getSeconds().toString().padStart(2, '0');
+                        }
+                    }
+                    
+                    // Xử lý định dạng timestamp khác
+                    if (dateStr.includes('/')) {
+                        const parts = dateStr.split('/');
+                        if (parts.length >= 3) {
+                            // Định dạng như 18T23:13:59.830Z/06/2025
+                            const dayPart = parts[0].split('T');
+                            const day = dayPart[0];
+                            const month = parts[1];
+                            const year = parts[2];
+                            
+                            // Nếu có thông tin giờ
+                            if (dayPart.length > 1) {
+                                const timePart = dayPart[1].split(':');
+                                if (timePart.length >= 3) {
+                                    const hour = timePart[0];
+                                    const minute = timePart[1];
+                                    const second = timePart[2].split('.')[0]; // Loại bỏ mili giây
+                                    return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year + ' ' +
+                                        hour.padStart(2, '0') + ':' + minute.padStart(2, '0') + ':' + second.padStart(2, '0');
+                                }
+                            }
+                            
+                            return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year;
+                        }
+                    }
+                    
+                    // Xử lý định dạng yyyy-MM-dd
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        return parts[2] + '/' + parts[1] + '/' + parts[0];
+                    }
+                    
+                    return dateStr;
+                } catch (e) {
+                    return dateStr;
+                }
             }
         </script>
-        
-        <!-- Core JS Files -->
-        <script src="assets/js/core/popper.min.js" type="text/javascript"></script>
-        <script src="assets/js/core/bootstrap.min.js" type="text/javascript"></script>
-        <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
-        <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
-        <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
     </body>
 </html>
 
