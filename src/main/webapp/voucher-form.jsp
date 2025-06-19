@@ -3,12 +3,13 @@
 <%@page import="Models.User"%>
 <%@page import="Models.Voucher"%>
 <%
-    // Lấy thông tin người dùng đăng nhập từ session
     User loggedInUser = (User) session.getAttribute("loggedInUser");
-    // Lấy thông tin voucher nếu đang chỉnh sửa
+    String action = request.getParameter("action");
+    boolean isEdit = "edit".equalsIgnoreCase(action);
     Voucher voucher = (Voucher) request.getAttribute("voucher");
-    boolean isEdit = voucher != null;
+    String pageTitle = isEdit ? "Chỉnh sửa voucher" : "Thêm voucher mới";
 %>
+
 <c:set var="uri" value="${pageContext.request.requestURI}" />
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -49,18 +50,20 @@
 <!-- Main Content -->
 <main class="main-content position-relative border-radius-lg">
   <!-- Include Navbar Component with parameters -->
-  <jsp:include page="navbar.jsp">
-      <jsp:param name="pageTitle" value="<%= isEdit ? \"Chỉnh sửa voucher\" : \"Thêm voucher mới\" %>" />
-      <jsp:param name="parentPage" value="Quản lý Voucher" />
-      <jsp:param name="parentPageUrl" value="voucher?action=list" />
-      <jsp:param name="currentPage" value="<%= isEdit ? \"Chỉnh sửa voucher\" : \"Thêm voucher mới\" %>" />
-  </jsp:include>
+    <jsp:include page="navbar.jsp">
+        <jsp:param name="pageTitle" value="<%= pageTitle %>" />
+        <jsp:param name="parentPage" value="Quản lý Voucher" />
+        <jsp:param name="parentPageUrl" value="voucher?action=list" />
+        <jsp:param name="currentPage" value="<%= pageTitle %>" />
+    </jsp:include>
 
-  <!-- Form -->
+
+
+    <!-- Form -->
   <div class="container-fluid py-4">
     <div class="card mb-4">
       <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-        <h6><%= isEdit ? "Chỉnh sửa voucher" : "Thêm voucher mới" %></h6>
+          <h6><%= isEdit ? "Chỉnh sửa voucher" : "Thêm voucher mới" %></h6>
         <a href="voucher" class="btn btn-outline-secondary btn-sm">
           <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
         </a>
@@ -77,9 +80,9 @@
           <c:if test="${voucher.id != null}">
             <input type="hidden" name="id" value="${voucher.id}" />
           </c:if>
-          <input type="hidden" name="action" value="${voucher.id != null ? 'update' : 'create'}" />
+            <input type="hidden" name="action" value="<%= isEdit ? "update" : "create" %>" />
 
-          <div class="row">
+            <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label">Mã voucher *</label>
               <input type="text" class="form-control" name="code" value="${voucher.code}" required />
