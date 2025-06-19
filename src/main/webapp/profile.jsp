@@ -1,17 +1,3 @@
-<!--
-=========================================================
-* Argon Dashboard 3 - v2.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard
-* Copyright 2024 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://www.creative-tim.com/license)
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="Models.User"%>
 <%
@@ -22,6 +8,26 @@
     if (profileUser == null) {
         profileUser = loggedInUser;
     }
+    
+    // Lấy thông báo từ request hoặc session
+    String successMessage = (String) request.getAttribute("successMessage");
+    if (successMessage == null) {
+        successMessage = (String) session.getAttribute("successMessage");
+        if (successMessage != null) {
+            session.removeAttribute("successMessage");
+        }
+    }
+    
+    String errorMessage = (String) request.getAttribute("errorMessage");
+    if (errorMessage == null) {
+        errorMessage = (String) session.getAttribute("errorMessage");
+        if (errorMessage != null) {
+            session.removeAttribute("errorMessage");
+        }
+    }
+    
+    boolean hasSuccessMessage = successMessage != null;
+    boolean hasErrorMessage = errorMessage != null;
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -34,10 +40,10 @@
     <link
       rel="apple-touch-icon"
       sizes="76x76"
-      href="./assets/img/apple-icon.png"
+      href="./assets/img/weightlifting.png"
     />
-    <link rel="icon" type="image/png" href="./assets/img/favicon.png" />
-    <title>Argon Dashboard 3 by Creative Tim</title>
+    <link rel="icon" type="image/png" href="./assets/img/weightlifting.png" />
+    <title>Hồ sơ cá nhân - CGMS</title>
     <!--     Fonts and icons     -->
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
@@ -64,247 +70,108 @@
       rel="stylesheet"
     />
     <style>
-        .user-welcome {
-            text-align: right;
-            margin-left: auto;
-        }
-        .user-welcome .user-name {
-            font-weight: 600;
-            color: white;
-            font-size: 1rem;
-            margin-bottom: 0;
-        }
-        .user-welcome .user-email {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.875rem;
-        }
+      .user-welcome {
+        text-align: right;
+        margin-left: auto;
+      }
+      .user-welcome .user-name {
+        font-weight: 600;
+        color: white;
+        font-size: 1rem;
+        margin-bottom: 0;
+      }
+      .user-welcome .user-email {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.875rem;
+      }
+
+      /* Toast styles */
+      .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+      }
+
+      .toast {
+        min-width: 300px;
+      }
+
+      /* Adjust profile card spacing */
+      .card-profile-bottom {
+        margin-top: 10px !important;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Adjust container padding */
+      .container-fluid {
+        padding-top: 1rem !important;
+      }
     </style>
   </head>
 
   <body class="g-sidenav-show bg-gray-100">
-    <%@ include file="sidebar.jsp" %>
-    <div
-      class="position-absolute w-100 min-height-300 top-0"
-      style="
-        background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/profile-layout-header.jpg');
-        background-position-y: 50%;
-      "
-    >
-      <span class="mask bg-primary opacity-6"></span>
-    </div>
-    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
-      <!-- Navbar -->
-      <nav
-        class="navbar navbar-main navbar-expand-lg bg-transparent shadow-none position-absolute px-4 w-100 z-index-2 mt-n11"
+    <div class="min-height-300 bg-dark position-absolute w-100"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container">
+      <% if (hasSuccessMessage) { %>
+      <div
+        class="toast align-items-center text-white bg-success border-0"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        id="successToast"
       >
-        <div class="container-fluid py-1">
-          <nav aria-label="breadcrumb">
-            <ol
-              class="breadcrumb bg-transparent mb-0 pb-0 pt-1 ps-2 me-sm-6 me-5"
-            >
-              <li class="breadcrumb-item text-sm">
-                <a class="text-white opacity-5" href="javascript:;">Pages</a>
-              </li>
-              <li
-                class="breadcrumb-item text-sm text-white active"
-                aria-current="page"
-              >
-                Profile
-              </li>
-            </ol>
-            <h6 class="text-white font-weight-bolder ms-2">Profile</h6>
-          </nav>
-          <div
-            class="collapse navbar-collapse me-md-0 me-sm-4 mt-sm-0 mt-2"
-            id="navbar"
-          >
-            <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-              <div class="input-group">
-                <span class="input-group-text text-body"
-                  ><i class="fas fa-search" aria-hidden="true"></i
-                ></span>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Type here..."
-                />
-              </div>
-            </div>
-            <ul class="navbar-nav justify-content-end">
-              <li class="nav-item d-flex align-items-center">
-                <a
-                  href="javascript:;"
-                  class="nav-link text-white font-weight-bold px-0"
-                >
-                  <i class="fa fa-user me-sm-1"></i>
-                  <span class="d-sm-inline d-none">Sign In</span>
-                </a>
-              </li>
-              <li
-                class="nav-item d-xl-none ps-3 pe-0 d-flex align-items-center"
-              >
-                <a href="javascript:;" class="nav-link text-white p-0">
-                  <a
-                    href="javascript:;"
-                    class="nav-link text-white p-0"
-                    id="iconNavbarSidenav"
-                  >
-                    <div class="sidenav-toggler-inner">
-                      <i class="sidenav-toggler-line bg-white"></i>
-                      <i class="sidenav-toggler-line bg-white"></i>
-                      <i class="sidenav-toggler-line bg-white"></i>
-                    </div>
-                  </a>
-                </a>
-              </li>
-              <li class="nav-item px-3 d-flex align-items-center">
-                <a href="javascript:;" class="nav-link text-white p-0">
-                  <i
-                    class="fa fa-cog fixed-plugin-button-nav cursor-pointer"
-                  ></i>
-                </a>
-              </li>
-              <li class="nav-item dropdown pe-2 d-flex align-items-center">
-                <a
-                  href="javascript:;"
-                  class="nav-link text-white p-0"
-                  id="dropdownMenuButton"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  <i class="fa fa-bell cursor-pointer"></i>
-                </a>
-                <ul
-                  class="dropdown-menu dropdown-menu-end px-2 py-3 ms-n4"
-                  aria-labelledby="dropdownMenuButton"
-                >
-                  <li class="mb-2">
-                    <a
-                      class="dropdown-item border-radius-md"
-                      href="javascript:;"
-                    >
-                      <div class="d-flex py-1">
-                        <div class="my-auto">
-                          <img
-                            src="./assets/img/team-2.jpg"
-                            class="avatar avatar-sm me-3"
-                          />
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="text-sm font-weight-normal mb-1">
-                            <span class="font-weight-bold">New message</span>
-                            from Laur
-                          </h6>
-                          <p class="text-xs text-secondary mb-0">
-                            <i class="fa fa-clock me-1"></i>
-                            13 minutes ago
-                          </p>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li class="mb-2">
-                    <a
-                      class="dropdown-item border-radius-md"
-                      href="javascript:;"
-                    >
-                      <div class="d-flex py-1">
-                        <div class="my-auto">
-                          <img
-                            src="./assets/img/small-logos/logo-spotify.svg"
-                            class="avatar avatar-sm bg-gradient-dark me-3"
-                          />
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="text-sm font-weight-normal mb-1">
-                            <span class="font-weight-bold">New album</span> by
-                            Travis Scott
-                          </h6>
-                          <p class="text-xs text-secondary mb-0">
-                            <i class="fa fa-clock me-1"></i>
-                            1 day
-                          </p>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item border-radius-md"
-                      href="javascript:;"
-                    >
-                      <div class="d-flex py-1">
-                        <div
-                          class="avatar avatar-sm bg-gradient-secondary me-3 my-auto"
-                        >
-                          <svg
-                            width="12px"
-                            height="12px"
-                            viewBox="0 0 43 36"
-                            version="1.1"
-                            xmlns="http://www.w3.org/2000/svg"
-                            xmlns:xlink="http://www.w3.org/1999/xlink"
-                          >
-                            <title>credit-card</title>
-                            <g
-                              stroke="none"
-                              stroke-width="1"
-                              fill="none"
-                              fill-rule="evenodd"
-                            >
-                              <g
-                                transform="translate(-2169.000000, -745.000000)"
-                                fill="#FFFFFF"
-                                fill-rule="nonzero"
-                              >
-                                <g
-                                  transform="translate(1716.000000, 291.000000)"
-                                >
-                                  <g
-                                    transform="translate(453.000000, 454.000000)"
-                                  >
-                                    <path
-                                      class="color-background"
-                                      d="M43,10.7482083 L43,3.58333333 C43,1.60354167 41.3964583,0 39.4166667,0 L3.58333333,0 C1.60354167,0 0,1.60354167 0,3.58333333 L0,10.7482083 L43,10.7482083 Z"
-                                      opacity="0.593633743"
-                                    ></path>
-                                    <path
-                                      class="color-background"
-                                      d="M0,16.125 L0,32.25 C0,34.2297917 1.60354167,35.8333333 3.58333333,35.8333333 L39.4166667,35.8333333 C41.3964583,35.8333333 43,34.2297917 43,32.25 L43,16.125 L0,16.125 Z M19.7083333,26.875 L7.16666667,26.875 L7.16666667,23.2916667 L19.7083333,23.2916667 L19.7083333,26.875 Z M35.8333333,26.875 L28.6666667,26.875 L28.6666667,23.2916667 L35.8333333,23.2916667 L35.8333333,26.875 Z"
-                                    ></path>
-                                  </g>
-                                </g>
-                              </g>
-                            </g>
-                          </svg>
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="text-sm font-weight-normal mb-1">
-                            Payment successfully completed
-                          </h6>
-                          <p class="text-xs text-secondary mb-0">
-                            <i class="fa fa-clock me-1"></i>
-                            2 days
-                          </p>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-check-circle me-2"></i> <%= successMessage %>
           </div>
-          <!-- User Welcome Section -->
-          <% if (loggedInUser != null) { %>
-          <div class="user-welcome">
-              <p class="user-name">Xin chào, <%= loggedInUser.getFullName() %></p>
-              <p class="user-email"><%= loggedInUser.getEmail() %></p>
-          </div>
-          <% } %>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
         </div>
-      </nav>
+      </div>
+      <% } %>
+      <% if (hasErrorMessage) { %>
+      <div
+        class="toast align-items-center text-white bg-danger border-0"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        id="errorToast"
+      >
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-exclamation-circle me-2"></i> <%= errorMessage %>
+          </div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+      <% } %>
+    </div>
+
+    <%@ include file="sidebar.jsp" %>
+    <main
+      class="main-content position-relative max-height-vh-100 h-100 border-radius-lg"
+    >
+      <!-- Navbar -->
+      <jsp:include page="navbar.jsp">
+        <jsp:param name="pageTitle" value="Hồ sơ cá nhân" />
+        <jsp:param name="parentPage" value="Pages" />
+        <jsp:param name="currentPage" value="Profile" />
+      </jsp:include>
       <!-- End Navbar -->
-      <div class="card shadow-lg mx-4 card-profile-bottom">
+      <div class="card shadow-lg mx-4 mt-2 card-profile-bottom">
         <div class="card-body p-3">
           <div class="row gx-4">
             <div class="col-auto">
@@ -318,8 +185,10 @@
             </div>
             <div class="col-auto my-auto">
               <div class="h-100">
-                <h5 class="mb-1">Sayo Kravits</h5>
-                <p class="mb-0 font-weight-bold text-sm">Public Relations</p>
+                <h5 class="mb-1"><%= profileUser.getFullName() %></h5>
+                <p class="mb-0 font-weight-bold text-sm">
+                  <%= profileUser.getRole() %>
+                </p>
               </div>
             </div>
             <div
@@ -375,117 +244,113 @@
             <div class="card">
               <div class="card-header pb-0">
                 <div class="d-flex align-items-center">
-                  <p class="mb-0">Edit Profile</p>
+                  <p class="mb-0">Chỉnh sửa hồ sơ</p>
                   <button class="btn btn-primary btn-sm ms-auto">
-                    Settings
+                    Lưu thay đổi
                   </button>
                 </div>
               </div>
               <div class="card-body">
-                <p class="text-uppercase text-sm">User Information</p>
+                <p class="text-uppercase text-sm">Thông tin người dùng</p>
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label for="example-text-input" class="form-control-label"
-                        >Username</label
-                      >
+                      <label class="form-control-label">Tên đăng nhập</label>
                       <input
                         class="form-control"
                         type="text"
-                        value="lucky.jesse"
+                        value="<%= profileUser.getUserName() %>"
                       />
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label for="example-text-input" class="form-control-label"
-                        >Email address</label
-                      >
+                      <label class="form-control-label">Email</label>
                       <input
                         class="form-control"
                         type="email"
-                        value="jesse@example.com"
+                        value="<%= profileUser.getEmail() %>"
                       />
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label for="example-text-input" class="form-control-label"
-                        >First name</label
-                      >
-                      <input class="form-control" type="text" value="Jesse" />
+                      <label class="form-control-label">Họ tên</label>
+                      <input
+                        class="form-control"
+                        type="text"
+                        value="<%= profileUser.getFullName() %>"
+                      />
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label for="example-text-input" class="form-control-label"
-                        >Last name</label
-                      >
-                      <input class="form-control" type="text" value="Lucky" />
+                      <label class="form-control-label">Số điện thoại</label>
+                      <input 
+                        class="form-control" 
+                        type="text" 
+                        value="<%= profileUser.getPhoneNumber() != null ? profileUser.getPhoneNumber() : "" %>" 
+                      />
                     </div>
                   </div>
                 </div>
                 <hr class="horizontal dark" />
-                <p class="text-uppercase text-sm">Contact Information</p>
+                <p class="text-uppercase text-sm">Thông tin liên hệ</p>
                 <div class="row">
                   <div class="col-md-12">
                     <div class="form-group">
-                      <label for="example-text-input" class="form-control-label"
-                        >Address</label
-                      >
-                      <input
-                        class="form-control"
-                        type="text"
-                        value="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
+                      <label class="form-control-label">Địa chỉ</label>
+                      <input 
+                        class="form-control" 
+                        type="text" 
+                        value="<%= profileUser.getAddress() != null ? profileUser.getAddress() : "" %>" 
                       />
                     </div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <div class="form-group">
-                      <label for="example-text-input" class="form-control-label"
-                        >City</label
-                      >
-                      <input
-                        class="form-control"
-                        type="text"
-                        value="New York"
+                      <label class="form-control-label">Giới tính</label>
+                      <input 
+                        class="form-control" 
+                        type="text" 
+                        value="<%= profileUser.getGender() != null ? profileUser.getGender() : "" %>" 
                       />
                     </div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <div class="form-group">
-                      <label for="example-text-input" class="form-control-label"
-                        >Country</label
-                      >
-                      <input
-                        class="form-control"
-                        type="text"
-                        value="United States"
+                      <label class="form-control-label">Ngày sinh</label>
+                      <input 
+                        class="form-control" 
+                        type="date" 
+                        value="<%= profileUser.getDob() != null ? profileUser.getDob().toString() : "" %>" 
                       />
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label for="example-text-input" class="form-control-label"
-                        >Postal code</label
-                      >
-                      <input class="form-control" type="text" value="437300" />
                     </div>
                   </div>
                 </div>
                 <hr class="horizontal dark" />
-                <p class="text-uppercase text-sm">About me</p>
+                <p class="text-uppercase text-sm">Đổi mật khẩu</p>
                 <div class="row">
-                  <div class="col-md-12">
+                  <div class="col-md-6">
                     <div class="form-group">
-                      <label for="example-text-input" class="form-control-label"
-                        >About me</label
+                      <label class="form-control-label"
+                        >Mật khẩu hiện tại</label
                       >
-                      <input
-                        class="form-control"
-                        type="text"
-                        value="A beautiful Dashboard for Bootstrap 5. It is Free and Open Source."
-                      />
+                      <input class="form-control" type="password" />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-control-label">Mật khẩu mới</label>
+                      <input class="form-control" type="password" />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-control-label"
+                        >Xác nhận mật khẩu mới</label
+                      >
+                      <input class="form-control" type="password" />
                     </div>
                   </div>
                 </div>
@@ -511,63 +376,20 @@
                   </div>
                 </div>
               </div>
-              <div
-                class="card-header text-center border-0 pt-0 pt-lg-2 pb-4 pb-lg-3"
-              >
-                <div class="d-flex justify-content-between">
-                  <a
-                    href="javascript:;"
-                    class="btn btn-sm btn-info mb-0 d-none d-lg-block"
-                    >Connect</a
-                  >
-                  <a
-                    href="javascript:;"
-                    class="btn btn-sm btn-info mb-0 d-block d-lg-none"
-                    ><i class="ni ni-collection"></i
-                  ></a>
-                  <a
-                    href="javascript:;"
-                    class="btn btn-sm btn-dark float-right mb-0 d-none d-lg-block"
-                    >Message</a
-                  >
-                  <a
-                    href="javascript:;"
-                    class="btn btn-sm btn-dark float-right mb-0 d-block d-lg-none"
-                    ><i class="ni ni-email-83"></i
-                  ></a>
-                </div>
-              </div>
               <div class="card-body pt-0">
-                <div class="row">
-                  <div class="col">
-                    <div class="d-flex justify-content-center">
-                      <div class="d-grid text-center">
-                        <span class="text-lg font-weight-bolder">22</span>
-                        <span class="text-sm opacity-8">Friends</span>
-                      </div>
-                      <div class="d-grid text-center mx-4">
-                        <span class="text-lg font-weight-bolder">10</span>
-                        <span class="text-sm opacity-8">Photos</span>
-                      </div>
-                      <div class="d-grid text-center">
-                        <span class="text-lg font-weight-bolder">89</span>
-                        <span class="text-sm opacity-8">Comments</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 <div class="text-center mt-4">
-                  <h5>Mark Davis<span class="font-weight-light">, 35</span></h5>
+                  <h5><%= profileUser.getFullName() %></h5>
                   <div class="h6 font-weight-300">
-                    <i class="ni location_pin mr-2"></i>Bucharest, Romania
+                    <i class="fas fa-map-marker-alt me-2"></i>
+                    <%= profileUser.getAddress() != null ? profileUser.getAddress() : "Chưa cập nhật địa chỉ" %>
                   </div>
                   <div class="h6 mt-4">
-                    <i class="ni business_briefcase-24 mr-2"></i>Solution
-                    Manager - Creative Tim Officer
+                    <i class="fas fa-envelope me-2"></i>
+                    <%= profileUser.getEmail() %>
                   </div>
                   <div>
-                    <i class="ni education_hat mr-2"></i>University of Computer
-                    Science
+                    <i class="fas fa-phone me-2"></i>
+                    <%= profileUser.getPhoneNumber() != null ? profileUser.getPhoneNumber() : "Chưa cập nhật số điện thoại" %>
                   </div>
                 </div>
               </div>
@@ -585,53 +407,8 @@
                   <script>
                     document.write(new Date().getFullYear());
                   </script>
-                  , made with <i class="fa fa-heart"></i> by
-                  <a
-                    href="https://www.creative-tim.com"
-                    class="font-weight-bold"
-                    target="_blank"
-                    >Creative Tim</a
-                  >
-                  for a better web.
+                  , CoreFit Gym Management System
                 </div>
-              </div>
-              <div class="col-lg-6">
-                <ul
-                  class="nav nav-footer justify-content-center justify-content-lg-end"
-                >
-                  <li class="nav-item">
-                    <a
-                      href="https://www.creative-tim.com"
-                      class="nav-link text-muted"
-                      target="_blank"
-                      >Creative Tim</a
-                    >
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      href="https://www.creative-tim.com/presentation"
-                      class="nav-link text-muted"
-                      target="_blank"
-                      >About Us</a
-                    >
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      href="https://www.creative-tim.com/blog"
-                      class="nav-link text-muted"
-                      target="_blank"
-                      >Blog</a
-                    >
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      href="https://www.creative-tim.com/license"
-                      class="nav-link pe-0 text-muted"
-                      target="_blank"
-                      >License</a
-                    >
-                  </li>
-                </ul>
               </div>
             </div>
           </div>
@@ -792,5 +569,32 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="./assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Hiển thị toast thông báo nếu có
+        if (document.getElementById("successToast")) {
+          var successToast = new bootstrap.Toast(
+            document.getElementById("successToast"),
+            {
+              delay: 5000,
+              animation: true,
+            }
+          );
+          successToast.show();
+        }
+
+        if (document.getElementById("errorToast")) {
+          var errorToast = new bootstrap.Toast(
+            document.getElementById("errorToast"),
+            {
+              delay: 5000,
+              animation: true,
+            }
+          );
+          errorToast.show();
+        }
+      });
+    </script>
   </body>
 </html>
