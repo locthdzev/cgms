@@ -1,8 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page import="Models.User"%>
 <%@page import="Models.Voucher"%>
 <%@page import="java.util.List"%>
+<%@page import="java.time.format.DateTimeFormatter"%>
 <%
     // Lấy thông tin người dùng đăng nhập từ session
     User loggedInUser = (User) session.getAttribute("loggedInUser");
@@ -27,6 +29,9 @@
     
     boolean hasSuccessMessage = successMessage != null;
     boolean hasErrorMessage = errorMessage != null;
+    
+    // Định dạng ngày tháng
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 %>
 <c:set var="uri" value="${pageContext.request.requestURI}" />
 <!DOCTYPE html>
@@ -160,7 +165,16 @@
                   <tr>
                     <td class="text-center"><h6 class="mb-0 text-sm">${v.id}</h6></td>
                     <td class="ps-2"><h6 class="mb-0 text-sm">${v.code}</h6></td>
-                    <td class="ps-2"><h6 class="mb-0 text-sm">${v.discountValue}</h6></td>
+                    <td class="ps-2"><h6 class="mb-0 text-sm">
+                      <c:choose>
+                        <c:when test="${v.discountType == 'Percent'}">
+                          <fmt:formatNumber value="${v.discountValue}" pattern="#,##0" />%
+                        </c:when>
+                        <c:otherwise>
+                          <fmt:formatNumber value="${v.discountValue}" pattern="#,##0" /> VNĐ
+                        </c:otherwise>
+                      </c:choose>
+                    </h6></td>
                     <td class="ps-2"><h6 class="mb-0 text-sm">
                       <c:choose>
                         <c:when test="${v.discountType == 'Percent'}">Phần trăm</c:when>
@@ -168,7 +182,7 @@
                         <c:otherwise>${v.discountType}</c:otherwise>
                       </c:choose>
                     </h6></td>
-                    <td class="ps-2"><h6 class="mb-0 text-sm">${v.minPurchase}</h6></td>
+                    <td class="ps-2"><h6 class="mb-0 text-sm"><fmt:formatNumber value="${v.minPurchase}" pattern="#,##0" /> VNĐ</h6></td>
                     <td class="ps-2"><h6 class="mb-0 text-sm">${v.expiryDate}</h6></td>
                     <td class="ps-2">
                       <c:choose>
@@ -327,6 +341,106 @@
         });
       });
       
+      // Hàm định dạng số
+      function formatNumber(num) {
+        if (!num) return '0';
+        // Loại bỏ các số 0 ở cuối sau dấu thập phân
+        return parseFloat(num).toString().replace(/\.0+$/, '');
+      }
+      
+      // Hàm định dạng ngày tháng từ yyyy-MM-dd sang dd/MM/yyyy và xử lý timestamp
+      function formatDate(dateStr) {
+        if (!dateStr) return 'N/A';
+        try {
+          // Xử lý định dạng timestamp kiểu ISO
+          if (dateStr.includes('T') && dateStr.includes('Z')) {
+            const date = new Date(dateStr);
+            if (!isNaN(date.getTime())) {
+              return date.getDate().toString().padStart(2, '0') + '/' + 
+                     (date.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                     date.getFullYear();
+            }
+          }
+          
+          // Xử lý định dạng timestamp khác
+          if (dateStr.includes('/')) {
+            const parts = dateStr.split('/');
+            if (parts.length >= 3) {
+              // Định dạng như 18T23:13:59.830Z/06/2025
+              const day = parts[0].split('T')[0];
+              const month = parts[1];
+              const year = parts[2];
+              return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year;
+            }
+          }
+          
+          // Xử lý định dạng yyyy-MM-dd
+          const parts = dateStr.split('-');
+          if (parts.length === 3) {
+            return parts[2] + '/' + parts[1] + '/' + parts[0];
+          }
+          
+          return dateStr;
+        } catch (e) {
+          return dateStr;
+        }
+      }
+      
+      // Hàm định dạng ngày tháng kèm giờ phút giây
+      function formatDateWithTime(dateStr) {
+        if (!dateStr) return 'N/A';
+        try {
+          // Xử lý định dạng timestamp kiểu ISO
+          if (dateStr.includes('T') && dateStr.includes('Z')) {
+            const date = new Date(dateStr);
+            if (!isNaN(date.getTime())) {
+              return date.getDate().toString().padStart(2, '0') + '/' + 
+                     (date.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                     date.getFullYear() + ' ' +
+                     date.getHours().toString().padStart(2, '0') + ':' +
+                     date.getMinutes().toString().padStart(2, '0') + ':' +
+                     date.getSeconds().toString().padStart(2, '0');
+            }
+          }
+          
+          // Xử lý định dạng timestamp khác
+          if (dateStr.includes('/')) {
+            const parts = dateStr.split('/');
+            if (parts.length >= 3) {
+              // Định dạng như 18T23:13:59.830Z/06/2025
+              const dayPart = parts[0].split('T');
+              const day = dayPart[0];
+              const month = parts[1];
+              const year = parts[2];
+              
+              // Nếu có thông tin giờ
+              if (dayPart.length > 1) {
+                const timePart = dayPart[1].split(':');
+                if (timePart.length >= 3) {
+                  const hour = timePart[0];
+                  const minute = timePart[1];
+                  const second = timePart[2].split('.')[0]; // Loại bỏ mili giây
+                  return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year + ' ' +
+                         hour.padStart(2, '0') + ':' + minute.padStart(2, '0') + ':' + second.padStart(2, '0');
+                }
+              }
+              
+              return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year;
+            }
+          }
+          
+          // Xử lý định dạng yyyy-MM-dd
+          const parts = dateStr.split('-');
+          if (parts.length === 3) {
+            return parts[2] + '/' + parts[1] + '/' + parts[0];
+          }
+          
+          return dateStr;
+        } catch (e) {
+          return dateStr;
+        }
+      }
+      
       // Xử lý sự kiện click nút xem chi tiết voucher
       document.querySelectorAll('.view-voucher-btn').forEach(function(button) {
         button.addEventListener('click', function(e) {
@@ -346,17 +460,17 @@
           
           // Format discount value based on type
           if (type === 'Percent') {
-            document.getElementById('voucherDetailDiscount').textContent = discount + '%';
+            document.getElementById('voucherDetailDiscount').textContent = formatNumber(discount) + '%';
             document.getElementById('voucherDetailType').textContent = 'Phần trăm';
           } else {
-            document.getElementById('voucherDetailDiscount').textContent = new Intl.NumberFormat('vi-VN').format(discount) + ' VNĐ';
+            document.getElementById('voucherDetailDiscount').textContent = new Intl.NumberFormat('vi-VN').format(formatNumber(discount)) + ' VNĐ';
             document.getElementById('voucherDetailType').textContent = 'Số tiền cố định';
           }
           
-          document.getElementById('voucherDetailMinPurchase').textContent = new Intl.NumberFormat('vi-VN').format(minPurchase);
-          document.getElementById('voucherDetailExpiry').textContent = expiry;
-          document.getElementById('voucherDetailCreated').textContent = created || 'N/A';
-          document.getElementById('voucherDetailUpdated').textContent = updated || 'N/A';
+          document.getElementById('voucherDetailMinPurchase').textContent = new Intl.NumberFormat('vi-VN').format(formatNumber(minPurchase));
+          document.getElementById('voucherDetailExpiry').textContent = formatDate(expiry);
+          document.getElementById('voucherDetailCreated').textContent = formatDateWithTime(created) || 'N/A';
+          document.getElementById('voucherDetailUpdated').textContent = formatDateWithTime(updated) || 'N/A';
           
           // Cập nhật trạng thái
           const statusBadge = document.getElementById('voucherDetailStatus');

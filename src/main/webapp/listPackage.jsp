@@ -375,8 +375,8 @@
                         document.getElementById('packageDetailDuration').textContent = duration;
                         document.getElementById('packageDetailSessions').textContent = sessions;
                         document.getElementById('packageDetailDescription').textContent = description;
-                        document.getElementById('packageDetailCreated').textContent = created;
-                        document.getElementById('packageDetailUpdated').textContent = updated;
+                        document.getElementById('packageDetailCreated').textContent = formatDateWithTime(created) || 'N/A';
+                        document.getElementById('packageDetailUpdated').textContent = formatDateWithTime(updated) || 'N/A';
                         
                         // Cập nhật trạng thái
                         const statusBadge = document.getElementById('packageDetailStatus');
@@ -397,6 +397,61 @@
                     });
                 });
             });
+            
+            // Hàm định dạng ngày tháng kèm giờ phút giây
+            function formatDateWithTime(dateStr) {
+                if (!dateStr || dateStr === 'N/A') return 'N/A';
+                try {
+                    // Xử lý định dạng timestamp kiểu ISO
+                    if (dateStr.includes('T') && dateStr.includes('Z')) {
+                        const date = new Date(dateStr);
+                        if (!isNaN(date.getTime())) {
+                            return date.getDate().toString().padStart(2, '0') + '/' + 
+                                (date.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                                date.getFullYear() + ' ' +
+                                date.getHours().toString().padStart(2, '0') + ':' +
+                                date.getMinutes().toString().padStart(2, '0') + ':' +
+                                date.getSeconds().toString().padStart(2, '0');
+                        }
+                    }
+                    
+                    // Xử lý định dạng timestamp khác
+                    if (dateStr.includes('/')) {
+                        const parts = dateStr.split('/');
+                        if (parts.length >= 3) {
+                            // Định dạng như 18T23:13:59.830Z/06/2025
+                            const dayPart = parts[0].split('T');
+                            const day = dayPart[0];
+                            const month = parts[1];
+                            const year = parts[2];
+                            
+                            // Nếu có thông tin giờ
+                            if (dayPart.length > 1) {
+                                const timePart = dayPart[1].split(':');
+                                if (timePart.length >= 3) {
+                                    const hour = timePart[0];
+                                    const minute = timePart[1];
+                                    const second = timePart[2].split('.')[0]; // Loại bỏ mili giây
+                                    return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year + ' ' +
+                                        hour.padStart(2, '0') + ':' + minute.padStart(2, '0') + ':' + second.padStart(2, '0');
+                                }
+                            }
+                            
+                            return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year;
+                        }
+                    }
+                    
+                    // Xử lý định dạng yyyy-MM-dd
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        return parts[2] + '/' + parts[1] + '/' + parts[0];
+                    }
+                    
+                    return dateStr;
+                } catch (e) {
+                    return dateStr;
+                }
+            }
         </script>
     </body>
 </html>
