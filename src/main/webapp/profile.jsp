@@ -12,8 +12,19 @@
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="Models.User"%>
+<%
+    // Lấy thông tin người dùng đăng nhập từ session
+    User loggedInUser = (User) session.getAttribute("loggedInUser");
+    // Lấy thông tin người dùng hiển thị hồ sơ (có thể chính là người đăng nhập)
+    User profileUser = (User) request.getAttribute("user");
+    if (profileUser == null) {
+        profileUser = loggedInUser;
+    }
+%>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -52,6 +63,22 @@
       href="./assets/css/argon-dashboard.css?v=2.1.0"
       rel="stylesheet"
     />
+    <style>
+        .user-welcome {
+            text-align: right;
+            margin-left: auto;
+        }
+        .user-welcome .user-name {
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+        .user-welcome .user-email {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+        }
+    </style>
   </head>
 
   <body class="g-sidenav-show bg-gray-100">
@@ -267,6 +294,13 @@
               </li>
             </ul>
           </div>
+          <!-- User Welcome Section -->
+          <% if (loggedInUser != null) { %>
+          <div class="user-welcome">
+              <p class="user-name">Xin chào, <%= loggedInUser.getFullName() %></p>
+              <p class="user-email"><%= loggedInUser.getEmail() %></p>
+          </div>
+          <% } %>
         </div>
       </nav>
       <!-- End Navbar -->

@@ -1,50 +1,46 @@
 package Models;
 
+import org.hibernate.annotations.Nationalized;
+
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@Entity
+@Table(name = "Products")
 public class Product {
-    private int productId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ProductId", nullable = false)
+    private Integer id;
+
+    @Nationalized
+    @Column(name = "Name", nullable = false, length = 100)
     private String name;
+
+    @Nationalized
+    @Column(name = "Description", length = 500)
     private String description;
+
+    @Column(name = "Price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
+
+    @Column(name = "CreatedAt", nullable = false)
     private Instant createdAt;
+
+    @Column(name = "UpdatedAt")
     private Instant updatedAt;
+
+    @Nationalized
+    @Column(name = "Status", nullable = false, length = 20)
     private String status;
 
-    // Default constructor
-    public Product() {
+    public Integer getId() {
+        return id;
     }
 
-    // Constructor with all fields
-    public Product(int productId, String name, String description, BigDecimal price, 
-                  Instant createdAt, Instant updatedAt, String status) {
-        this.productId = productId;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.status = status;
-    }
-
-    // Constructor without productId (for creating new products)
-    public Product(String name, String description, BigDecimal price, String status) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.status = status;
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-    }
-
-    // Getters and Setters
-    public int getProductId() {
-        return productId;
-    }
-
-    public void setProductId(int productId) {
-        this.productId = productId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -95,16 +91,4 @@ public class Product {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "productId=" + productId +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", price=" + price +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", status='" + status + '\'' +
-                '}';
-    }
 }
