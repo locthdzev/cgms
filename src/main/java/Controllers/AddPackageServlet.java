@@ -13,6 +13,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -65,6 +66,7 @@ public class AddPackageServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
+        HttpSession session = request.getSession();
 
         try {
             // Lấy dữ liệu từ form
@@ -106,7 +108,8 @@ public class AddPackageServlet extends HttpServlet {
             boolean success = packageDAO.addPackage(pkg);
 
             if (success) {
-                // Chuyển hướng đến trang danh sách gói tập
+                // Chuyển hướng đến trang danh sách gói tập với thông báo thành công
+                session.setAttribute("successMessage", "Thêm gói tập \"" + name + "\" thành công!");
                 response.sendRedirect("listPackage");
             } else {
                 request.setAttribute("errorMessage", "Không thể thêm gói tập. Vui lòng thử lại.");

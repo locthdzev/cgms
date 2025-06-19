@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800px" height="600px" viewBox="0 0 800 600" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Voucher Discount</title>
+    <defs>
+        <linearGradient x1="0%" y1="0%" x2="100%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#5E72E4" offset="0%"></stop>
+            <stop stop-color="#825EE4" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="0%" y1="0%" x2="100%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#FF3D71" offset="0%"></stop>
+            <stop stop-color="#FF8B3D" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="0%" y1="0%" x2="100%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#2DCE89" offset="0%"></stop>
+            <stop stop-color="#2DCEBC" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Voucher" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <!-- Background -->
+        <rect id="Background" fill="#F8F9FA" x="0" y="0" width="800" height="600" rx="20"></rect>
+        
+        <!-- Voucher Card -->
+        <g id="VoucherCard" transform="translate(100, 100)">
+            <rect id="Card" fill="url(#linearGradient-1)" x="0" y="0" width="600" height="200" rx="15"></rect>
+            
+            <!-- Dashed Line -->
+            <line id="DashedLine" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="10,10" x1="500" y1="0" x2="500" y2="200"></line>
+            
+            <!-- Circles for tear effect -->
+            <circle id="TopCircle" fill="#F8F9FA" cx="500" cy="-10" r="15"></circle>
+            <circle id="BottomCircle" fill="#F8F9FA" cx="500" cy="210" r="15"></circle>
+            
+            <!-- Left Side Content -->
+            <g id="LeftContent" transform="translate(30, 30)">
+                <text id="VoucherTitle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFFFFF">
+                    <tspan x="0" y="25">DISCOUNT VOUCHER</tspan>
+                </text>
+                <text id="VoucherCode" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">
+                    <tspan x="0" y="80">CODE123</tspan>
+                </text>
+                <text id="VoucherExpiry" font-family="Arial, sans-serif" font-size="14" fill="#FFFFFF" opacity="0.8">
+                    <tspan x="0" y="120">Valid until: 31/12/2023</tspan>
+                </text>
+            </g>
+            
+            <!-- Right Side Content -->
+            <g id="RightContent" transform="translate(530, 80)">
+                <circle id="DiscountCircle" fill="url(#linearGradient-2)" cx="35" cy="35" r="50"></circle>
+                <text id="DiscountAmount" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF" text-anchor="middle">
+                    <tspan x="35" y="35">20%</tspan>
+                    <tspan x="35" y="65" font-size="16">OFF</tspan>
+                </text>
+            </g>
+        </g>
+        
+        <!-- Decorative Elements -->
+        <g id="Decorations">
+            <!-- Top Left Decoration -->
+            <circle id="TopLeftDecoration" fill="url(#linearGradient-2)" opacity="0.3" cx="50" cy="50" r="80"></circle>
+            
+            <!-- Bottom Right Decoration -->
+            <circle id="BottomRightDecoration" fill="url(#linearGradient-3)" opacity="0.3" cx="750" cy="550" r="100"></circle>
+            
+            <!-- Small Decorative Elements -->
+            <circle id="Decoration1" fill="#5E72E4" opacity="0.2" cx="200" cy="500" r="20"></circle>
+            <circle id="Decoration2" fill="#FF3D71" opacity="0.2" cx="600" cy="100" r="15"></circle>
+            <circle id="Decoration3" fill="#2DCE89" opacity="0.2" cx="700" cy="300" r="25"></circle>
+            <circle id="Decoration4" fill="#FB6340" opacity="0.2" cx="100" cy="300" r="10"></circle>
+        </g>
+        
+        <!-- Dollar Signs -->
+        <g id="DollarSigns" fill="#5E72E4" opacity="0.1">
+            <text font-family="Arial, sans-serif" font-size="60" font-weight="bold" x="250" y="450">$</text>
+            <text font-family="Arial, sans-serif" font-size="40" font-weight="bold" x="450" y="380">$</text>
+            <text font-family="Arial, sans-serif" font-size="80" font-weight="bold" x="600" y="480">$</text>
+        </g>
+    </g>
+</svg> 
