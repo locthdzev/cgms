@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#003049" rx="20" ry="20"/>
+  
+  <!-- Heartbeat Line -->
+  <path d="M100,300 L200,300 L250,200 L300,400 L350,200 L400,400 L450,200 L500,400 L550,200 L600,300 L700,300" 
+        stroke="#e63946" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <animate attributeName="stroke-dasharray" from="0,1000" to="1000,0" dur="3s" repeatCount="indefinite" />
+  </path>
+  
+  <!-- Running Person -->
+  <g transform="translate(400, 300) scale(0.6)">
+    <!-- Head -->
+    <circle cx="0" cy="-120" r="40" fill="#ffb703"/>
+    
+    <!-- Body -->
+    <path d="M-30,-80 L30,-80 L20,50 L-20,50 Z" fill="#219ebc"/>
+    
+    <!-- Arms - Dynamic Running Position -->
+    <path d="M-30,-80 L-100,-30 L-90,0 L-20,-50 Z" fill="#ffb703"/>
+    <path d="M30,-80 L80,-140 L100,-120 L40,-60 Z" fill="#ffb703"/>
+    
+    <!-- Legs - Dynamic Running Position -->
+    <path d="M-20,50 L-80,120 L-50,140 L0,60 Z" fill="#8ecae6"/>
+    <path d="M20,50 L60,140 L30,160 L0,60 Z" fill="#8ecae6"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="400" y="500" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="white" text-anchor="middle">CARDIO TRAINING</text>
+  <text x="400" y="540" font-family="Arial, sans-serif" font-size="24" fill="#ffb703" text-anchor="middle">Improve your heart health</text>
+  
+  <!-- Small Heart Icons -->
+  <g>
+    <path d="M200,100 C200,80 220,80 230,100 C240,80 260,80 260,100 C260,120 230,140 230,140 C230,140 200,120 200,100 Z" fill="#e63946">
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="1s" repeatCount="indefinite" />
+    </path>
+    <path d="M600,100 C600,80 620,80 630,100 C640,80 660,80 660,100 C660,120 630,140 630,140 C630,140 600,120 600,100 Z" fill="#e63946">
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="1.3s" repeatCount="indefinite" />
+    </path>
+    <path d="M150,450 C150,430 170,430 180,450 C190,430 210,430 210,450 C210,470 180,490 180,490 C180,490 150,470 150,450 Z" fill="#e63946">
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="0.7s" repeatCount="indefinite" />
+    </path>
+    <path d="M650,450 C650,430 670,430 680,450 C690,430 710,430 710,450 C710,470 680,490 680,490 C680,490 650,470 650,450 Z" fill="#e63946">
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="0.9s" repeatCount="indefinite" />
+    </path>
+  </g>
+</svg> 

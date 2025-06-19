@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2b2d42;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="800" height="600" fill="url(#bgGradient)" rx="20" ry="20"/>
+  
+  <!-- Decorative Elements -->
+  <circle cx="400" cy="300" r="180" fill="none" stroke="#8d99ae" stroke-width="2" opacity="0.3" />
+  <circle cx="400" cy="300" r="220" fill="none" stroke="#8d99ae" stroke-width="1" opacity="0.2" />
+  
+  <!-- Lotus Flower Symbol -->
+  <g transform="translate(400, 180) scale(0.8)">
+    <path d="M0,0 C-20,-50 -80,-30 -60,20 C-40,60 0,40 0,0" fill="#d90429" opacity="0.8" />
+    <path d="M0,0 C20,-50 80,-30 60,20 C40,60 0,40 0,0" fill="#d90429" opacity="0.8" />
+    <path d="M0,0 C-50,-20 -60,-80 -10,-60 C30,-40 30,0 0,0" fill="#d90429" opacity="0.8" />
+    <path d="M0,0 C50,-20 60,-80 10,-60 C-30,-40 -30,0 0,0" fill="#d90429" opacity="0.8" />
+    <path d="M0,0 C-50,20 -60,80 -10,60 C30,40 30,0 0,0" fill="#d90429" opacity="0.8" />
+    <path d="M0,0 C50,20 60,80 10,60 C-30,40 -30,0 0,0" fill="#d90429" opacity="0.8" />
+    <circle cx="0" cy="0" r="15" fill="#edf2f4" />
+  </g>
+  
+  <!-- Yoga Person -->
+  <g transform="translate(400, 350)">
+    <!-- Head -->
+    <circle cx="0" cy="-60" r="25" fill="#edf2f4" />
+    
+    <!-- Body in Lotus Position -->
+    <path d="M0,-35 L0,20" stroke="#edf2f4" stroke-width="8" fill="none" />
+    
+    <!-- Arms in Meditation Position -->
+    <path d="M0,-10 C-40,-10 -50,20 -30,30" stroke="#edf2f4" stroke-width="6" fill="none" stroke-linecap="round" />
+    <path d="M0,-10 C40,-10 50,20 30,30" stroke="#edf2f4" stroke-width="6" fill="none" stroke-linecap="round" />
+    
+    <!-- Hands -->
+    <circle cx="-30" cy="30" r="8" fill="#edf2f4" />
+    <circle cx="30" cy="30" r="8" fill="#edf2f4" />
+    
+    <!-- Legs in Lotus Position -->
+    <path d="M0,20 C-30,20 -70,40 -40,60" stroke="#edf2f4" stroke-width="6" fill="none" />
+    <path d="M0,20 C30,20 70,40 40,60" stroke="#edf2f4" stroke-width="6" fill="none" />
+    <path d="M-40,60 C-20,80 20,80 40,60" stroke="#edf2f4" stroke-width="6" fill="none" />
+  </g>
+  
+  <!-- Text -->
+  <text x="400" y="500" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="white" text-anchor="middle">YOGA &amp; MINDFULNESS</text>
+  <text x="400" y="540" font-family="Arial, sans-serif" font-size="24" fill="#edf2f4" text-anchor="middle">Find your inner balance</text>
+  
+  <!-- Animated Particles -->
+  <g opacity="0.5">
+    <circle cx="200" cy="150" r="3" fill="#edf2f4">
+      <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="600" cy="150" r="3" fill="#edf2f4">
+      <animate attributeName="opacity" values="0.2;0.8;0.2" dur="4s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="300" cy="450" r="3" fill="#edf2f4">
+      <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3.5s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="500" cy="450" r="3" fill="#edf2f4">
+      <animate attributeName="opacity" values="0.2;0.8;0.2" dur="2.5s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="150" cy="300" r="3" fill="#edf2f4">
+      <animate attributeName="opacity" values="0.2;0.8;0.2" dur="4.5s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="650" cy="300" r="3" fill="#edf2f4">
+      <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3.2s" repeatCount="indefinite" />
+    </circle>
+  </g>
+</svg> 

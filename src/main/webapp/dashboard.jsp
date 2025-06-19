@@ -230,22 +230,37 @@
         </div>
         <div class="row mt-4">
           <div class="col-lg-7 mb-lg-0 mb-4">
-            <div class="card z-index-2 h-100">
-              <div class="card-header pb-0 pt-3 bg-transparent">
-                <h6 class="text-capitalize">Tổng quan doanh thu phòng tập</h6>
-                <p class="text-sm mb-0">
-                  <i class="fa fa-arrow-up text-success"></i>
-                  <span class="font-weight-bold">4% tăng trưởng</span> trong năm
-                  2024
-                </p>
+            <div class="card">
+              <div class="card-header pb-0 p-3">
+                <div class="d-flex justify-content-between">
+                  <h6 class="mb-2">Thống kê hoạt động thành viên</h6>
+                </div>
               </div>
               <div class="card-body p-3">
                 <div class="chart">
-                  <canvas
-                    id="chart-line"
-                    class="chart-canvas"
-                    height="300"
-                  ></canvas>
+                  <canvas id="member-activity-chart" class="chart-canvas" height="300"></canvas>
+                </div>
+                <div class="row mt-4">
+                  <div class="col-6">
+                    <div class="d-flex align-items-center">
+                      <span class="badge badge-sm bg-gradient-primary me-2"></span>
+                      <span class="text-xs">Tập luyện cá nhân (40%)</span>
+                    </div>
+                    <div class="d-flex align-items-center mt-2">
+                      <span class="badge badge-sm bg-gradient-success me-2"></span>
+                      <span class="text-xs">Tập luyện nhóm (25%)</span>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="d-flex align-items-center">
+                      <span class="badge badge-sm bg-gradient-info me-2"></span>
+                      <span class="text-xs">PT cá nhân (20%)</span>
+                    </div>
+                    <div class="d-flex align-items-center mt-2">
+                      <span class="badge badge-sm bg-gradient-warning me-2"></span>
+                      <span class="text-xs">Yoga/Pilates (15%)</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -261,10 +276,13 @@
                   <div
                     class="carousel-item h-100 active"
                     style="
-                      background-image: url('./assets/img/carousel-1.jpg');
+                      background-color: #1a1a2e;
                       background-size: cover;
                     "
                   >
+                    <object type="image/svg+xml" data="./assets/img/svg/fitness-workout.svg" class="w-100 h-100">
+                      Your browser does not support SVG
+                    </object>
                     <div
                       class="carousel-caption d-none d-md-block bottom-0 text-start start-0 ms-5"
                     >
@@ -272,23 +290,25 @@
                         class="icon icon-shape icon-sm bg-white text-center border-radius-md mb-3"
                       >
                         <i
-                          class="ni ni-camera-compact text-dark opacity-10"
+                          class="ni ni-trophy text-dark opacity-10"
                         ></i>
                       </div>
-                      <h5 class="text-white mb-1">Get started with Argon</h5>
+                      <h5 class="text-white mb-1">Tập luyện sức mạnh</h5>
                       <p>
-                        There's nothing I really wanted to do in life that I
-                        wasn't able to get good at.
+                        Xây dựng cơ thể khỏe mạnh với các bài tập sức mạnh tại phòng gym của chúng tôi.
                       </p>
                     </div>
                   </div>
                   <div
                     class="carousel-item h-100"
                     style="
-                      background-image: url('./assets/img/carousel-2.jpg');
+                      background-color: #003049;
                       background-size: cover;
                     "
                   >
+                    <object type="image/svg+xml" data="./assets/img/svg/cardio-training.svg" class="w-100 h-100">
+                      Your browser does not support SVG
+                    </object>
                     <div
                       class="carousel-caption d-none d-md-block bottom-0 text-start start-0 ms-5"
                     >
@@ -298,35 +318,36 @@
                         <i class="ni ni-bulb-61 text-dark opacity-10"></i>
                       </div>
                       <h5 class="text-white mb-1">
-                        Faster way to create web pages
+                        Luyện tập tim mạch
                       </h5>
                       <p>
-                        That's my skill. I'm not really specifically talented at
-                        anything except for the ability to learn.
+                        Cải thiện sức khỏe tim mạch với các bài tập cardio hiệu quả.
                       </p>
                     </div>
                   </div>
                   <div
                     class="carousel-item h-100"
                     style="
-                      background-image: url('./assets/img/carousel-3.jpg');
+                      background-color: #2b2d42;
                       background-size: cover;
                     "
                   >
+                    <object type="image/svg+xml" data="./assets/img/svg/yoga-fitness.svg" class="w-100 h-100">
+                      Your browser does not support SVG
+                    </object>
                     <div
                       class="carousel-caption d-none d-md-block bottom-0 text-start start-0 ms-5"
                     >
                       <div
                         class="icon icon-shape icon-sm bg-white text-center border-radius-md mb-3"
                       >
-                        <i class="ni ni-trophy text-dark opacity-10"></i>
+                        <i class="ni ni-satisfied text-dark opacity-10"></i>
                       </div>
                       <h5 class="text-white mb-1">
-                        Share with us your design tips!
+                        Yoga & Thiền
                       </h5>
                       <p>
-                        Don't be afraid to be wrong because you can't learn
-                        anything from a compliment.
+                        Tìm thấy sự cân bằng nội tại với các lớp yoga và thiền định.
                       </p>
                     </div>
                   </div>
@@ -364,158 +385,13 @@
             <div class="card">
               <div class="card-header pb-0 p-3">
                 <div class="d-flex justify-content-between">
-                  <h6 class="mb-2">Thống kê theo khu vực</h6>
+                  <h6 class="mb-2">Thống kê lớp tập phổ biến</h6>
                 </div>
               </div>
-              <div class="table-responsive">
-                <table class="table align-items-center">
-                  <tbody>
-                    <tr>
-                      <td class="w-30">
-                        <div class="d-flex px-2 py-1 align-items-center">
-                          <div>
-                            <img
-                              src="./assets/img/icons/flags/US.png"
-                              alt="Country flag"
-                            />
-                          </div>
-                          <div class="ms-4">
-                            <p class="text-xs font-weight-bold mb-0">
-                              Country:
-                            </p>
-                            <h6 class="text-sm mb-0">Việt Nam</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">Sales:</p>
-                          <h6 class="text-sm mb-0">2500</h6>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">Value:</p>
-                          <h6 class="text-sm mb-0">$230,900</h6>
-                        </div>
-                      </td>
-                      <td class="align-middle text-sm">
-                        <div class="col text-center">
-                          <p class="text-xs font-weight-bold mb-0">Bounce:</p>
-                          <h6 class="text-sm mb-0">29.9%</h6>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="w-30">
-                        <div class="d-flex px-2 py-1 align-items-center">
-                          <div>
-                            <img
-                              src="./assets/img/icons/flags/DE.png"
-                              alt="Country flag"
-                            />
-                          </div>
-                          <div class="ms-4">
-                            <p class="text-xs font-weight-bold mb-0">
-                              Country:
-                            </p>
-                            <h6 class="text-sm mb-0">Hà Nội</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">Sales:</p>
-                          <h6 class="text-sm mb-0">3.900</h6>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">Value:</p>
-                          <h6 class="text-sm mb-0">$440,000</h6>
-                        </div>
-                      </td>
-                      <td class="align-middle text-sm">
-                        <div class="col text-center">
-                          <p class="text-xs font-weight-bold mb-0">Bounce:</p>
-                          <h6 class="text-sm mb-0">40.22%</h6>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="w-30">
-                        <div class="d-flex px-2 py-1 align-items-center">
-                          <div>
-                            <img
-                              src="./assets/img/icons/flags/GB.png"
-                              alt="Country flag"
-                            />
-                          </div>
-                          <div class="ms-4">
-                            <p class="text-xs font-weight-bold mb-0">
-                              Country:
-                            </p>
-                            <h6 class="text-sm mb-0">TP. Hồ Chí Minh</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">Sales:</p>
-                          <h6 class="text-sm mb-0">1.400</h6>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">Value:</p>
-                          <h6 class="text-sm mb-0">$190,700</h6>
-                        </div>
-                      </td>
-                      <td class="align-middle text-sm">
-                        <div class="col text-center">
-                          <p class="text-xs font-weight-bold mb-0">Bounce:</p>
-                          <h6 class="text-sm mb-0">23.44%</h6>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="w-30">
-                        <div class="d-flex px-2 py-1 align-items-center">
-                          <div>
-                            <img
-                              src="./assets/img/icons/flags/BR.png"
-                              alt="Country flag"
-                            />
-                          </div>
-                          <div class="ms-4">
-                            <p class="text-xs font-weight-bold mb-0">
-                              Country:
-                            </p>
-                            <h6 class="text-sm mb-0">Đà Nẵng</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">Sales:</p>
-                          <h6 class="text-sm mb-0">562</h6>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">Value:</p>
-                          <h6 class="text-sm mb-0">$143,960</h6>
-                        </div>
-                      </td>
-                      <td class="align-middle text-sm">
-                        <div class="col text-center">
-                          <p class="text-xs font-weight-bold mb-0">Bounce:</p>
-                          <h6 class="text-sm mb-0">32.14%</h6>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div class="card-body p-3">
+                <div class="chart">
+                  <canvas id="class-attendance-chart" class="chart-canvas" height="300"></canvas>
+                </div>
               </div>
             </div>
           </div>
@@ -874,19 +750,19 @@
         type: "line",
         data: {
           labels: [
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
+            "Tháng 1",
+            "Tháng 2",
+            "Tháng 3",
+            "Tháng 4",
+            "Tháng 5",
+            "Tháng 6",
+            "Tháng 7",
+            "Tháng 8",
+            "Tháng 9",
           ],
           datasets: [
             {
-              label: "Mobile apps",
+              label: "Doanh thu (triệu đồng)",
               tension: 0.4,
               borderWidth: 0,
               pointRadius: 0,
@@ -894,7 +770,7 @@
               backgroundColor: gradientStroke1,
               borderWidth: 3,
               fill: true,
-              data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+              data: [25, 28, 32, 30, 35, 40, 42, 45, 50],
               maxBarThickness: 6,
             },
           ],
@@ -965,6 +841,103 @@
         Scrollbar.init(document.querySelector("#sidenav-scrollbar"), options);
       }
     </script>
+    
+    <!-- Member Activity Chart -->
+    <script>
+      var ctx2 = document.getElementById("member-activity-chart").getContext("2d");
+      
+      new Chart(ctx2, {
+        type: "doughnut",
+        data: {
+          labels: ["Tập luyện cá nhân", "Tập luyện nhóm", "PT cá nhân", "Yoga/Pilates"],
+          datasets: [{
+            label: "Phân bố hoạt động",
+            weight: 9,
+            cutout: 60,
+            tension: 0.9,
+            pointRadius: 2,
+            borderWidth: 2,
+            backgroundColor: ["#5e72e4", "#2dce89", "#11cdef", "#fb6340"],
+            data: [40, 25, 20, 15],
+            fill: false
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: "index"
+          }
+        },
+      });
+    </script>
+    
+    <!-- Class Attendance Chart -->
+    <script>
+      var ctx3 = document.getElementById("class-attendance-chart").getContext("2d");
+      
+      new Chart(ctx3, {
+        type: "bar",
+        data: {
+          labels: ["Yoga", "HIIT", "Zumba", "Spinning", "Boxing", "Pilates"],
+          datasets: [{
+            label: "Số người tham gia",
+            weight: 5,
+            borderWidth: 0,
+            borderRadius: 4,
+            backgroundColor: "#5e72e4",
+            data: [35, 42, 28, 32, 25, 20],
+            fill: false,
+            maxBarThickness: 35
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            }
+          },
+          scales: {
+            y: {
+              grid: {
+                drawBorder: false,
+                display: true,
+                drawOnChartArea: true,
+                drawTicks: false,
+                borderDash: [5, 5]
+              },
+              ticks: {
+                display: true,
+                padding: 10,
+                color: "#9ca2b7"
+              }
+            },
+            x: {
+              grid: {
+                drawBorder: false,
+                display: false,
+                drawOnChartArea: false,
+                drawTicks: true,
+              },
+              ticks: {
+                display: true,
+                color: "#9ca2b7",
+                padding: 10
+              }
+            },
+          },
+        },
+      });
+    </script>
+    
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
