@@ -27,9 +27,20 @@
                 <p class="mb-0">Nhập email và mật khẩu để đăng nhập</p>
               </div>
               <div class="card-body">
-                <% if (request.getAttribute("message") != null) { %>
+                <% 
+                  // Lấy thông báo từ request hoặc session
+                  String message = (String) request.getAttribute("message");
+                  if (message == null) {
+                    message = (String) session.getAttribute("message");
+                    if (message != null) {
+                      session.removeAttribute("message");
+                    }
+                  }
+                  
+                  if (message != null) { 
+                %>
                   <div class="alert alert-success" role="alert">
-                    <%= request.getAttribute("message") %>
+                    <%= message %>
                   </div>
                 <% } %>
                 <%
@@ -43,13 +54,13 @@
                 <% } %>
                 <form role="form" method="post" action="LoginController">
                   <div class="mb-3">
-                    <input type="text" name="username" class="form-control form-control-lg" placeholder="Tên đăng nhập" aria-label="Username" aria-describedby="username-addon" required>
+                    <input type="text" name="username" class="form-control form-control-lg" placeholder="Tên đăng nhập" aria-label="Username" aria-describedby="username-addon" required value="locthdev">
                   </div>
                   <div class="mb-3">
-                    <input type="password" name="password" class="form-control form-control-lg" placeholder="Mật khẩu" aria-label="Password" aria-describedby="password-addon" required>
+                    <input type="password" name="password" class="form-control form-control-lg" placeholder="Mật khẩu" aria-label="Password" aria-describedby="password-addon" required value="Admin@123">
                   </div>
                   <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                    <input class="form-check-input" type="checkbox" id="rememberMe" checked>
                     <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
                   </div>
                   <div class="text-center">

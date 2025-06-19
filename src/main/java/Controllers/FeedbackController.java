@@ -13,7 +13,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/pt-feedback")
+@WebServlet("/feedback")
 public class FeedbackController extends HttpServlet {
 
     private FeedbackService feedbackService = new FeedbackService();
@@ -22,36 +22,31 @@ public class FeedbackController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Feedback> feedbacks = feedbackService.getAllFeedbacks();
         req.setAttribute("feedbacks", feedbacks);
-        req.getRequestDispatcher("/pt-feedback.jsp").forward(req, resp);
-
+        req.getRequestDispatcher("/feedback.jsp").forward(req, resp);
     }
 
     @Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    String action = req.getParameter("action");
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String action = req.getParameter("action");
+        HttpSession session = req.getSession();
 
-    if ("delete".equals(action)) {
-        String idParam = req.getParameter("id");
-        try {
-            int feedbackId = Integer.parseInt(idParam);
-            feedbackService.deleteFeedback(feedbackId);
-        } catch (NumberFormatException ignored) {
+        if ("delete".equals(action)) {
+            String idParam = req.getParameter("id");
+            try {
+                int feedbackId = Integer.parseInt(idParam);
+                boolean success = feedbackService.deleteFeedback(feedbackId);
+                if (success) {
+                    session.setAttribute("successMessage", "Xóa phản hồi thành công!");
+                } else {
+                    session.setAttribute("errorMessage", "Xóa phản hồi thất bại!");
+                }
+            } catch (NumberFormatException e) {
+                session.setAttribute("errorMessage", "ID phản hồi không hợp lệ!");
+            }
         }
-        List<Feedback> feedbacks = feedbackService.getAllFeedbacks();
-        req.setAttribute("feedbacks", feedbacks);
-        req.getRequestDispatcher("/pt-feedback.jsp").forward(req, resp);
-    } else if ("detail".equals(action)) {
-        String idParam = req.getParameter("id");
-        try {
-            int feedbackId = Integer.parseInt(idParam);
-            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
-            req.setAttribute("feedback", feedback);
-            req.getRequestDispatcher("/pt-feedback-detail.jsp").forward(req, resp);
-        } catch (NumberFormatException ignored) {
-            resp.sendRedirect("pt-feedback");
-        }
+
+        // Chuyển hướng để tránh việc gửi lại form khi refresh trang
+        resp.sendRedirect(req.getContextPath() + "/feedback");
     }
-}
-
 
 }

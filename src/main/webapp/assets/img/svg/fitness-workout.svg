@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#1a1a2e" rx="20" ry="20"/>
+  
+  <!-- Gym Person -->
+  <g transform="translate(400, 300) scale(0.8)">
+    <!-- Head -->
+    <circle cx="0" cy="-120" r="40" fill="#f9c74f"/>
+    
+    <!-- Body -->
+    <path d="M-60,-50 L60,-50 L40,100 L-40,100 Z" fill="#4361ee"/>
+    
+    <!-- Arms -->
+    <path d="M-60,-50 L-140,0 L-120,20 L-40,-30 Z" fill="#f9c74f"/>
+    <path d="M60,-50 L140,0 L120,20 L40,-30 Z" fill="#f9c74f"/>
+    
+    <!-- Legs -->
+    <path d="M-40,100 L-50,200 L-10,200 L0,100 Z" fill="#3a0ca3"/>
+    <path d="M40,100 L50,200 L10,200 L0,100 Z" fill="#3a0ca3"/>
+    
+    <!-- Weights -->
+    <g transform="translate(-140, 0)">
+      <rect x="-40" y="-10" width="30" height="20" fill="#f72585"/>
+      <rect x="-60" y="-5" width="20" height="10" fill="#4cc9f0"/>
+      <rect x="10" y="-5" width="20" height="10" fill="#4cc9f0"/>
+    </g>
+    
+    <g transform="translate(140, 0)">
+      <rect x="10" y="-10" width="30" height="20" fill="#f72585"/>
+      <rect x="-10" y="-5" width="20" height="10" fill="#4cc9f0"/>
+      <rect x="40" y="-5" width="20" height="10" fill="#4cc9f0"/>
+    </g>
+  </g>
+  
+  <!-- Text -->
+  <text x="400" y="500" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="white" text-anchor="middle">STRENGTH TRAINING</text>
+  <text x="400" y="540" font-family="Arial, sans-serif" font-size="24" fill="#f72585" text-anchor="middle">Build your perfect body</text>
+</svg> 

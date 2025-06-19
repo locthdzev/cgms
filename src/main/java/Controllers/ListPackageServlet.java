@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "ListPackageServlet", urlPatterns = { "/listPackage" })
 public class ListPackageServlet extends HttpServlet {
@@ -22,6 +23,33 @@ public class ListPackageServlet extends HttpServlet {
             // Xử lý tìm kiếm và lọc
             String searchTerm = request.getParameter("search");
             String status = request.getParameter("status");
+
+            // Xử lý thông báo thành công và lỗi
+            String message = request.getParameter("message");
+            String error = request.getParameter("error");
+
+            if (message != null) {
+                String successMessage;
+                switch (message) {
+                    case "status_update_success":
+                        successMessage = "Cập nhật trạng thái gói tập thành công!";
+                        break;
+                    case "add_success":
+                        successMessage = "Thêm gói tập mới thành công!";
+                        break;
+                    case "edit_success":
+                        successMessage = "Chỉnh sửa gói tập thành công!";
+                        break;
+                    default:
+                        successMessage = message;
+                        break;
+                }
+                request.setAttribute("successMessage", successMessage);
+            }
+
+            if (error != null) {
+                request.setAttribute("errorMessage", error);
+            }
 
             List<Package> packages;
             if (searchTerm != null && !searchTerm.trim().isEmpty()) {
