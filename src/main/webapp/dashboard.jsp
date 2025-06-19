@@ -94,7 +94,7 @@
       <!-- Include Navbar Component with parameters -->
       <jsp:include page="navbar.jsp">
         <jsp:param name="pageTitle" value="Dashboard" />
-        <jsp:param name="currentPage" value="Dashboard" />
+<jsp:param name="currentPage" value="Dashboard" />
       </jsp:include>
       
       <div class="container-fluid py-4">
@@ -169,7 +169,7 @@
                 <div class="row">
                   <div class="col-8">
                     <div class="numbers">
-                      <p class="text-sm mb-0 text-uppercase font-weight-bold">
+<p class="text-sm mb-0 text-uppercase font-weight-bold">
                         Gói tập đang bán
                       </p>
                       <h5 class="font-weight-bolder">8</h5>
@@ -243,7 +243,7 @@
                 <div class="row mt-4">
                   <div class="col-6">
                     <div class="d-flex align-items-center">
-                      <span class="badge badge-sm bg-gradient-primary me-2"></span>
+<span class="badge badge-sm bg-gradient-primary me-2"></span>
                       <span class="text-xs">Tập luyện cá nhân (40%)</span>
                     </div>
                     <div class="d-flex align-items-center mt-2">
@@ -307,7 +307,7 @@
                     "
                   >
                     <object type="image/svg+xml" data="./assets/img/svg/cardio-training.svg" class="w-100 h-100">
-                      Your browser does not support SVG
+Your browser does not support SVG
                     </object>
                     <div
                       class="carousel-caption d-none d-md-block bottom-0 text-start start-0 ms-5"
@@ -381,7 +381,7 @@
           </div>
         </div>
         <div class="row mt-4">
-          <div class="col-lg-7 mb-lg-0 mb-4">
+<div class="col-lg-7 mb-lg-0 mb-4">
             <div class="card">
               <div class="card-header pb-0 p-3">
                 <div class="d-flex justify-content-between">
@@ -447,7 +447,7 @@
                         <i class="ni ni-tag text-white opacity-10"></i>
                       </div>
                       <div class="d-flex flex-column">
-                        <h6 class="mb-1 text-dark text-sm">
+<h6 class="mb-1 text-dark text-sm">
                           Huấn luyện viên cá nhân
                         </h6>
                         <span class="text-xs"
@@ -511,7 +511,7 @@
                     </div>
                     <div class="d-flex">
                       <button
-                        class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"
+class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"
                       >
                         <i class="ni ni-bold-right" aria-hidden="true"></i>
                       </button>
@@ -593,7 +593,7 @@
         <div class="card-header pb-0 pt-3">
           <div class="float-start">
             <h5 class="mt-3 mb-0">Argon Configurator</h5>
-            <p>See our dashboard options.</p>
+<p>See our dashboard options.</p>
           </div>
           <div class="float-end mt-4">
             <button
@@ -676,7 +676,7 @@
                 class="form-check-input mt-1 ms-auto"
                 type="checkbox"
                 id="navbarFixed"
-                onclick="navbarFixed(this)"
+onclick="navbarFixed(this)"
               />
             </div>
           </div>
@@ -750,7 +750,7 @@
         type: "line",
         data: {
           labels: [
-            "Tháng 1",
+"Tháng 1",
             "Tháng 2",
             "Tháng 3",
             "Tháng 4",
@@ -858,7 +858,7 @@
             pointRadius: 2,
             borderWidth: 2,
             backgroundColor: ["#5e72e4", "#2dce89", "#11cdef", "#fb6340"],
-            data: [40, 25, 20, 15],
+data: [40, 25, 20, 15],
             fill: false
           }],
         },
