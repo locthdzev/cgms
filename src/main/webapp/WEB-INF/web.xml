@@ -62,6 +62,15 @@
         <url-pattern>/reset-password</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>profile</servlet-name>
+        <servlet-class>Controllers.ProfileController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>profile</servlet-name>
+        <url-pattern>/profile</url-pattern>
+    </servlet-mapping>
+
     <!-- register.jsp -->
     <servlet>
         <servlet-name>register</servlet-name>
@@ -153,15 +162,6 @@
     <servlet-mapping>
         <servlet-name>VoucherController</servlet-name>
         <url-pattern>/voucher</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>profile</servlet-name>
-        <jsp-file>/profile.jsp</jsp-file>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>profile</servlet-name>
-        <url-pattern>/profile</url-pattern>
     </servlet-mapping>
 
 </web-app>

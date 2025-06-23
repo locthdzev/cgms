@@ -108,7 +108,8 @@
       .container-fluid {
         padding-top: 1rem !important;
       }
-
+      
+      /* Password styles */
       .password-container {
         position: relative;
       }
@@ -172,7 +173,6 @@
       .requirement-not-met {
         color: #f5365c;
       }
-
     </style>
   </head>
 
@@ -310,12 +310,13 @@
               <div class="card-header pb-0">
                 <div class="d-flex align-items-center">
                   <p class="mb-0">Chỉnh sửa hồ sơ</p>
-                  <button class="btn btn-primary btn-sm ms-auto">
+                  <button type="submit" form="updateProfileForm" class="btn btn-primary btn-sm ms-auto">
                     Lưu thay đổi
                   </button>
                 </div>
               </div>
               <div class="card-body">
+                <form id="updateProfileForm" action="ProfileController" method="post">
                 <p class="text-uppercase text-sm">Thông tin người dùng</p>
                 <div class="row">
                   <div class="col-md-6">
@@ -324,6 +325,7 @@
                       <input
                         class="form-control"
                         type="text"
+                        name="userName"
                         value="<%= profileUser.getUserName() %>"
                       />
                     </div>
@@ -334,6 +336,7 @@
                       <input
                         class="form-control"
                         type="email"
+                        name="email"
                         value="<%= profileUser.getEmail() %>"
                       />
                     </div>
@@ -344,6 +347,7 @@
                       <input
                         class="form-control"
                         type="text"
+                        name="fullName"
                         value="<%= profileUser.getFullName() %>"
                       />
                     </div>
@@ -354,6 +358,7 @@
                       <input 
                         class="form-control" 
                         type="text" 
+                        name="phoneNumber"
                         value="<%= profileUser.getPhoneNumber() != null ? profileUser.getPhoneNumber() : "" %>" 
                       />
                     </div>
@@ -368,6 +373,7 @@
                       <input 
                         class="form-control" 
                         type="text" 
+                        name="address"
                         value="<%= profileUser.getAddress() != null ? profileUser.getAddress() : "" %>" 
                       />
                     </div>
@@ -375,11 +381,12 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label class="form-control-label">Giới tính</label>
-                      <input 
-                        class="form-control" 
-                        type="text" 
-                        value="<%= profileUser.getGender() != null ? profileUser.getGender() : "" %>" 
-                      />
+                      <select name="gender" class="form-control">
+                        <option value="" <%= profileUser.getGender() == null || profileUser.getGender().isEmpty() ? "selected" : "" %>>Chọn giới tính</option>
+                        <option value="Nam" <%= "Nam".equals(profileUser.getGender()) ? "selected" : "" %>>Nam</option>
+                        <option value="Nữ" <%= "Nữ".equals(profileUser.getGender()) ? "selected" : "" %>>Nữ</option>
+                        <option value="Khác" <%= "Khác".equals(profileUser.getGender()) ? "selected" : "" %>>Khác</option>
+                      </select>
                     </div>
                   </div>
                   <div class="col-md-6">
@@ -388,11 +395,13 @@
                       <input 
                         class="form-control" 
                         type="date" 
+                        name="dob"
                         value="<%= profileUser.getDob() != null ? profileUser.getDob().toString() : "" %>" 
                       />
                     </div>
                   </div>
                 </div>
+                </form>
                 <hr class="horizontal dark" />
                 <p class="text-uppercase text-sm">Đổi mật khẩu</p>
                 <form action="ChangePasswordController" method="post" id="changePasswordForm" onsubmit="return validatePasswordForm()">
@@ -403,8 +412,8 @@
                         <div class="password-container">
                           <input class="form-control" type="password" name="currentPassword" id="currentPassword" required />
                           <span class="password-toggle" onclick="togglePassword('currentPassword')">
-            <img src="./assets/svg/eye-show-svgrepo-com.svg" id="currentPassword-toggle-icon" alt="Show/Hide Password">
-          </span>
+                            <img src="./assets/svg/eye-show-svgrepo-com.svg" id="currentPassword-toggle-icon" alt="Show/Hide Password">
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -414,8 +423,8 @@
                         <div class="password-container">
                           <input class="form-control" type="password" name="newPassword" id="newPassword" required minlength="8" maxlength="32" oninput="checkPasswordStrength()" />
                           <span class="password-toggle" onclick="togglePassword('newPassword')">
-            <img src="./assets/svg/eye-show-svgrepo-com.svg" id="newPassword-toggle-icon" alt="Show/Hide Password">
-          </span>
+                            <img src="./assets/svg/eye-show-svgrepo-com.svg" id="newPassword-toggle-icon" alt="Show/Hide Password">
+                          </span>
                         </div>
                       </div>
                       <div class="password-strength-meter">
@@ -434,8 +443,8 @@
                         <div class="password-container">
                           <input class="form-control" type="password" name="confirmPassword" id="confirmPassword" required minlength="8" maxlength="32" />
                           <span class="password-toggle" onclick="togglePassword('confirmPassword')">
-            <img src="./assets/svg/eye-show-svgrepo-com.svg" id="confirmPassword-toggle-icon" alt="Show/Hide Password">
-          </span>
+                            <img src="./assets/svg/eye-show-svgrepo-com.svg" id="confirmPassword-toggle-icon" alt="Show/Hide Password">
+                          </span>
                         </div>
                       </div>
                       <div id="password-match" class="password-requirements mb-3"></div>
@@ -686,13 +695,11 @@
           errorToast.show();
         }
       });
-    </script>
-
-    <script>
+      
       function togglePassword(inputId) {
         const passwordInput = document.getElementById(inputId);
         const toggleIcon = document.getElementById(inputId + '-toggle-icon');
-
+        
         if (passwordInput.type === 'password') {
           passwordInput.type = 'text';
           toggleIcon.src = './assets/svg/eye-off-svgrepo-com.svg';
@@ -701,7 +708,7 @@
           toggleIcon.src = './assets/svg/eye-show-svgrepo-com.svg';
         }
       }
-
+      
       function checkPasswordStrength() {
         const password = document.getElementById('newPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
@@ -711,28 +718,28 @@
         const uppercaseCheck = document.getElementById('uppercase-check');
         const specialCheck = document.getElementById('special-check');
         const passwordMatch = document.getElementById('password-match');
-
+        
         // Kiểm tra độ dài
         if (password.length >= 8 && password.length <= 32) {
           lengthCheck.className = 'requirement-met';
         } else {
           lengthCheck.className = 'requirement-not-met';
         }
-
+        
         // Kiểm tra chữ hoa
         if (/[A-Z]/.test(password)) {
           uppercaseCheck.className = 'requirement-met';
         } else {
           uppercaseCheck.className = 'requirement-not-met';
         }
-
+        
         // Kiểm tra ký tự đặc biệt
         if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
           specialCheck.className = 'requirement-met';
         } else {
           specialCheck.className = 'requirement-not-met';
         }
-
+        
         // Kiểm tra mật khẩu xác nhận
         if (confirmPassword) {
           if (password === confirmPassword) {
@@ -743,29 +750,29 @@
             passwordMatch.className = 'requirement-not-met';
           }
         }
-
+        
         // Tính điểm mật khẩu
         let strength = 0;
-
+        
         // Độ dài cơ bản
         if (password.length >= 8) strength += 1;
         if (password.length >= 12) strength += 1;
-
+        
         // Có chữ hoa
         if (/[A-Z]/.test(password)) strength += 1;
-
+        
         // Có chữ thường
         if (/[a-z]/.test(password)) strength += 1;
-
+        
         // Có số
         if (/[0-9]/.test(password)) strength += 1;
-
+        
         // Có ký tự đặc biệt
         if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) strength += 1;
-
+        
         // Hiển thị độ mạnh
         strengthMeter.className = 'password-strength-meter-bar';
-
+        
         if (password.length === 0) {
           strengthMeter.className += ' strength-weak';
           strengthMeter.style.width = '0%';
@@ -787,58 +794,62 @@
           strengthText.textContent = 'Rất mạnh';
           strengthText.style.color = '#2dce89';
         }
-
+        
         // Kiểm tra nút submit
         const submitButton = document.getElementById('submit-button');
-        if (lengthCheck.className === 'requirement-met' &&
-                uppercaseCheck.className === 'requirement-met' &&
-                specialCheck.className === 'requirement-met') {
+        if (lengthCheck.className === 'requirement-met' && 
+            uppercaseCheck.className === 'requirement-met' && 
+            specialCheck.className === 'requirement-met') {
           submitButton.disabled = false;
         } else {
           submitButton.disabled = true;
         }
       }
-
+      
       // Kiểm tra khi nhập xác nhận mật khẩu
-      document.getElementById('confirmPassword').addEventListener('input', function() {
-        checkPasswordStrength();
+      document.addEventListener('DOMContentLoaded', function() {
+        if (document.getElementById('confirmPassword')) {
+          document.getElementById('confirmPassword').addEventListener('input', function() {
+            checkPasswordStrength();
+          });
+        }
       });
-
+      
       function validatePasswordForm() {
         const currentPassword = document.getElementById('currentPassword').value;
         const newPassword = document.getElementById('newPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-
+        
         // Kiểm tra mật khẩu hiện tại
         if (!currentPassword) {
           alert('Vui lòng nhập mật khẩu hiện tại!');
           return false;
         }
-
+        
         // Kiểm tra độ dài mật khẩu
         if (newPassword.length < 8 || newPassword.length > 32) {
           alert('Mật khẩu phải có độ dài từ 8 đến 32 ký tự!');
           return false;
         }
-
+        
         // Kiểm tra có chữ hoa
         if (!/[A-Z]/.test(newPassword)) {
           alert('Mật khẩu phải chứa ít nhất 1 chữ cái viết hoa!');
           return false;
         }
-
+        
         // Kiểm tra có ký tự đặc biệt
         if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)) {
           alert('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt!');
           return false;
         }
-
+        
         // Kiểm tra mật khẩu xác nhận
         if (newPassword !== confirmPassword) {
           alert('Mật khẩu xác nhận không khớp với mật khẩu mới!');
           return false;
         }
-
+        
         return true;
       }
     </script>
