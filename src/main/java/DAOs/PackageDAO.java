@@ -127,29 +127,6 @@ public class PackageDAO {
         return packages;
     }
 
-    // Phương thức để lấy ID tiếp theo
-    private Integer getNextPackageId(Connection conn) throws SQLException {
-        Statement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT MAX(PackageId) AS MaxId FROM Packages");
-
-            if (rs.next()) {
-                Integer maxId = rs.getObject("MaxId") != null ? rs.getInt("MaxId") : 0;
-                return maxId + 1;
-            }
-
-            return 1; // Trả về 1 nếu không có bản ghi nào
-        } finally {
-            if (rs != null)
-                rs.close();
-            if (stmt != null)
-                stmt.close();
-        }
-    }
-
     /**
      * Tìm kiếm gói tập theo tên
      * 

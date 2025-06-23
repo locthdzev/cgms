@@ -40,7 +40,13 @@ public class UserController extends HttpServlet {
             String status = req.getParameter("status");
             if (idStr != null && status != null) {
                 int id = Integer.parseInt(idStr);
-                userService.updateUserStatus(id, status);
+                boolean updated = userService.updateUserStatus(id, status);
+                HttpSession session = req.getSession();
+                if (updated) {
+                    session.setAttribute("successMessage", "Cập nhật trạng thái người dùng thành công!");
+                } else {
+                    session.setAttribute("errorMessage", "Cập nhật trạng thái người dùng thất bại!");
+                }
             }
             resp.sendRedirect(req.getContextPath() + "/user");
         }
@@ -71,7 +77,9 @@ public class UserController extends HttpServlet {
             defaultLevel.setId(1);
             user.setLevel(defaultLevel);
             boolean created = userService.createUser(user, rawPassword);
+            HttpSession session = req.getSession();
             if (created) {
+                session.setAttribute("successMessage", "Thêm người dùng mới thành công!");
                 resp.sendRedirect(req.getContextPath() + "/user");
             } else {
                 req.setAttribute("errorMessage", "Tạo người dùng thất bại. Vui lòng kiểm tra lại dữ liệu!");
@@ -100,7 +108,9 @@ public class UserController extends HttpServlet {
                 defaultLevel.setId(1);
                 user.setLevel(defaultLevel);
                 boolean updated = userService.updateUser(user);
+                HttpSession session = req.getSession();
                 if (updated) {
+                    session.setAttribute("successMessage", "Cập nhật thông tin người dùng thành công!");
                     resp.sendRedirect(req.getContextPath() + "/user");
                 } else {
                     req.setAttribute("user", user);
@@ -116,7 +126,13 @@ public class UserController extends HttpServlet {
             String status = req.getParameter("status");
             if (idStr != null && status != null) {
                 int id = Integer.parseInt(idStr);
-                userService.updateUserStatus(id, status);
+                boolean updated = userService.updateUserStatus(id, status);
+                HttpSession session = req.getSession();
+                if (updated) {
+                    session.setAttribute("successMessage", "Cập nhật trạng thái người dùng thành công!");
+                } else {
+                    session.setAttribute("errorMessage", "Cập nhật trạng thái người dùng thất bại!");
+                }
             }
             resp.sendRedirect(req.getContextPath() + "/user");
         }

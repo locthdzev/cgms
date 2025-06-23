@@ -21,14 +21,42 @@ public class LoginController extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         User user = userService.authenticate(username, password);
-        if (user != null && "admin".equalsIgnoreCase(user.getRole())) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-            response.sendRedirect("dashboard");
+
+        if (user != null) {
+            User fullUser = userService.getUserById(user.getId());
+            if (fullUser != null) {
+                HttpSession session = request.getSession();
+                session.setAttribute("loggedInUser", fullUser);
+
+                // Chuyển hướng tùy theo vai trò
+                if ("Admin".equalsIgnoreCase(fullUser.getRole())) {
+                    response.sendRedirect("dashboard");
+                } else {
+                    response.sendRedirect("member-dashboard");
+                }
+            } else {
+                HttpSession session = request.getSession();
+                session.setAttribute("error", "Không thể lấy thông tin người dùng!");
+                response.sendRedirect("login");
+            }
         } else {
             HttpSession session = request.getSession();
-            session.setAttribute("error", "Sai tên đăng nhập hoặc mật khẩu, hoặc bạn không phải Admin!");
+            session.setAttribute("error", "Sai tên đăng nhập hoặc mật khẩu!");
             response.sendRedirect("login");
         }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Kiểm tra xem có thông báo lỗi từ session không
+        HttpSession session = request.getSession();
+        if (session.getAttribute("error") != null) {
+            request.setAttribute("error", session.getAttribute("error"));
+            session.removeAttribute("error");
+        }
+
+        // Chuyển hướng đến trang login.jsp
+        request.getRequestDispatcher("login.jsp").forward(request, response);
     }
 }

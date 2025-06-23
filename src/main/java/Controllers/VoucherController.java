@@ -17,7 +17,8 @@ public class VoucherController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
-        if (action == null) action = "list";
+        if (action == null)
+            action = "list";
 
         switch (action) {
             case "create":
@@ -31,7 +32,14 @@ public class VoucherController extends HttpServlet {
                 req.getRequestDispatcher("/voucher-form.jsp").forward(req, resp);
                 break;
             case "delete":
-                service.deleteVoucher(Integer.parseInt(req.getParameter("id")));
+                try {
+                    service.deleteVoucher(Integer.parseInt(req.getParameter("id")));
+                    HttpSession session = req.getSession();
+                    session.setAttribute("successMessage", "Xóa voucher thành công!");
+                } catch (Exception e) {
+                    HttpSession session = req.getSession();
+                    session.setAttribute("errorMessage", "Lỗi khi xóa voucher: " + e.getMessage());
+                }
                 resp.sendRedirect(req.getContextPath() + "/voucher?action=list");
                 break;
             default:
@@ -46,7 +54,7 @@ public class VoucherController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         String idStr = req.getParameter("id");
-
+        HttpSession session = req.getSession();
         Voucher v = new Voucher();
 
         try {
@@ -82,13 +90,15 @@ public class VoucherController extends HttpServlet {
 
             if (idStr != null && !idStr.trim().isEmpty()) {
                 service.updateVoucher(v);
+                session.setAttribute("successMessage", "Cập nhật voucher thành công!");
             } else {
                 service.saveVoucher(v);
+                session.setAttribute("successMessage", "Tạo voucher mới thành công!");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            req.setAttribute("error", "Invalid input: " + e.getMessage());
+            session.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
             req.setAttribute("voucher", v);
             req.getRequestDispatcher("/voucher-form.jsp").forward(req, resp);
             return;

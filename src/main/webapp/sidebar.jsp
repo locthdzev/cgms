@@ -1,3 +1,19 @@
+<%@ page pageEncoding="UTF-8" %>
+<%
+    // Lấy đường dẫn hiện tại để đánh dấu menu active
+    String currentPath = request.getServletPath();
+    String contextPath = request.getContextPath();
+    
+    // Kiểm tra xem người dùng đang ở trang nào
+    boolean isDashboard = currentPath.contains("dashboard.jsp") || currentPath.equals("/") || currentPath.equals("/dashboard");
+    boolean isPackage = currentPath.contains("Package") || currentPath.contains("package");
+    boolean isUser = currentPath.contains("user.jsp") || currentPath.contains("User") || currentPath.contains("/user");
+    boolean isVoucher = currentPath.contains("voucher") || currentPath.contains("Voucher");
+    boolean isProfile = currentPath.contains("profile.jsp");
+    boolean isProduct = currentPath.contains("product") || currentPath.contains("Product");
+    boolean isFeedback = currentPath.contains("feedback") || currentPath.contains("Feedback");
+%>
+
 <aside
   class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4"
   id="sidenav-main"
@@ -10,11 +26,10 @@
     ></i>
     <a
       class="navbar-brand m-0"
-      href=" https://demos.creative-tim.com/argon-dashboard/pages/dashboard.html "
-      target="_blank"
+      href="${pageContext.request.contextPath}/dashboard"
     >
       <img
-        src="./assets/img/weightlifting.png"
+        src="${pageContext.request.contextPath}/assets/img/weightlifting.png"
         width="26px"
         height="26px"
         class="navbar-brand-img h-100"
@@ -27,7 +42,7 @@
   <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" href="dashboard.jsp">
+        <a class="nav-link <%= isDashboard ? "active" : "" %>" href="${pageContext.request.contextPath}/dashboard">
           <div
             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
           >
@@ -37,7 +52,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="listPackage.jsp">
+        <a class="nav-link <%= isPackage ? "active" : "" %>" href="${pageContext.request.contextPath}/listPackage">
           <div
             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
           >
@@ -47,73 +62,70 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../pages/tables.html">
+        <a class="nav-link <%= isUser ? "active" : "" %>" href="${pageContext.request.contextPath}/user">
           <div
             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
           >
-            <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
+            <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
           </div>
-          <span class="nav-link-text ms-1">Tables</span>
+          <span class="nav-link-text ms-1">Quản lý người dùng</span>
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="../pages/billing.html">
+      <!-- <li class="nav-item">
+        <a class="nav-link <%= isProduct ? "active" : "" %>" href="${pageContext.request.contextPath}/product?action=list">
           <div
             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
           >
-            <i class="ni ni-credit-card text-dark text-sm opacity-10"></i>
+            <i class="ni ni-bag-17 text-dark text-sm opacity-10"></i>
           </div>
-          <span class="nav-link-text ms-1">Billing</span>
+          <span class="nav-link-text ms-1">Quản lý sản phẩm</span>
         </a>
-      </li>
+      </li> -->
       <li class="nav-item">
-        <a class="nav-link" href="../pages/virtual-reality.html">
-          <div
-            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-          >
-            <i class="ni ni-app text-dark text-sm opacity-10"></i>
-          </div>
-          <span class="nav-link-text ms-1">Virtual Reality</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          href="voucher-list.jsp"
-        >
+        <a class="nav-link <%= isVoucher ? "active" : "" %>" href="${pageContext.request.contextPath}/voucher?action=list">
           <div
             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
           >
             <i class="ni ni-tag text-dark text-sm opacity-10"></i>
           </div>
-          <span class="nav-link-text ms-1">Manage Vouchers</span>
+          <span class="nav-link-text ms-1">Quản lý Voucher</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../pages/rtl.html">
+        <a class="nav-link <%= isFeedback ? "active" : "" %>" href="${pageContext.request.contextPath}/feedback">
           <div
             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
           >
-            <i class="ni ni-world-2 text-dark text-sm opacity-10"></i>
+            <i class="ni ni-chat-round text-dark text-sm opacity-10"></i>
           </div>
-          <span class="nav-link-text ms-1">RTL</span>
+          <span class="nav-link-text ms-1">Quản lý Feedback</span>
         </a>
       </li>
       <li class="nav-item mt-3">
         <h6
           class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6"
         >
-          Account pages
+          Tài khoản
         </h6>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="profile.jsp">
+        <a class="nav-link <%= isProfile ? "active" : "" %>" href="${pageContext.request.contextPath}/profile.jsp">
           <div
             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
           >
             <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
           </div>
-          <span class="nav-link-text ms-1">Profile</span>
+          <span class="nav-link-text ms-1">Hồ sơ</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="${pageContext.request.contextPath}/logout">
+          <div
+            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+          >
+            <i class="ni ni-button-power text-dark text-sm opacity-10"></i>
+          </div>
+          <span class="nav-link-text ms-1">Đăng xuất</span>
         </a>
       </li>
     </ul>

@@ -6,6 +6,29 @@
     User user = (User) request.getAttribute("user");
     String formAction = (String) request.getAttribute("formAction");
     if (formAction == null) formAction = "list";
+    
+    // Lấy thông tin người dùng đăng nhập từ session
+    User loggedInUser = (User) session.getAttribute("loggedInUser");
+    
+    // Lấy thông báo từ request hoặc session
+    String successMessage = (String) request.getAttribute("successMessage");
+    if (successMessage == null) {
+        successMessage = (String) session.getAttribute("successMessage");
+        if (successMessage != null) {
+            session.removeAttribute("successMessage");
+        }
+    }
+    
+    String errorMessage = (String) request.getAttribute("errorMessage");
+    if (errorMessage == null) {
+        errorMessage = (String) session.getAttribute("errorMessage");
+        if (errorMessage != null) {
+            session.removeAttribute("errorMessage");
+        }
+    }
+    
+    boolean hasSuccessMessage = successMessage != null;
+    boolean hasErrorMessage = errorMessage != null;
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -20,59 +43,86 @@
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
     <link id="pagestyle" href="./assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <style>
+        .user-welcome {
+            text-align: right;
+            margin-left: auto;
+        }
+        .user-welcome .user-name {
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+        .user-welcome .user-email {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+        }
+        
+        /* Toast styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .toast {
+            min-width: 300px;
+        }
+        
+        /* Detail styles */
+        .detail-label {
+            font-weight: 600;
+            color: #344767;
+        }
+        
+        .user-detail-img {
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body class="g-sidenav-show bg-gray-100">
 <div class="min-height-300 bg-dark position-absolute w-100"></div>
-<aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4" id="sidenav-main">
-    <div class="sidenav-header">
-        <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-        <a class="navbar-brand m-0" href="dashboard.jsp">
-            <img src="./assets/img/weightlifting.png" width="26px" height="26px" class="navbar-brand-img h-100" alt="main_logo" />
-            <span class="ms-1 font-weight-bold">CGMS</span>
-        </a>
-    </div>
-    <hr class="horizontal dark mt-0" />
-    <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="dashboard.jsp">
-                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="listPackage">
-                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Gói tập Gym</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="user">
-                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Quản lý người dùng</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-</aside>
-<main class="main-content position-relative border-radius-lg">
-    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" data-scroll="false">
-        <div class="container-fluid py-1 px-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-                    <li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="dashboard.jsp">Dashboard</a></li>
-                    <li class="breadcrumb-item text-sm text-white active" aria-current="page">Quản lý người dùng</li>
-                </ol>
-                <h6 class="font-weight-bolder text-white mb-0">Quản lý người dùng</h6>
-            </nav>
+
+<!-- Toast Container -->
+<div class="toast-container">
+    <% if (hasSuccessMessage) { %>
+    <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i> <%= successMessage %>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-    </nav>
+    </div>
+    <% } %>
+    <% if (hasErrorMessage) { %>
+    <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" id="errorToast">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i> <%= errorMessage %>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    <% } %>
+</div>
+
+<!-- Include Sidebar Component -->
+<%@ include file="sidebar.jsp" %>
+
+<main class="main-content position-relative border-radius-lg">
+    <!-- Include Navbar Component with parameters -->
+    <jsp:include page="navbar.jsp">
+        <jsp:param name="pageTitle" value="Quản lý người dùng" />
+        <jsp:param name="parentPage" value="Dashboard" />
+        <jsp:param name="parentPageUrl" value="dashboard.jsp" />
+        <jsp:param name="currentPage" value="Quản lý người dùng" />
+    </jsp:include>
+    
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
@@ -94,42 +144,60 @@
                             <table class="table align-items-center mb-0">
                                 <thead>
                                 <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Email</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tên đăng nhập</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Họ tên</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Số điện thoại</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vai trò</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thao tác</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">ID</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Email</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tên đăng nhập</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Họ tên</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Số điện thoại</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Vai trò</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Trạng thái</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Thao tác</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <% for (User u : userList) { %>
                                     <tr>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getId() %></h6></td>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getEmail() %></h6></td>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getUserName() %></h6></td>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getFullName() %></h6></td>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getPhoneNumber() %></h6></td>
-                                        <td><h6 class="mb-0 text-sm"><%= u.getRole() %></h6></td>
-                                        <td>
+                                        <td class="text-center"><h6 class="mb-0 text-sm"><%= u.getId() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getEmail() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getUserName() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getFullName() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getPhoneNumber() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getRole() %></h6></td>
+                                        <td class="ps-2">
                                             <% if ("Active".equals(u.getStatus())) { %>
                                                 <span class="badge badge-sm bg-gradient-success">Hoạt động</span>
                                             <% } else { %>
                                                 <span class="badge badge-sm bg-gradient-secondary">Không hoạt động</span>
                                             <% } %>
                                         </td>
-                                        <td>
-                                            <a href="#" class="btn btn-info btn-sm" title="Xem chi tiết">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="editUser?id=<%= u.getId() %>" class="btn btn-warning btn-sm" title="Chỉnh sửa">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="javascript:void(0)" onclick="openUpdateStatusModal(<%= u.getId() %>, '<%= u.getFullName() %>', '<%= u.getStatus() %>')" class="btn btn-primary btn-sm" title="Cập nhật trạng thái">
-                                                <i class="fas fa-rotate"></i>
-                                            </a>
+                                        <td class="text-center">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-icon-only text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item view-user-btn" href="#" 
+                                                            data-id="<%= u.getId() %>"
+                                                            data-fullname="<%= u.getFullName() %>"
+                                                            data-email="<%= u.getEmail() %>"
+                                                            data-username="<%= u.getUserName() %>"
+                                                            data-phone="<%= u.getPhoneNumber() != null ? u.getPhoneNumber() : "" %>"
+                                                            data-address="<%= u.getAddress() != null ? u.getAddress() : "" %>"
+                                                            data-gender="<%= u.getGender() != null ? u.getGender() : "" %>"
+                                                            data-role="<%= u.getRole() %>"
+                                                            data-status="<%= u.getStatus() %>">
+                                                            <i class="fas fa-eye me-2"></i>Xem chi tiết</a></li>
+                                                    <li><a class="dropdown-item" href="editUser?id=<%= u.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
+                                                    <li>
+                                                        <a class="dropdown-item update-status-btn" href="#" 
+                                                            data-id="<%= u.getId() %>" 
+                                                            data-name="<%= u.getFullName() %>" 
+                                                            data-status="<%= u.getStatus() %>">
+                                                            <i class="fas fa-rotate me-2"></i>Cập nhật trạng thái
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 <% } %>
@@ -228,38 +296,166 @@
                                 <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật trạng thái người dùng</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form id="updateStatusForm" action="updateUserStatus" method="post">
-                                <div class="modal-body">
+                            <div class="modal-body">
+                                <p>Bạn có chắc chắn muốn thay đổi trạng thái của người dùng <span id="userName"></span>?</p>
+                                <form id="updateStatusForm" action="updateUserStatus" method="post">
                                     <input type="hidden" id="userId" name="id" value="">
-                                    <input type="hidden" name="action" value="status">
                                     <div class="mb-3">
-                                        <label class="form-label">Họ tên:</label>
-                                        <p id="userName" class="form-control-static fw-bold"></p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="statusSelect" class="form-label">Trạng thái mới:</label>
-                                        <select class="form-control" id="statusSelect" name="status" required>
+                                        <label class="form-label">Trạng thái mới</label>
+                                        <select name="status" id="userStatus" class="form-control">
                                             <option value="Active">Hoạt động</option>
                                             <option value="Inactive">Không hoạt động</option>
                                         </select>
                                     </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-primary" onclick="document.getElementById('updateStatusForm').submit();">Xác nhận</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal xem chi tiết người dùng -->
+                <div class="modal fade" id="viewUserModal" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="viewUserModalLabel">Chi tiết người dùng</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Thông tin cơ bản -->
+                                <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                                    <div class="avatar avatar-xl bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h4 id="userFullName" class="fw-bold mb-0"></h4>
+                                        <div class="d-flex align-items-center mt-1">
+                                            <span id="viewUserStatus" class="badge me-2"></span>
+                                            <span id="userRole" class="text-sm"></span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                                
+                                <!-- Thông tin chi tiết -->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="fw-bold" style="width: 30%;">Email</td>
+                                                    <td id="userEmail"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Tên đăng nhập</td>
+                                                    <td id="userUsername"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Số điện thoại</td>
+                                                    <td id="userPhone"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Giới tính</td>
+                                                    <td id="userGender"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Địa chỉ</td>
+                                                    <td id="userAddress"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Ngày sinh</td>
+                                                    <td id="userDob"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+                                <a href="#" id="editUserBtn" class="btn btn-primary">Chỉnh sửa</a>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <script>
-                    function openUpdateStatusModal(id, name, status) {
-                        document.getElementById('userId').value = id;
-                        document.getElementById('userName').textContent = name;
-                        document.getElementById('statusSelect').value = status;
-                        var myModal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
-                        myModal.show();
-                    }
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Hiển thị toast thông báo nếu có
+                        if (document.getElementById('successToast')) {
+                            var successToast = new bootstrap.Toast(document.getElementById('successToast'), {
+                                delay: 5000,
+                                animation: true
+                            });
+                            successToast.show();
+                        }
+                        
+                        if (document.getElementById('errorToast')) {
+                            var errorToast = new bootstrap.Toast(document.getElementById('errorToast'), {
+                                delay: 5000,
+                                animation: true
+                            });
+                            errorToast.show();
+                        }
+                        
+                        // Thêm sự kiện click cho các nút cập nhật trạng thái
+                        document.querySelectorAll('.update-status-btn').forEach(function(button) {
+                            button.addEventListener('click', function() {
+                                const id = this.getAttribute('data-id');
+                                const name = this.getAttribute('data-name');
+                                const status = this.getAttribute('data-status');
+                                
+                                document.getElementById('userId').value = id;
+                                document.getElementById('userName').textContent = name;
+                                document.getElementById('userStatus').value = status === 'Active' ? 'Inactive' : 'Active';
+                                
+                                var myModal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+                                myModal.show();
+                            });
+                        });
+                        
+                        // Thêm sự kiện click cho các nút xem chi tiết
+                        document.querySelectorAll('.view-user-btn').forEach(function(button) {
+                            button.addEventListener('click', function() {
+                                const id = this.getAttribute('data-id');
+                                const fullName = this.getAttribute('data-fullname');
+                                const email = this.getAttribute('data-email');
+                                const username = this.getAttribute('data-username');
+                                const phone = this.getAttribute('data-phone');
+                                const address = this.getAttribute('data-address');
+                                const gender = this.getAttribute('data-gender');
+                                const role = this.getAttribute('data-role');
+                                const status = this.getAttribute('data-status');
+                                const dob = this.getAttribute('data-dob');
+                                
+                                document.getElementById('userFullName').textContent = fullName;
+                                document.getElementById('userEmail').textContent = email || 'Không có';
+                                document.getElementById('userUsername').textContent = username || 'Không có';
+                                document.getElementById('userPhone').textContent = phone || 'Không có';
+                                document.getElementById('userAddress').textContent = address || 'Không có';
+                                document.getElementById('userGender').textContent = gender || 'Không có';
+                                document.getElementById('userRole').textContent = role || 'Không có';
+                                document.getElementById('userDob').textContent = dob || 'Không có';
+                                
+                                // Cập nhật trạng thái với badge
+                                const statusBadge = document.getElementById('viewUserStatus');
+                                if (status === 'Active') {
+                                    statusBadge.className = 'badge bg-gradient-success';
+                                    statusBadge.textContent = 'Hoạt động';
+                                } else {
+                                    statusBadge.className = 'badge bg-gradient-secondary';
+                                    statusBadge.textContent = 'Không hoạt động';
+                                }
+                                
+                                // Cập nhật link chỉnh sửa
+                                document.getElementById('editUserBtn').href = 'editUser?id=' + id;
+                                
+                                var viewModal = new bootstrap.Modal(document.getElementById('viewUserModal'));
+                                viewModal.show();
+                            });
+                        });
+                    });
                 </script>
                 <script src="assets/js/core/popper.min.js" type="text/javascript"></script>
                 <script src="assets/js/core/bootstrap.min.js" type="text/javascript"></script>
