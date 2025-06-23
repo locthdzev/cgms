@@ -749,7 +749,8 @@
                                       </g>
                                     </g>
                                   </g>
-                                </svg>
+                                </g>
+                              </svg>
                               </div>
                               <div>
                                 <h6
@@ -863,12 +864,12 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-7 text-center mx-auto">
-              <h1 class="text-white pt-3 mt-n5 text-dark">Corefit Gym</h1>
+              <h1 class="text-white pt-3 mt-n5">CoreFit Gym</h1>
               <p class="lead text-white mt-3">
-                A powerful and user-friendly platform to manage your gym
-                operations with ease.<br />
-                Designed for trainers, staff, and members – all in one place.
+                Nâng cao sức khỏe, thay đổi ngoại hình và cải thiện cuộc sống.<br />
+                Hãy để chúng tôi đồng hành cùng bạn trên hành trình chinh phục bản thân.
               </p>
+              <a href="/register" class="btn btn-lg btn-white mt-3">Bắt đầu ngay</a>
             </div>
           </div>
         </div>
@@ -939,12 +940,11 @@
               <div class="col-md-4 position-relative">
                 <div class="p-3 text-center">
                   <h1 class="text-gradient text-dark">
-                    <span id="state1" countTo="70">0</span>+
+                    <span id="state1" countTo="1000">0</span>+
                   </h1>
-                  <h5 class="mt-3">Active Members</h5>
+                  <h5 class="mt-3">Thành viên tích cực</h5>
                   <p class="text-sm">
-                    Easily track and manage all your gym members in one
-                    centralized system.
+                    Hơn 1000 thành viên đang tập luyện và đạt được mục tiêu sức khỏe cùng chúng tôi.
                   </p>
                 </div>
                 <hr class="vertical dark" />
@@ -954,23 +954,21 @@
                   <h1 class="text-gradient text-dark">
                     <span id="state2" countTo="15">0</span>+
                   </h1>
-                  <h5 class="mt-3">Customizable Modules</h5>
+                  <h5 class="mt-3">Huấn luyện viên chuyên nghiệp</h5>
                   <p class="text-sm">
-                    Flexible features for scheduling, payments, staff, and
-                    package management.
+                    Đội ngũ PT giàu kinh nghiệm, được đào tạo bài bản và sẵn sàng hỗ trợ bạn.
                   </p>
                 </div>
                 <hr class="vertical dark" />
               </div>
               <div class="col-md-4">
                 <div class="p-3 text-center">
-                  <h1 class="text-gradient text-dark" id="state3" countTo="4">
+                  <h1 class="text-gradient text-dark" id="state3" countTo="25">
                     0
                   </h1>
-                  <h5 class="mt-3">Ready-to-Use Pages</h5>
+                  <h5 class="mt-3">Gói tập đa dạng</h5>
                   <p class="text-sm">
-                    Start faster with built-in pages like Dashboard, Members,
-                    Trainers, and Reports.
+                    Từ tập luyện cá nhân đến các lớp nhóm sôi động, chúng tôi có đầy đủ các gói phù hợp với nhu cầu của bạn.
                   </p>
                 </div>
               </div>
@@ -1025,10 +1023,9 @@
                       </g>
                     </svg>
                   </div>
-                  <h5 class="font-weight-bolder mt-3">Full Documentation</h5>
+                  <h5 class="font-weight-bolder mt-3">Thiết bị hiện đại</h5>
                   <p class="pe-5">
-                    Built by developers for developers. Check the foundation and
-                    you will find everything inside our documentation.
+                    Phòng tập được trang bị các thiết bị tập luyện tiên tiến nhất, đảm bảo hiệu quả và an toàn cho mọi thành viên.
                   </p>
                 </div>
               </div>
@@ -1076,10 +1073,9 @@
                       </g>
                     </svg>
                   </div>
-                  <h5 class="font-weight-bolder mt-3">Bootstrap 5 Ready</h5>
+                  <h5 class="font-weight-bolder mt-3">Không gian rộng rãi</h5>
                   <p class="pe-3">
-                    The world’s most popular front-end open source toolkit,
-                    featuring Sass variables and mixins.
+                    Phòng tập được thiết kế rộng rãi, thoáng mát với nhiều khu vực chức năng riêng biệt cho từng loại bài tập.
                   </p>
                 </div>
               </div>
@@ -1134,10 +1130,9 @@
                       </g>
                     </svg>
                   </div>
-                  <h5 class="font-weight-bolder mt-3">Save Time & Money</h5>
+                  <h5 class="font-weight-bolder mt-3">Lịch tập linh hoạt</h5>
                   <p class="pe-5">
-                    Creating your design from scratch with dedicated designers
-                    can be very expensive. Start with our Design System.
+                    Phòng tập mở cửa từ sáng sớm đến tối muộn, giúp bạn dễ dàng sắp xếp thời gian tập luyện phù hợp với lịch trình bận rộn.
                   </p>
                 </div>
               </div>
@@ -1185,10 +1180,9 @@
                       </g>
                     </svg>
                   </div>
-                  <h5 class="font-weight-bolder mt-3">Fully Responsive</h5>
+                  <h5 class="font-weight-bolder mt-3">Đa dạng dịch vụ</h5>
                   <p class="pe-3">
-                    Regardless of the screen size, the website content will
-                    naturally fit the given resolution.
+                    Từ tập luyện cá nhân, lớp học nhóm đến yoga, pilates và các dịch vụ chăm sóc sức khỏe khác đều có sẵn tại CoreFit Gym.
                   </p>
                 </div>
               </div>
@@ -1202,7 +1196,7 @@
               <div
                 class="full-background"
                 style="
-                  background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/assets/img/team-working.jpg');
+                  background-image: url('https://images.pexels.com/photos/2247179/pexels-photo-2247179.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
                 "
               ></div>
               <div class="card-body pt-7 text-center">
@@ -1250,14 +1244,14 @@
                   </svg>
                 </div>
                 <h2 class="text-white up mb-0">
-                  Feel the <br />
-                  Soft UI Design System
+                  Trải nghiệm <br />
+                  CoreFit Gym ngay hôm nay
                 </h2>
                 <a
-                  href=".//sections/elements/buttons.html"
+                  href="/login"
                   target="_blank"
                   class="btn btn-outline-white mt-5 up btn-round"
-                  >Start with Elements</a
+                  >Đăng nhập ngay</a
                 >
               </div>
             </div>
@@ -1270,11 +1264,10 @@
         <div class="row">
           <div class="row justify-content-center text-center my-sm-5">
             <div class="col-lg-6">
-              <h2 class="text-dark mb-0">Huge collection of sections</h2>
-              <h2 class="text-primary text-gradient">Infinite combinations</h2>
+              <h2 class="text-dark mb-0">Các dịch vụ tại CoreFit Gym</h2>
+              <h2 class="text-primary text-gradient">Đa dạng và chuyên nghiệp</h2>
               <p class="lead">
-                We have created multiple options for you to put together and
-                customise into pixel perfect pages.
+                Chúng tôi cung cấp nhiều dịch vụ khác nhau để đáp ứng nhu cầu tập luyện của mọi đối tượng, từ người mới bắt đầu đến người tập chuyên nghiệp.
               </p>
             </div>
           </div>
@@ -1287,10 +1280,9 @@
               class="position-sticky pb-lg-5 pb-3 mt-lg-0 mt-5 ps-2"
               style="top: 100px"
             >
-              <h3>Design Blocks</h3>
+              <h3>Dịch vụ nổi bật</h3>
               <h6 class="text-secondary font-weight-normal pe-3">
-                A selection of 45 page sections that fit perfectly in any
-                combination
+                Khám phá các dịch vụ đa dạng tại CoreFit Gym phù hợp với mọi nhu cầu và mục tiêu của bạn
               </h6>
             </div>
           </div>
@@ -1983,9 +1975,9 @@
               class="position-sticky pb-lg-5 pb-3 mt-lg-0 mt-5 ps-2"
               style="top: 100px"
             >
-              <h3>Navigation</h3>
+              <h3>Trang thiết bị</h3>
               <h6 class="text-secondary font-weight-normal pe-3">
-                30+ components that will help go through the pages
+                Phòng tập được trang bị đầy đủ với các thiết bị hiện đại từ các thương hiệu hàng đầu thế giới
               </h6>
             </div>
           </div>

@@ -209,7 +209,7 @@
                                 <p class="card-text text-sm mb-2"><%= pkg.getDescription() %></p>
                                 <div class="d-flex justify-content-between align-items-center mt-2">
                                     <span class="text-dark font-weight-bold"><%= String.format("%,.0f", pkg.getPrice()) %> VNĐ</span>
-                                    <span class="badge bg-gradient-info"><%= pkg.getDuration() %> tháng</span>
+                                    <span class="badge bg-gradient-info"><%= pkg.getDuration() %> ngày</span>
                                 </div>
                             </div>
                         </div>

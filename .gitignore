@@ -1,7 +1,7 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
-!**/src/test/**/target/
+!**/src/test/**/build/
 
 ### IntelliJ IDEA ###
 .idea/
@@ -34,3 +34,13 @@ nb-configuration.xml
 
 ### Mac OS ###
 .DS_Store
+
+# Application configuration
+src/main/resources/app.properties
+
+# Logs
+*.log
+logs/
+
+# OS files
+Thumbs.db

@@ -61,6 +61,23 @@ public class UserService {
         return "fail";
     }
 
+    public String registerGoogleUser(User user, String rawPassword) {
+        // Tạo salt và hash password
+        String salt = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16);
+        String hashedPassword = hashPassword(rawPassword, salt);
+        user.setSalt(salt);
+        user.setPassword(hashedPassword);
+
+        // Người dùng Google đã được xác thực qua Google OAuth
+        user.setCreatedAt(java.time.Instant.now());
+        boolean created = userDAO.createUser(user);
+
+        if (created) {
+            return "success";
+        }
+        return "fail";
+    }
+
     public java.util.List<User> getAllUsers() {
         return userDAO.getAllUsers();
     }
