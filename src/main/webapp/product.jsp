@@ -113,6 +113,15 @@
             border-radius: 10px;
             margin-bottom: 10px;
         }
+        
+        /* Delete button style */
+        .delete-action {
+            color: #f5365c !important;
+        }
+        
+        .delete-action:hover {
+            background-color: #ffeef1 !important;
+        }
     </style>
 </head>
 <body class="g-sidenav-show bg-gray-100">
@@ -190,7 +199,7 @@
                                         <td class="text-center"><h6 class="mb-0 text-sm"><%= p.getId() %></h6></td>
                                         <td>
                                             <% if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) { %>
-                                                <img src="<%= p.getImageUrl() %>" alt="<%= p.getName() %>" class="product-img-thumbnail" onerror="this.onerror=null; this.src='assets/img/placeholder.jpg';">
+                                                <img src="<%= p.getImageUrl() %>" alt="<%= p.getName() %>" class="product-img-thumbnail" onerror="this.onerror=null; this.src='assets/img/placeholder-image.jpg';">
                                             <% } else { %>
                                                 <div class="product-img-thumbnail bg-secondary d-flex align-items-center justify-content-center">
                                                     <i class="fas fa-image text-white"></i>
@@ -230,11 +239,13 @@
                                                             data-description="<%= p.getDescription() != null ? p.getDescription() : "" %>"
                                                             data-price="<%= p.getPrice() %>"
                                                             data-image="<%= p.getImageUrl() != null ? p.getImageUrl() : "" %>"
-                                                            data-status="<%= p.getStatus() %>">
+                                                            data-status="<%= p.getStatus() %>"
+                                                            data-created="<%= p.getCreatedAt() != null ? p.getCreatedAt().toString().replace("T", " ").substring(0, 16) : "" %>"
+                                                            data-updated="<%= p.getUpdatedAt() != null ? p.getUpdatedAt().toString().replace("T", " ").substring(0, 16) : "" %>">
                                                             <i class="fas fa-eye me-2"></i>Xem chi tiết</a></li>
                                                     <li><a class="dropdown-item" href="${pageContext.request.contextPath}/editProduct?id=<%= p.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
                                                     <li>
-                                                        <a class="dropdown-item delete-product-btn" href="#" 
+                                                        <a class="dropdown-item delete-product-btn delete-action" href="#" 
                                                             data-id="<%= p.getId() %>" 
                                                             data-name="<%= p.getName() %>">
                                                             <i class="fas fa-trash me-2"></i>Xóa
@@ -273,18 +284,18 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Tên sản phẩm *</label>
-                                    <input type="text" name="name" class="form-control" value="<%= product != null ? product.getName() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
+                                    <input type="text" name="name" class="form-control" value="<%= product != null && product.getName() != null ? product.getName() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Giá *</label>
                                     <div class="input-group">
-                                        <input type="number" name="price" class="form-control" value="<%= product != null && product.getPrice() != null ? product.getPrice() : "" %>" min="0" step="1000" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
+                                        <input type="number" name="price" class="form-control" value="<%= product != null && product.getPrice() != null ? product.getPrice().intValue() : "" %>" min="0" step="1000" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                 </div>
                                 <div class="col-md-12 mb-3">
                                     <label class="form-label">Mô tả</label>
-                                    <textarea name="description" class="form-control" rows="4" <%= "view".equals(formAction) ? "readonly" : "" %>><%= product != null ? product.getDescription() : "" %></textarea>
+                                    <textarea name="description" class="form-control" rows="4" <%= "view".equals(formAction) ? "readonly" : "" %>><%= product != null && product.getDescription() != null ? product.getDescription() : "" %></textarea>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Trạng thái *</label>
@@ -308,7 +319,7 @@
                                 <div class="col-md-12 mb-3">
                                     <label class="form-label"><%= "view".equals(formAction) ? "Hình ảnh" : "Hình ảnh hiện tại" %></label>
                                     <div>
-                                        <img src="<%= product.getImageUrl() %>" alt="<%= product.getName() %>" class="current-image" onerror="this.onerror=null; this.src='assets/img/placeholder.jpg';">
+                                        <img src="<%= product.getImageUrl() %>" alt="<%= product.getName() %>" class="current-image" onerror="this.onerror=null; this.src='assets/img/placeholder-image.jpg';">
                                     </div>
                                 </div>
                                 <% } %>
@@ -341,7 +352,7 @@
                             <div class="modal-body">
                                 <!-- Hình ảnh sản phẩm -->
                                 <div class="text-center mb-4" id="productImageContainer">
-                                    <img id="productImage" src="" alt="Product Image" class="product-detail-img" onerror="this.onerror=null; this.src='assets/img/placeholder.jpg';">
+                                    <img id="productImage" src="" alt="Product Image" class="product-detail-img" onerror="this.onerror=null; this.src='assets/img/placeholder-image.jpg';">
                                 </div>
                                 
                                 <!-- Thông tin cơ bản -->
@@ -357,9 +368,17 @@
                                 
                                 <!-- Thông tin chi tiết -->
                                 <div class="row">
-                                    <div class="col-12">
-                                        <h6 class="mb-2">Mô tả sản phẩm</h6>
+                                    <div class="col-12 mb-3">
+                                        <h6 class="mb-2 detail-label">Mô tả sản phẩm</h6>
                                         <p id="productDescription" class="text-sm"></p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <h6 class="mb-2 detail-label">Ngày tạo</h6>
+                                        <p id="productCreatedAt" class="text-sm"></p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <h6 class="mb-2 detail-label">Cập nhật lần cuối</h6>
+                                        <p id="productUpdatedAt" class="text-sm"></p>
                                     </div>
                                 </div>
                             </div>
@@ -432,10 +451,14 @@
                                 const price = this.getAttribute('data-price');
                                 const image = this.getAttribute('data-image');
                                 const status = this.getAttribute('data-status');
+                                const createdAt = this.getAttribute('data-created');
+                                const updatedAt = this.getAttribute('data-updated');
                                 
                                 document.getElementById('productName').textContent = name;
                                 document.getElementById('productDescription').textContent = description || 'Không có mô tả';
-                                document.getElementById('productPrice').textContent = new Intl.NumberFormat('vi-VN').format(price) + ' VNĐ';
+                                document.getElementById('productPrice').textContent = new Intl.NumberFormat('vi-VN').format(parseInt(price)) + ' VNĐ';
+                                document.getElementById('productCreatedAt').textContent = createdAt || 'Không có thông tin';
+                                document.getElementById('productUpdatedAt').textContent = updatedAt || 'Chưa cập nhật';
                                 
                                 // Xử lý hiển thị hình ảnh
                                 const imageContainer = document.getElementById('productImageContainer');
