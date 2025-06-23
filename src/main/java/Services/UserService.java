@@ -254,4 +254,30 @@ public class UserService {
                 + "</body>"
                 + "</html>";
     }
+
+    // Phương thức đổi mật khẩu cho người dùng đã đăng nhập
+    public String changePassword(int userId, String newPassword) {
+        // Lấy thông tin đầy đủ của user
+        User user = userDAO.getUserById(userId);
+        if (user == null) {
+            return "error";
+        }
+
+        // Tạo salt mới và hash mật khẩu mới
+        String salt = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16);
+        String hashedPassword = hashPassword(newPassword, salt);
+
+        // Cập nhật mật khẩu và salt mới
+        user.setPassword(hashedPassword);
+        user.setSalt(salt);
+        user.setUpdatedAt(Instant.now());
+
+        boolean updated = userDAO.updateUser(user);
+
+        if (updated) {
+            return "success";
+        }
+
+        return "error";
+    }
 }
