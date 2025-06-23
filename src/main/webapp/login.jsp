@@ -34,6 +34,28 @@ import="Utilities.ConfigUtil" %>
     />
     <!-- Google Sign-In API -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+      .password-container {
+        position: relative;
+      }
+      .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #aaa;
+        width: 24px;
+        height: 24px;
+      }
+      .password-toggle:hover {
+        color: #333;
+      }
+      .password-toggle img {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
   </head>
   <body class="sign-in-illustration">
     <section>
@@ -56,7 +78,7 @@ import="Utilities.ConfigUtil" %>
                     <%= request.getAttribute("error") %>
                   </div>
                   <% } %>
-                  <form role="form" method="post" action="LoginController">
+                  <form role="form" method="post" action="/login">
                     <div class="mb-3">
                       <input
                         type="text"
@@ -65,19 +87,24 @@ import="Utilities.ConfigUtil" %>
                         placeholder="Tên đăng nhập"
                         aria-label="Username"
                         aria-describedby="username-addon"
+                        value="<%= request.getAttribute("username") != null ? request.getAttribute("username") : "" %>"
                         required
                       />
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 password-container">
                       <input
                         type="password"
                         name="password"
+                        id="password"
                         class="form-control form-control-lg"
                         placeholder="Mật khẩu"
                         aria-label="Password"
                         aria-describedby="password-addon"
                         required
                       />
+                      <span class="password-toggle" onclick="togglePassword('password')">
+                        <img src="assets/svg/eye-show-svgrepo-com.svg" id="password-toggle-icon" alt="Show/Hide Password">
+                      </span>
                     </div>
                     <div class="form-check form-switch">
                       <input
@@ -121,12 +148,19 @@ import="Utilities.ConfigUtil" %>
                   </div>
                 </div>
                 <div class="card-footer text-center pt-0 px-lg-2 px-1">
-                  <p class="mb-4 text-sm mx-auto">
+                  <p class="mb-2 text-sm mx-auto">
                     Chưa có tài khoản?
                     <a
                       href="/register"
                       class="text-primary text-gradient font-weight-bold"
                       >Đăng ký</a
+                    >
+                  </p>
+                  <p class="mb-4 text-sm mx-auto">
+                    <a
+                      href="/forgot-password"
+                      class="text-primary text-gradient font-weight-bold"
+                      >Quên mật khẩu?</a
                     >
                   </p>
                 </div>
@@ -168,5 +202,19 @@ import="Utilities.ConfigUtil" %>
       src="assets/js/core/bootstrap.min.js"
       type="text/javascript"
     ></script>
+    <script>
+      function togglePassword(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(inputId + '-toggle-icon');
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          toggleIcon.src = 'assets/svg/eye-off-svgrepo-com.svg';
+        } else {
+          passwordInput.type = 'password';
+          toggleIcon.src = 'assets/svg/eye-show-svgrepo-com.svg';
+        }
+      }
+    </script>
   </body>
 </html>
