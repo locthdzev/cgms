@@ -21,8 +21,4 @@ public class FeedbackService {
         return feedbackDAO.deleteFeedbackById(feedbackId);
     }
 
-    public Feedback getFeedbackById(int id) {
-        return feedbackDAO.getFeedbackById(id);
-    }
-
 }
