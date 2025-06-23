@@ -1,5 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %> <%@ page
-import="Utilities.ConfigUtil" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
   <head>
@@ -14,7 +13,7 @@ import="Utilities.ConfigUtil" %>
       href="assets/img/apple-icon.png"
     />
     <link rel="icon" type="image/png" href="assets/img/favicon.png" />
-    <title>Đăng nhập - CoreFit Gym Management System</title>
+    <title>Quên mật khẩu - CoreFit Gym Management System</title>
     <!-- Fonts and icons -->
     <link
       href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800"
@@ -32,8 +31,6 @@ import="Utilities.ConfigUtil" %>
       href="assets/css/soft-design-system.css"
       rel="stylesheet"
     />
-    <!-- Google Sign-In API -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body class="sign-in-illustration">
     <section>
@@ -45,92 +42,72 @@ import="Utilities.ConfigUtil" %>
             >
               <div class="card card-plain">
                 <div class="card-header pb-0 text-left">
-                  <h4 class="font-weight-bolder">Đăng nhập</h4>
+                  <h4 class="font-weight-bolder">Quên mật khẩu</h4>
                   <p class="mb-0">
-                    Nhập tên đăng nhập và mật khẩu để đăng nhập
+                    Nhập tên đăng nhập hoặc email để lấy lại mật khẩu
                   </p>
                 </div>
                 <div class="card-body pb-3">
-                  <% if (request.getAttribute("error") != null) { %>
+                  <% if (request.getAttribute("success") != null) { %>
+                  <div class="alert alert-success text-white" role="alert">
+                    <%= request.getAttribute("success") %>
+                  </div>
+                  <div class="text-center">
+                    <a href="/login" class="btn btn-lg bg-gradient-primary w-100 mt-4 mb-0">Quay lại đăng nhập</a>
+                  </div>
+                  <% } else if (request.getAttribute("error") != null) { %>
                   <div class="alert alert-danger text-white" role="alert">
                     <%= request.getAttribute("error") %>
                   </div>
-                  <% } %>
-                  <form role="form" method="post" action="/login">
+                  <form role="form" method="post" action="ForgotPasswordController">
                     <div class="mb-3">
                       <input
                         type="text"
-                        name="username"
+                        name="usernameOrEmail"
                         class="form-control form-control-lg"
-                        placeholder="Tên đăng nhập"
-                        aria-label="Username"
-                        aria-describedby="username-addon"
+                        placeholder="Tên đăng nhập hoặc Email"
+                        aria-label="Username or Email"
                         required
                       />
-                    </div>
-                    <div class="mb-3">
-                      <input
-                        type="password"
-                        name="password"
-                        class="form-control form-control-lg"
-                        placeholder="Mật khẩu"
-                        aria-label="Password"
-                        aria-describedby="password-addon"
-                        required
-                      />
-                    </div>
-                    <div class="form-check form-switch">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="rememberMe"
-                        checked
-                      />
-                      <label class="form-check-label" for="rememberMe"
-                        >Ghi nhớ đăng nhập</label
-                      >
                     </div>
                     <div class="text-center">
                       <button
                         type="submit"
                         class="btn btn-lg bg-gradient-primary btn-lg w-100 mt-4 mb-0"
                       >
-                        Đăng nhập
+                        Gửi yêu cầu đặt lại mật khẩu
                       </button>
                     </div>
                   </form>
-                  
-                  <div class="text-center mt-2">
-                    <a href="/forgot-password" class="text-primary text-gradient font-weight-bold">Quên mật khẩu?</a>
-                  </div>
-
-                  <div class="text-center mt-3">
-                    <p class="text-sm">Hoặc đăng nhập với</p>
-                    <div
-                      id="g_id_onload"
-                      data-client_id="<%= ConfigUtil.getGoogleClientId() %>"
-                      data-login_uri="http://localhost:8080/GoogleLoginController"
-                      data-auto_prompt="false"
-                    ></div>
-                    <div
-                      class="g_id_signin"
-                      data-type="standard"
-                      data-size="large"
-                      data-theme="outline"
-                      data-text="sign_in_with"
-                      data-shape="rectangular"
-                      data-logo_alignment="center"
-                      data-width="100%"
-                    ></div>
-                  </div>
+                  <% } else { %>
+                  <form role="form" method="post" action="ForgotPasswordController">
+                    <div class="mb-3">
+                      <input
+                        type="text"
+                        name="usernameOrEmail"
+                        class="form-control form-control-lg"
+                        placeholder="Tên đăng nhập hoặc Email"
+                        aria-label="Username or Email"
+                        required
+                      />
+                    </div>
+                    <div class="text-center">
+                      <button
+                        type="submit"
+                        class="btn btn-lg bg-gradient-primary btn-lg w-100 mt-4 mb-0"
+                      >
+                        Gửi yêu cầu đặt lại mật khẩu
+                      </button>
+                    </div>
+                  </form>
+                  <% } %>
                 </div>
                 <div class="card-footer text-center pt-0 px-lg-2 px-1">
                   <p class="mb-4 text-sm mx-auto">
-                    Chưa có tài khoản?
                     <a
-                      href="/register"
+                      href="/login"
                       class="text-primary text-gradient font-weight-bold"
-                      >Đăng ký</a
+                      >Quay lại đăng nhập</a
                     >
                   </p>
                 </div>
@@ -173,4 +150,4 @@ import="Utilities.ConfigUtil" %>
       type="text/javascript"
     ></script>
   </body>
-</html>
+</html> 
