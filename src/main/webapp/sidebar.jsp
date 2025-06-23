@@ -10,7 +10,7 @@
     boolean isUser = currentPath.contains("user.jsp") || currentPath.contains("User") || currentPath.contains("/user");
     boolean isVoucher = currentPath.contains("voucher") || currentPath.contains("Voucher");
     boolean isProfile = currentPath.contains("profile.jsp");
-    boolean isProduct = currentPath.contains("product") || currentPath.contains("Product");
+    boolean isProduct = currentPath.contains("product.jsp") || currentPath.contains("Product") || currentPath.contains("/product") || currentPath.contains("addProduct") || currentPath.contains("editProduct");
     boolean isFeedback = currentPath.contains("feedback") || currentPath.contains("Feedback");
 %>
 
@@ -71,8 +71,8 @@
           <span class="nav-link-text ms-1">Quản lý người dùng</span>
         </a>
       </li>
-      <!-- <li class="nav-item">
-        <a class="nav-link <%= isProduct ? "active" : "" %>" href="${pageContext.request.contextPath}/product?action=list">
+      <li class="nav-item">
+        <a class="nav-link <%= isProduct ? "active" : "" %>" href="${pageContext.request.contextPath}/product">
           <div
             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
           >
@@ -80,7 +80,7 @@
           </div>
           <span class="nav-link-text ms-1">Quản lý sản phẩm</span>
         </a>
-      </li> -->
+      </li>
       <li class="nav-item">
         <a class="nav-link <%= isVoucher ? "active" : "" %>" href="${pageContext.request.contextPath}/voucher?action=list">
           <div
