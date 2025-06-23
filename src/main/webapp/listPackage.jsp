@@ -100,6 +100,15 @@
             object-fit: cover;
             border-radius: 10px;
         }
+        
+        /* Delete/Disable button style */
+        .delete-action {
+            color: #f5365c !important;
+        }
+        
+        .delete-action:hover {
+            background-color: #ffeef1 !important;
+        }
     </style>
     </head>
 
@@ -190,7 +199,7 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item toggle-status-btn" href="#" 
+                                            <a class="dropdown-item toggle-status-btn <%= "Active".equals(pkg.getStatus()) ? "delete-action" : "" %>" href="#" 
                                                data-id="<%= pkg.getId() %>" 
                                                data-name="<%= pkg.getName() %>" 
                                                data-status="<%= pkg.getStatus() %>">
