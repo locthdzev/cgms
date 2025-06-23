@@ -31,6 +31,28 @@
       href="assets/css/soft-design-system.css"
       rel="stylesheet"
     />
+    <style>
+      .password-container {
+        position: relative;
+      }
+      .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #aaa;
+        width: 24px;
+        height: 24px;
+      }
+      .password-toggle:hover {
+        color: #333;
+      }
+      .password-toggle img {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
   </head>
   <body class="sign-in-illustration">
     <section>
@@ -63,9 +85,9 @@
                     <a href="/forgot-password" class="btn btn-lg bg-gradient-primary w-100 mt-4 mb-0">Yêu cầu đặt lại mật khẩu mới</a>
                   </div>
                   <% } else { %>
-                  <form role="form" method="post" action="ResetPasswordController" onsubmit="return validateForm()">
+                  <form role="form" method="post" action="/reset-password" onsubmit="return validateForm()">
                     <input type="hidden" name="token" value="<%= request.getParameter("token") %>" />
-                    <div class="mb-3">
+                    <div class="mb-3 password-container">
                       <input
                         type="password"
                         name="password"
@@ -76,8 +98,11 @@
                         required
                         minlength="6"
                       />
+                      <span class="password-toggle" onclick="togglePassword('password')">
+                        <img src="assets/svg/eye-show-svgrepo-com.svg" id="password-toggle-icon" alt="Show/Hide Password">
+                      </span>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 password-container">
                       <input
                         type="password"
                         name="confirmPassword"
@@ -88,6 +113,9 @@
                         required
                         minlength="6"
                       />
+                      <span class="password-toggle" onclick="togglePassword('confirmPassword')">
+                        <img src="assets/svg/eye-show-svgrepo-com.svg" id="confirmPassword-toggle-icon" alt="Show/Hide Password">
+                      </span>
                     </div>
                     <div class="text-center">
                       <button
@@ -158,6 +186,19 @@
         }
         
         return true;
+      }
+      
+      function togglePassword(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(inputId + '-toggle-icon');
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          toggleIcon.src = 'assets/svg/eye-off-svgrepo-com.svg';
+        } else {
+          passwordInput.type = 'password';
+          toggleIcon.src = 'assets/svg/eye-show-svgrepo-com.svg';
+        }
       }
     </script>
   </body>

@@ -9,6 +9,28 @@
   <link href="assets/css/soft-design-system.css?v=1.1.0" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800" rel="stylesheet" />
   <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <style>
+    .password-container {
+      position: relative;
+    }
+    .password-toggle {
+      position: absolute;
+      top: 50%;
+      right: 15px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #aaa;
+      width: 24px;
+      height: 24px;
+    }
+    .password-toggle:hover {
+      color: #333;
+    }
+    .password-toggle img {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
 </head>
 <body class="sign-in-illustration">
   <section>
@@ -51,11 +73,17 @@
                     <div class="mb-3">
                       <input type="email" class="form-control form-control-lg" placeholder="Email" name="email" required>
                     </div>
-                    <div class="mb-3">
-                      <input type="password" class="form-control form-control-lg" placeholder="Mật khẩu" name="password" required>
+                    <div class="mb-3 password-container">
+                      <input type="password" class="form-control form-control-lg" placeholder="Mật khẩu" name="password" id="password" required>
+                      <span class="password-toggle" onclick="togglePassword('password')">
+                        <img src="assets/svg/eye-show-svgrepo-com.svg" id="password-toggle-icon" alt="Show/Hide Password">
+                      </span>
                     </div>
-                    <div class="mb-3">
-                      <input type="password" class="form-control form-control-lg" placeholder="Xác nhận mật khẩu" name="confirmPassword" required>
+                    <div class="mb-3 password-container">
+                      <input type="password" class="form-control form-control-lg" placeholder="Xác nhận mật khẩu" name="confirmPassword" id="confirmPassword" required>
+                      <span class="password-toggle" onclick="togglePassword('confirmPassword')">
+                        <img src="assets/svg/eye-show-svgrepo-com.svg" id="confirmPassword-toggle-icon" alt="Show/Hide Password">
+                      </span>
                     </div>
                     <div class="mb-3">
                       <input type="text" class="form-control form-control-lg" placeholder="Số điện thoại" name="phonenumber" required>
@@ -107,5 +135,19 @@
   <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
   <script src="assets/js/plugins/parallax.min.js"></script>
   <script src="assets/js/soft-design-system.min.js?v=1.1.0" type="text/javascript"></script>
+  <script>
+    function togglePassword(inputId) {
+      const passwordInput = document.getElementById(inputId);
+      const toggleIcon = document.getElementById(inputId + '-toggle-icon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.src = 'assets/svg/eye-off-svgrepo-com.svg';
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.src = 'assets/svg/eye-show-svgrepo-com.svg';
+      }
+    }
+  </script>
 </body>
 </html> 

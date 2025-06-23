@@ -59,7 +59,7 @@
                   <div class="alert alert-danger text-white" role="alert">
                     <%= request.getAttribute("error") %>
                   </div>
-                  <form role="form" method="post" action="ForgotPasswordController">
+                  <form role="form" method="post" action="/forgot-password">
                     <div class="mb-3">
                       <input
                         type="text"
@@ -80,7 +80,7 @@
                     </div>
                   </form>
                   <% } else { %>
-                  <form role="form" method="post" action="ForgotPasswordController">
+                  <form role="form" method="post" action="/forgot-password">
                     <div class="mb-3">
                       <input
                         type="text"

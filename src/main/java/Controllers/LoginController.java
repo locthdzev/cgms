@@ -37,11 +37,15 @@ public class LoginController extends HttpServlet {
             } else {
                 // Đặt thông báo lỗi trực tiếp vào request thay vì session
                 request.setAttribute("error", "Không thể lấy thông tin người dùng!");
+                // Giữ lại username để hiển thị lại trong form
+                request.setAttribute("username", username);
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             }
         } else {
             // Đặt thông báo lỗi trực tiếp vào request thay vì session
             request.setAttribute("error", "Sai tên đăng nhập hoặc mật khẩu!");
+            // Giữ lại username để hiển thị lại trong form
+            request.setAttribute("username", username);
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }
     }
