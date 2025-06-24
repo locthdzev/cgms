@@ -7,7 +7,9 @@
     // Kiểm tra xem người dùng đang ở trang nào
     boolean isDashboard = currentPath.contains("dashboard.jsp") || currentPath.equals("/") || currentPath.equals("/dashboard");
     boolean isPackage = currentPath.contains("Package") || currentPath.contains("package");
-    boolean isUser = currentPath.contains("user.jsp") || currentPath.contains("User") || currentPath.contains("/user");
+    boolean isMember = currentPath.contains("user.jsp") || currentPath.contains("addUser.jsp") || currentPath.contains("editUser.jsp") || (currentPath.contains("/user") && !currentPath.contains("trainer"));
+    boolean isTrainer = currentPath.contains("trainer.jsp") || currentPath.contains("addTrainer.jsp") || currentPath.contains("editTrainer.jsp") || currentPath.contains("/trainer");
+    boolean isUserManagement = isMember || isTrainer; // Quản lý người dùng chung
     boolean isVoucher = currentPath.contains("voucher") || currentPath.contains("Voucher");
     boolean isProfile = currentPath.contains("profile.jsp");
     boolean isProduct = currentPath.contains("product.jsp") || currentPath.contains("Product") || currentPath.contains("/product") || currentPath.contains("addProduct") || currentPath.contains("editProduct");
@@ -61,15 +63,37 @@
           <span class="nav-link-text ms-1">Gói tập Gym</span>
         </a>
       </li>
+      <!-- Dropdown menu cho Quản lý người dùng -->
       <li class="nav-item">
-        <a class="nav-link <%= isUser ? "active" : "" %>" href="${pageContext.request.contextPath}/user">
+        <a class="nav-link <%= isUserManagement ? "active" : "" %>" href="#" data-bs-toggle="collapse" data-bs-target="#userManagementCollapse" aria-expanded="<%= isUserManagement ? "true" : "false" %>">
           <div
             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
           >
             <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
           </div>
           <span class="nav-link-text ms-1">Quản lý người dùng</span>
+          <i class="fas fa-angle-down ms-auto"></i>
         </a>
+        <div class="collapse <%= isUserManagement ? "show" : "" %>" id="userManagementCollapse">
+          <ul class="navbar-nav ps-4">
+            <li class="nav-item">
+              <a class="nav-link <%= isMember ? "active" : "" %>" href="${pageContext.request.contextPath}/user">
+                <span class="nav-link-text ms-1">
+                  <i class="fas fa-users text-dark text-sm opacity-10 me-1"></i>
+                  Quản lý Member
+                </span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <%= isTrainer ? "active" : "" %>" href="${pageContext.request.contextPath}/trainer">
+                <span class="nav-link-text ms-1">
+                  <i class="fas fa-user-tie text-dark text-sm opacity-10 me-1"></i>
+                  Quản lý Personal Trainer
+                </span>
+              </a>
+            </li>
+          </ul>
+        </div>
       </li>
       <li class="nav-item">
         <a class="nav-link <%= isProduct ? "active" : "" %>" href="${pageContext.request.contextPath}/product">
