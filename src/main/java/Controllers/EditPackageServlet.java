@@ -2,6 +2,7 @@ package Controllers;
 
 import Models.Package;
 import DAOs.PackageDAO;
+import Utilities.VNDPriceValidator;
 import java.io.IOException;
 import java.math.BigDecimal;
 import jakarta.servlet.ServletException;
@@ -109,13 +110,107 @@ public class EditPackageServlet extends HttpServlet {
                 return;
             }
 
-            // Chuyển đổi dữ liệu
-            int id = Integer.parseInt(idStr);
-            BigDecimal price = new BigDecimal(priceStr);
-            int duration = Integer.parseInt(durationStr);
+            // Parse ID
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException e) {
+                session.setAttribute("errorMessage", "ID gói tập không hợp lệ");
+                response.sendRedirect("listPackage");
+                return;
+            }
+
+            // Validate và parse giá tiền VND
+            VNDPriceValidator.ValidationResult priceValidation = VNDPriceValidator.validatePriceString(priceStr);
+            if (!priceValidation.isValid()) {
+                request.setAttribute("errorMessage", priceValidation.getErrorMessage());
+
+                // Lấy lại thông tin gói tập để hiển thị lại form
+                PackageDAO packageDAO = new PackageDAO();
+                Package pkg = packageDAO.getPackageById(id);
+                request.setAttribute("package", pkg);
+                request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                return;
+            }
+            BigDecimal price = priceValidation.getValidatedPrice();
+
+            // Parse duration
+            int duration;
+            try {
+                duration = Integer.parseInt(durationStr);
+                if (duration <= 0) {
+                    request.setAttribute("errorMessage", "Thời hạn phải lớn hơn 0");
+
+                    PackageDAO packageDAO = new PackageDAO();
+                    Package pkg = packageDAO.getPackageById(id);
+                    request.setAttribute("package", pkg);
+                    request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                    return;
+                }
+                if (duration > 3650) {
+                    request.setAttribute("errorMessage", "Thời hạn không được vượt quá 3650 ngày (10 năm)");
+
+                    PackageDAO packageDAO = new PackageDAO();
+                    Package pkg = packageDAO.getPackageById(id);
+                    request.setAttribute("package", pkg);
+                    request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorMessage", "Thời hạn phải là số nguyên");
+
+                PackageDAO packageDAO = new PackageDAO();
+                Package pkg = packageDAO.getPackageById(id);
+                request.setAttribute("package", pkg);
+                request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                return;
+            }
+
+            // Parse sessions (optional)
             Integer sessions = null;
             if (sessionsStr != null && !sessionsStr.trim().isEmpty()) {
-                sessions = Integer.parseInt(sessionsStr);
+                try {
+                    sessions = Integer.parseInt(sessionsStr);
+                    if (sessions <= 0) {
+                        request.setAttribute("errorMessage", "Số buổi tập phải lớn hơn 0");
+
+                        PackageDAO packageDAO = new PackageDAO();
+                        Package pkg = packageDAO.getPackageById(id);
+                        request.setAttribute("package", pkg);
+                        request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                        return;
+                    }
+                    if (sessions > 1000) {
+                        request.setAttribute("errorMessage", "Số buổi tập không được vượt quá 1000");
+
+                        PackageDAO packageDAO = new PackageDAO();
+                        Package pkg = packageDAO.getPackageById(id);
+                        request.setAttribute("package", pkg);
+                        request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    request.setAttribute("errorMessage", "Số buổi tập phải là số nguyên");
+
+                    PackageDAO packageDAO = new PackageDAO();
+                    Package pkg = packageDAO.getPackageById(id);
+                    request.setAttribute("package", pkg);
+                    request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                    return;
+                }
+            }
+
+            // Validate giá theo loại gói tập
+            VNDPriceValidator.ValidationResult packageValidation = VNDPriceValidator.validatePriceForPackageType(price,
+                    duration, sessions);
+            if (!packageValidation.isValid()) {
+                request.setAttribute("errorMessage", packageValidation.getErrorMessage());
+
+                PackageDAO packageDAO = new PackageDAO();
+                Package pkg = packageDAO.getPackageById(id);
+                request.setAttribute("package", pkg);
+                request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                return;
             }
 
             // Lấy thông tin gói tập hiện tại
