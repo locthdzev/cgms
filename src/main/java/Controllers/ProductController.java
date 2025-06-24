@@ -1,7 +1,9 @@
 package Controllers;
 
 import Models.Product;
+import Models.Inventory;
 import Services.ProductService;
+import Services.InventoryService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,59 +21,57 @@ import java.util.List;
 )
 public class ProductController extends HttpServlet {
     private final ProductService service = new ProductService();
+    private final InventoryService inventoryService = new InventoryService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String servletPath = req.getServletPath();
         String action = req.getParameter("action");
+        if (action == null) action = "list";
 
-        if ("/addProduct".equals(servletPath)) {
-            // Hiển thị form thêm sản phẩm
-            req.setAttribute("product", new Product());
-            req.setAttribute("formAction", "create");
-            req.getRequestDispatcher("/product.jsp").forward(req, resp);
-        } else if ("/editProduct".equals(servletPath)) {
-            // Hiển thị form chỉnh sửa sản phẩm
-            String idStr = req.getParameter("id");
-            if (idStr != null) {
-                int id = Integer.parseInt(idStr);
-                Product product = service.getProductById(id);
-                req.setAttribute("product", product);
-                req.setAttribute("formAction", "edit");
-                req.getRequestDispatcher("/product.jsp").forward(req, resp);
-            } else {
-                resp.sendRedirect(req.getContextPath() + "/product");
-            }
-        } else if ("/product".equals(servletPath)) {
-            if (action == null) {
-                // Hiển thị danh sách sản phẩm
+        switch (action) {
+
+            // ----- Hiển thị form tạo -----
+            case "create":
+                req.setAttribute("product", new Product());
+                req.getRequestDispatcher("/product-form.jsp").forward(req, resp);
+                break;
+
+            // ----- Hiển thị form edit -----
+            case "edit":
+                int idEdit = Integer.parseInt(req.getParameter("id"));
+                Product pEdit = service.getProductById(idEdit);
+                req.setAttribute("product", pEdit);
+                
+                // Lấy thông tin tồn kho
+                Inventory inventory = inventoryService.getInventoryByProductId(idEdit);
+                req.setAttribute("inventory", inventory);
+                
+                req.getRequestDispatcher("/product-form.jsp").forward(req, resp);
+                break;
+
+            // ----- Xoá -----
+            case "delete":
+                int idDel = Integer.parseInt(req.getParameter("id"));
+                service.deleteProduct(idDel);
+                resp.sendRedirect(req.getContextPath() + "/product?action=list");
+                break;
+
+            // ----- Danh sách -----
+            default:
                 List<Product> list = service.getAllProducts();
                 req.setAttribute("productList", list);
-                req.getRequestDispatcher("/product.jsp").forward(req, resp);
-            } else if ("delete".equals(action)) {
-                // Xóa sản phẩm
-                try {
-                    service.deleteProduct(Integer.parseInt(req.getParameter("id")));
-                    HttpSession session = req.getSession();
-                    session.setAttribute("successMessage", "Xóa sản phẩm thành công!");
-                } catch (Exception e) {
-                    HttpSession session = req.getSession();
-                    session.setAttribute("errorMessage", "Lỗi khi xóa sản phẩm: " + e.getMessage());
+                
+                // Lấy thông tin tồn kho cho mỗi sản phẩm
+                for (Product p : list) {
+                    Inventory inv = inventoryService.getInventoryByProductId(p.getId());
+                    if (inv != null) {
+                        req.setAttribute("inventory_" + p.getId(), inv);
+                    }
                 }
-                resp.sendRedirect(req.getContextPath() + "/product");
-            } else if ("view".equals(action)) {
-                // Xem chi tiết sản phẩm
-                int id = Integer.parseInt(req.getParameter("id"));
-                Product product = service.getProductById(id);
-                req.setAttribute("product", product);
-                req.setAttribute("formAction", "view");
-                req.getRequestDispatcher("/product.jsp").forward(req, resp);
-            } else {
-                // Mặc định hiển thị danh sách
-                List<Product> list = service.getAllProducts();
-                req.setAttribute("productList", list);
-                req.getRequestDispatcher("/product.jsp").forward(req, resp);
-            }
+                
+                req.getRequestDispatcher("/product-list.jsp").forward(req, resp);
+                break;
         }
     }
 
