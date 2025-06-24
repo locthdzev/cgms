@@ -2,8 +2,10 @@ package Controllers;
 
 import Models.Package;
 import DAOs.PackageDAO;
+import Utilities.VNDUtils;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -111,7 +113,39 @@ public class EditPackageServlet extends HttpServlet {
 
             // Chuyển đổi dữ liệu
             int id = Integer.parseInt(idStr);
-            BigDecimal price = new BigDecimal(priceStr);
+
+            // Xử lý và validate giá tiền VND
+            BigDecimal price;
+            try {
+                // Parse giá tiền từ định dạng VND
+                price = VNDUtils.parseVND(priceStr);
+
+                // Validate giá tiền
+                String priceValidationMessage = VNDUtils.getValidationMessage(price);
+                if (priceValidationMessage != null) {
+                    request.setAttribute("errorMessage", priceValidationMessage);
+
+                    // Lấy lại thông tin gói tập để hiển thị lại form
+                    PackageDAO packageDAO = new PackageDAO();
+                    Package pkg = packageDAO.getPackageById(id);
+                    request.setAttribute("package", pkg);
+
+                    request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                    return;
+                }
+            } catch (ParseException e) {
+                request.setAttribute("errorMessage",
+                        "Định dạng giá tiền không hợp lệ. Vui lòng nhập số tiền hợp lệ (ví dụ: 1.000.000)");
+
+                // Lấy lại thông tin gói tập để hiển thị lại form
+                PackageDAO packageDAO = new PackageDAO();
+                Package pkg = packageDAO.getPackageById(id);
+                request.setAttribute("package", pkg);
+
+                request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                return;
+            }
+
             int duration = Integer.parseInt(durationStr);
             Integer sessions = null;
             if (sessionsStr != null && !sessionsStr.trim().isEmpty()) {
@@ -150,11 +184,12 @@ public class EditPackageServlet extends HttpServlet {
                 request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "Dữ liệu số không hợp lệ: " + e.getMessage());
+            request.setAttribute("errorMessage",
+                    "Dữ liệu số không hợp lệ. Vui lòng kiểm tra lại thời hạn và số buổi tập.");
             request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            request.setAttribute("errorMessage", "Có lỗi xảy ra khi cập nhật gói tập. Vui lòng thử lại sau.");
             request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
         }
     }
