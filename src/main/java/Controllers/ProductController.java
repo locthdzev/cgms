@@ -1,7 +1,9 @@
 package Controllers;
 
 import Models.Product;
+import Models.Inventory;
 import Services.ProductService;
+import Services.InventoryService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 
@@ -14,6 +16,7 @@ import java.util.List;
 public class ProductController extends HttpServlet {
 
     private final ProductService service = new ProductService();
+    private final InventoryService inventoryService = new InventoryService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -35,6 +38,11 @@ public class ProductController extends HttpServlet {
                 int idEdit = Integer.parseInt(req.getParameter("id"));
                 Product pEdit = service.getProductById(idEdit);
                 req.setAttribute("product", pEdit);
+                
+                // Lấy thông tin tồn kho
+                Inventory inventory = inventoryService.getInventoryByProductId(idEdit);
+                req.setAttribute("inventory", inventory);
+                
                 req.getRequestDispatcher("/product-form.jsp").forward(req, resp);
                 break;
 
@@ -49,6 +57,15 @@ public class ProductController extends HttpServlet {
             default:
                 List<Product> list = service.getAllProducts();
                 req.setAttribute("productList", list);
+                
+                // Lấy thông tin tồn kho cho mỗi sản phẩm
+                for (Product p : list) {
+                    Inventory inv = inventoryService.getInventoryByProductId(p.getId());
+                    if (inv != null) {
+                        req.setAttribute("inventory_" + p.getId(), inv);
+                    }
+                }
+                
                 req.getRequestDispatcher("/product-list.jsp").forward(req, resp);
                 break;
         }
