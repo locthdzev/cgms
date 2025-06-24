@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="Models.Package"%>
+<%@page import="Utilities.VNDUtils"%>
 <%
     // Lấy thông tin gói tập cần chỉnh sửa
     Package pkg = (Package) request.getAttribute("package");
@@ -77,33 +78,21 @@
                                         <div class="col-md-6 mb-3">
                                             <label for="price" class="form-label">Giá (VNĐ) *</label>
                                             <input type="text" class="form-control" id="price" name="price"
-                                                   value="<%= String.format("%,.0f", pkg.getPrice()) %>"
-                                                   placeholder="Ví dụ: 500000 hoặc 500,000"
-                                                   pattern="[0-9,\s]*"
-                                                   title="Chỉ nhập số và dấu phẩy"
-                                                   required>
-                                            <small class="form-text text-muted">
-                                                Giá từ 50,000 - 100,000,000 VNĐ. Nên là bội số của 1,000 VNĐ.
-                                            </small>
+                                                   value="<%= VNDUtils.formatVND(pkg.getPrice()) %>"
+                                                   placeholder="Ví dụ: 1.000.000" required>
+                                            <div class="form-text">Nhập giá tiền theo định dạng VND (ví dụ: 1.000.000)</div>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="duration" class="form-label">Thời hạn (ngày) *</label>
-                                            <input type="number" class="form-control" id="duration" name="duration"
-                                                   value="<%= pkg.getDuration() %>"
-                                                   min="1" max="3650"
-                                                   placeholder="Ví dụ: 30"
-                                                   required>
-                                            <small class="form-text text-muted">Từ 1 đến 3650 ngày (tối đa 10 năm)</small>
+                                            <input type="number" class="form-control" id="duration" name="duration" 
+                                                   value="<%= pkg.getDuration() %>" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="sessions" class="form-label">Số buổi tập</label>
-                                            <input type="number" class="form-control" id="sessions" name="sessions"
-                                                   value="<%= pkg.getSessions() != null ? pkg.getSessions() : "" %>"
-                                                   min="1" max="1000"
-                                                   placeholder="Ví dụ: 12">
-                                            <small class="form-text text-muted">Tùy chọn. Từ 1 đến 1000 buổi</small>
+                                            <input type="number" class="form-control" id="sessions" name="sessions" 
+                                                   value="<%= pkg.getSessions() != null ? pkg.getSessions() : "" %>">
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -142,58 +131,91 @@
         <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const priceInput = document.getElementById('price');
+            // Hàm định dạng số tiền VND
+            function formatVND(value) {
+                // Loại bỏ tất cả ký tự không phải số
+                const numericValue = value.replace(/[^\d]/g, '');
 
-            // Format price input with commas
-            priceInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/[^\d]/g, ''); // Remove non-digits
-                if (value) {
-                    // Add commas for thousands
-                    value = parseInt(value).toLocaleString('vi-VN');
-                    e.target.value = value;
+                if (numericValue === '') return '';
+
+                // Thêm dấu chấm phân cách hàng nghìn
+                return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            // Hàm validate giá tiền
+            function validatePrice(value) {
+                const numericValue = value.replace(/[^\d]/g, '');
+                const price = parseInt(numericValue);
+
+                if (isNaN(price) || price <= 0) {
+                    return 'Giá tiền phải lớn hơn 0';
                 }
-            });
 
-            // Remove commas before form submission
-            document.querySelector('form').addEventListener('submit', function(e) {
-                priceInput.value = priceInput.value.replace(/[^\d]/g, '');
-            });
+                if (price < 10000) {
+                    return 'Giá tiền tối thiểu là 10.000 VNĐ';
+                }
 
-            // Validate price on blur
-            priceInput.addEventListener('blur', function(e) {
-                const value = parseInt(e.target.value.replace(/[^\d]/g, ''));
+                if (price > 50000000) {
+                    return 'Giá tiền tối đa là 50.000.000 VNĐ';
+                }
 
-                if (value) {
-                    if (value < 50000) {
-                        showValidationMessage('Giá tối thiểu là 50,000 VNĐ', 'danger');
-                    } else if (value > 100000000) {
-                        showValidationMessage('Giá tối đa là 100,000,000 VNĐ', 'danger');
-                    } else if (value % 1000 !== 0) {
-                        showValidationMessage('Giá nên là bội số của 1,000 VNĐ để dễ thanh toán', 'warning');
-                    } else {
-                        removeValidationMessage();
+                return null;
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const priceInput = document.getElementById('price');
+                const form = document.querySelector('form');
+
+                // Xử lý input mask cho trường giá tiền
+                priceInput.addEventListener('input', function(e) {
+                    const cursorPosition = e.target.selectionStart;
+                    const oldValue = e.target.value;
+                    const newValue = formatVND(oldValue);
+
+                    e.target.value = newValue;
+
+                    // Điều chỉnh vị trí con trỏ
+                    const newCursorPosition = cursorPosition + (newValue.length - oldValue.length);
+                    e.target.setSelectionRange(newCursorPosition, newCursorPosition);
+                });
+
+                // Validation khi submit form
+                form.addEventListener('submit', function(e) {
+                    const priceValue = priceInput.value;
+                    const errorMessage = validatePrice(priceValue);
+
+                    if (errorMessage) {
+                        e.preventDefault();
+                        alert(errorMessage);
+                        priceInput.focus();
+                        return false;
                     }
-                }
+                });
+
+                // Validation real-time
+                priceInput.addEventListener('blur', function() {
+                    const priceValue = this.value;
+                    const errorMessage = validatePrice(priceValue);
+
+                    // Xóa thông báo lỗi cũ
+                    const existingError = this.parentNode.querySelector('.price-error');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+
+                    if (errorMessage) {
+                        // Hiển thị thông báo lỗi
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'text-danger small mt-1 price-error';
+                        errorDiv.textContent = errorMessage;
+                        this.parentNode.appendChild(errorDiv);
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    }
+                });
             });
-
-            function showValidationMessage(message, type) {
-                removeValidationMessage();
-
-                const validation = document.createElement('div');
-                validation.className = `price-validation alert alert-${type} mt-2`;
-                validation.innerHTML = `<small><i class="fas fa-exclamation-triangle me-1"></i>${message}</small>`;
-
-                priceInput.parentNode.appendChild(validation);
-            }
-
-            function removeValidationMessage() {
-                const existing = document.querySelector('.price-validation');
-                if (existing) {
-                    existing.remove();
-                }
-            }
-        });
         </script>
     </body>
 </html>
