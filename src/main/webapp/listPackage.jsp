@@ -284,7 +284,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <span class="detail-label">Thời hạn:</span> 
-                                    <span id="packageDetailDuration" class="ms-2"></span> tháng
+                                    <span id="packageDetailDuration" class="ms-2"></span> ngày
                                 </div>
                                 <div class="mb-2">
                                     <span class="detail-label">Số buổi tập:</span> 

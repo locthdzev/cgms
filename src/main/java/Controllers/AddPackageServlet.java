@@ -6,6 +6,7 @@ package Controllers;
 
 import Models.Package;
 import DAOs.PackageDAO;
+import Utilities.VNDPriceValidator;
 import java.io.IOException;
 import java.math.BigDecimal;
 import jakarta.servlet.ServletException;
@@ -77,21 +78,77 @@ public class AddPackageServlet extends HttpServlet {
             String description = request.getParameter("description");
             String status = request.getParameter("status");
 
-            // Kiểm tra dữ liệu đầu vào
-            if (name == null || name.trim().isEmpty() ||
-                    priceStr == null || priceStr.trim().isEmpty() ||
-                    durationStr == null || durationStr.trim().isEmpty()) {
-                request.setAttribute("errorMessage", "Vui lòng điền đầy đủ thông tin bắt buộc");
+            // Kiểm tra dữ liệu đầu vào cơ bản
+            if (name == null || name.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "Tên gói tập không được để trống");
                 request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
                 return;
             }
 
-            // Chuyển đổi dữ liệu
-            BigDecimal price = new BigDecimal(priceStr);
-            int duration = Integer.parseInt(durationStr);
+            if (durationStr == null || durationStr.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "Thời hạn không được để trống");
+                request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                return;
+            }
+
+            // Validate và parse giá tiền VND
+            VNDPriceValidator.ValidationResult priceValidation = VNDPriceValidator.validatePriceString(priceStr);
+            if (!priceValidation.isValid()) {
+                request.setAttribute("errorMessage", priceValidation.getErrorMessage());
+                request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                return;
+            }
+            BigDecimal price = priceValidation.getValidatedPrice();
+
+            // Parse duration
+            int duration;
+            try {
+                duration = Integer.parseInt(durationStr);
+                if (duration <= 0) {
+                    request.setAttribute("errorMessage", "Thời hạn phải lớn hơn 0");
+                    request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                    return;
+                }
+                if (duration > 3650) { // Max 10 years
+                    request.setAttribute("errorMessage", "Thời hạn không được vượt quá 3650 ngày (10 năm)");
+                    request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorMessage", "Thời hạn phải là số nguyên");
+                request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                return;
+            }
+
+            // Parse sessions (optional)
             Integer sessions = null;
             if (sessionsStr != null && !sessionsStr.trim().isEmpty()) {
-                sessions = Integer.parseInt(sessionsStr);
+                try {
+                    sessions = Integer.parseInt(sessionsStr);
+                    if (sessions <= 0) {
+                        request.setAttribute("errorMessage", "Số buổi tập phải lớn hơn 0");
+                        request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                        return;
+                    }
+                    if (sessions > 1000) {
+                        request.setAttribute("errorMessage", "Số buổi tập không được vượt quá 1000");
+                        request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    request.setAttribute("errorMessage", "Số buổi tập phải là số nguyên");
+                    request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                    return;
+                }
+            }
+
+            // Validate giá theo loại gói tập
+            VNDPriceValidator.ValidationResult packageValidation = VNDPriceValidator.validatePriceForPackageType(price,
+                    duration, sessions);
+            if (!packageValidation.isValid()) {
+                request.setAttribute("errorMessage", packageValidation.getErrorMessage());
+                request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                return;
             }
 
             // Tạo đối tượng Package
