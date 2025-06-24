@@ -35,14 +35,18 @@ public class LoginController extends HttpServlet {
                     response.sendRedirect("member-dashboard");
                 }
             } else {
-                HttpSession session = request.getSession();
-                session.setAttribute("error", "Không thể lấy thông tin người dùng!");
-                response.sendRedirect("login");
+                // Đặt thông báo lỗi trực tiếp vào request thay vì session
+                request.setAttribute("error", "Không thể lấy thông tin người dùng!");
+                // Giữ lại username để hiển thị lại trong form
+                request.setAttribute("username", username);
+                request.getRequestDispatcher("login.jsp").forward(request, response);
             }
         } else {
-            HttpSession session = request.getSession();
-            session.setAttribute("error", "Sai tên đăng nhập hoặc mật khẩu!");
-            response.sendRedirect("login");
+            // Đặt thông báo lỗi trực tiếp vào request thay vì session
+            request.setAttribute("error", "Sai tên đăng nhập hoặc mật khẩu!");
+            // Giữ lại username để hiển thị lại trong form
+            request.setAttribute("username", username);
+            request.getRequestDispatcher("login.jsp").forward(request, response);
         }
     }
 

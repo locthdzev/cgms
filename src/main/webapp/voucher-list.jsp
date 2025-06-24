@@ -88,6 +88,15 @@
         object-fit: cover;
         border-radius: 10px;
     }
+    
+    /* Delete button style */
+    .delete-action {
+        color: #f5365c !important;
+    }
+    
+    .delete-action:hover {
+        background-color: #ffeef1 !important;
+    }
   </style>
 </head>
 
@@ -215,7 +224,7 @@
                               <i class="fas fa-eye me-2"></i>Xem chi tiết
                             </a>
                           </li>
-                          <li><a class="dropdown-item delete-voucher-btn" href="#" data-id="${v.id}" data-code="${v.code}"><i class="fas fa-trash me-2"></i>Xóa</a></li>
+                          <li><a class="dropdown-item delete-voucher-btn delete-action" href="#" data-id="${v.id}" data-code="${v.code}"><i class="fas fa-trash me-2"></i>Xóa</a></li>
                         </ul>
                       </div>
                     </td>
