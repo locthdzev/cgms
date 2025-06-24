@@ -38,6 +38,9 @@ nb-configuration.xml
 # Application configuration
 src/main/resources/app.properties
 
+# Tomcat context file (optional, may contain env-specific config)
+src/main/webapp/META-INF/context.xml
+
 # Logs
 *.log
 logs/

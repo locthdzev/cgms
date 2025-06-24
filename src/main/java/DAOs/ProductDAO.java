@@ -10,7 +10,6 @@ import java.util.List;
 
 public class ProductDAO {
 
-    // Lấy danh sách tất cả sản phẩm
     public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM Products ORDER BY ProductId";
@@ -29,7 +28,6 @@ public class ProductDAO {
         return products;
     }
 
-    // Lấy 1 sản phẩm theo ID
     public Product getProductById(int id) {
         String sql = "SELECT * FROM Products WHERE ProductId = ?";
 
@@ -48,7 +46,6 @@ public class ProductDAO {
         return null;
     }
 
-    // Lưu sản phẩm mới
     public void saveProduct(Product product) {
         String sql = "INSERT INTO Products (Name, Description, Price, ImageUrl, CreatedAt, Status) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
@@ -74,7 +71,6 @@ public class ProductDAO {
         }
     }
 
-    // Cập nhật sản phẩm
     public void updateProduct(Product product) {
         String sql = "UPDATE Products SET Name = ?, Description = ?, Price = ?, " +
                 "ImageUrl = ?, UpdatedAt = ?, Status = ? WHERE ProductId = ?";
@@ -99,7 +95,6 @@ public class ProductDAO {
         }
     }
 
-    // Xoá sản phẩm
     public void deleteProduct(int id) {
         String sql = "DELETE FROM Products WHERE ProductId = ?";
 
