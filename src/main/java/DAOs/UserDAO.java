@@ -16,9 +16,19 @@ public class UserDAO {
                 user = new User();
                 user.setId(rs.getInt("UserId"));
                 user.setUserName(rs.getString("UserName"));
+                user.setEmail(rs.getString("Email"));
                 user.setPassword(rs.getString("Password"));
                 user.setSalt(rs.getString("Salt"));
+                user.setGoogleId(rs.getString("GoogleId"));
                 user.setRole(rs.getString("Role"));
+                user.setFullName(rs.getString("FullName"));
+                user.setPhoneNumber(rs.getString("PhoneNumber"));
+                user.setAddress(rs.getString("Address"));
+                user.setGender(rs.getString("Gender"));
+                if (rs.getDate("DOB") != null) {
+                    user.setDob(rs.getDate("DOB").toLocalDate());
+                }
+                user.setStatus(rs.getString("Status"));
                 // ... set các trường khác nếu cần ...
             }
         } catch (Exception e) {
@@ -47,7 +57,13 @@ public class UserDAO {
             } else {
                 ps.setNull(11, java.sql.Types.DATE);
             }
-            ps.setInt(12, user.getLevel().getId());
+            // LevelId - Handle null level
+            if (user.getLevel() != null) {
+                ps.setInt(12, user.getLevel().getId());
+            } else {
+                // Set default level ID (1) if level is null
+                ps.setInt(12, 1);
+            }
             // CreatedAt
             if (user.getCreatedAt() != null) {
                 ps.setTimestamp(13, java.sql.Timestamp.from(user.getCreatedAt()));
@@ -214,25 +230,27 @@ public class UserDAO {
     }
 
     public boolean updateUser(User user) {
-        String sql = "UPDATE Users SET Email=?, UserName=?, FullName=?, PhoneNumber=?, Address=?, Gender=?, DOB=?, Role=?, Status=?, UpdatedAt=? WHERE UserId=?";
+        String sql = "UPDATE Users SET Email=?, UserName=?, Password=?, Salt=?, FullName=?, PhoneNumber=?, Address=?, Gender=?, DOB=?, Role=?, Status=?, UpdatedAt=? WHERE UserId=?";
         try (Connection conn = DbConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getUserName());
-            ps.setString(3, user.getFullName());
-            ps.setString(4, user.getPhoneNumber());
-            ps.setString(5, user.getAddress());
-            ps.setString(6, user.getGender());
+            ps.setString(3, user.getPassword());
+            ps.setString(4, user.getSalt());
+            ps.setString(5, user.getFullName());
+            ps.setString(6, user.getPhoneNumber());
+            ps.setString(7, user.getAddress());
+            ps.setString(8, user.getGender());
             if (user.getDob() != null) {
-                ps.setDate(7, java.sql.Date.valueOf(user.getDob()));
+                ps.setDate(9, java.sql.Date.valueOf(user.getDob()));
             } else {
-                ps.setNull(7, java.sql.Types.DATE);
+                ps.setNull(9, java.sql.Types.DATE);
             }
-            ps.setString(8, user.getRole());
-            ps.setString(9, user.getStatus());
-            ps.setTimestamp(10, user.getUpdatedAt() != null ? java.sql.Timestamp.from(user.getUpdatedAt())
+            ps.setString(10, user.getRole());
+            ps.setString(11, user.getStatus());
+            ps.setTimestamp(12, user.getUpdatedAt() != null ? java.sql.Timestamp.from(user.getUpdatedAt())
                     : new java.sql.Timestamp(System.currentTimeMillis()));
-            ps.setInt(11, user.getId());
+            ps.setInt(13, user.getId());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
