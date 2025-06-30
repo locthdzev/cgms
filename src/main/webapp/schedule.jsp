@@ -295,6 +295,11 @@
                                                             data-status="<%= statusText %>"
                                                             data-created="<%= s.getCreatedAt() != null ? s.getCreatedAt().toString().replace("T", " ").substring(0, 16) : "" %>">
                                                             <i class="fas fa-eye me-2"></i>Xem chi tiết</a></li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="${pageContext.request.contextPath}/checkinHistory?memberId=<%= s.getMember().getId() %>">
+                                                            <i class="fas fa-history me-2"></i>Xem lịch sử Check-In
+                                                        </a>
+                                                    </li>
                                                     <li><a class="dropdown-item" href="${pageContext.request.contextPath}/editSchedule?id=<%= s.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
                                                     <% if (!"Completed".equals(s.getStatus()) && !"Cancelled".equals(s.getStatus())) { %>
                                                     <li><hr class="dropdown-divider"></li>
