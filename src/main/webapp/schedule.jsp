@@ -232,7 +232,24 @@
                                             <h6 class="mb-0 text-sm"><%= s.getScheduleTime().format(timeFormatter) %></h6>
                                         </td>
                                         <td class="ps-2">
-                                            <h6 class="mb-0 text-sm"><%= s.getDurationHours() %> giờ</h6>
+                                            <h6 class="mb-0 text-sm">
+                                                <% 
+                                                    double d = s.getDurationHours() != null ? s.getDurationHours().doubleValue() : 0;
+                                                    int hours = (int) d;
+                                                    int minutes = (int) ((d - hours) * 60);
+                                                    String label = "";
+                                                    if (hours > 0 && minutes > 0) {
+                                                        label = hours + " giờ " + minutes + " phút";
+                                                    } else if (hours > 0) {
+                                                        label = hours + " giờ";
+                                                    } else if (minutes > 0) {
+                                                        label = minutes + " phút";
+                                                    } else {
+                                                        label = "-";
+                                                    }
+                                                %>
+                                                <%= label %>
+                                            </h6>
                                         </td>
                                         <td class="ps-2">
                                             <% 
@@ -383,9 +400,26 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Thời lượng (giờ) *</label>
-                                    <input type="number" name="durationHours" class="form-control"
-                                           value="<%= schedule != null && schedule.getDurationHours() != null ? schedule.getDurationHours() : "" %>"
-                                           min="0.5" max="8" step="0.5" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
+                                    <% if ("view".equals(formAction)) { %>
+                                        <input type="text" class="form-control" value="<%= schedule != null && schedule.getDurationHours() != null ? schedule.getDurationHours() + " giờ" : "" %>" readonly/>
+                                    <% } else { %>
+                                        <select name="durationHours" class="form-control" required>
+                                            <% for (double i = 0.5; i <= 3.0; i += 0.5) { 
+                                                int hours = (int) i;
+                                                int minutes = (int) ((i - hours) * 60);
+                                                String label = "";
+                                                if (hours > 0 && minutes > 0) {
+                                                    label = hours + " giờ " + minutes + " phút";
+                                                } else if (hours > 0) {
+                                                    label = hours + " giờ";
+                                                } else {
+                                                    label = minutes + " phút";
+                                                }
+                                            %>
+                                                <option value="<%= i %>" <%= schedule != null && schedule.getDurationHours() != null && schedule.getDurationHours().doubleValue() == i ? "selected" : "" %>><%= label %></option>
+                                            <% } %>
+                                        </select>
+                                    <% } %>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Trạng thái *</label>

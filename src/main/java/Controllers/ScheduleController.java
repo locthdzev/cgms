@@ -28,7 +28,10 @@ public class ScheduleController extends HttpServlet {
             req.setAttribute("schedule", new Schedule());
             req.setAttribute("formAction", "create");
             req.setAttribute("trainers", service.getAllTrainers());
-            req.setAttribute("members", service.getAllMembers());
+            req.setAttribute("members", service.getActiveMembersWithPackage());
+            if (((List<?>) req.getAttribute("members")).isEmpty()) {
+                req.setAttribute("errorMessage", "Không có hội viên nào có gói tập còn hiệu lực để tạo lịch!");
+            }
             req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
         } else if ("/editSchedule".equals(servletPath)) {
             // Hiển thị form chỉnh sửa lịch tập
@@ -39,7 +42,10 @@ public class ScheduleController extends HttpServlet {
                 req.setAttribute("schedule", schedule);
                 req.setAttribute("formAction", "edit");
                 req.setAttribute("trainers", service.getAllTrainers());
-                req.setAttribute("members", service.getAllMembers());
+                req.setAttribute("members", service.getActiveMembersWithPackage());
+                if (((List<?>) req.getAttribute("members")).isEmpty()) {
+                    req.setAttribute("errorMessage", "Không có hội viên nào có gói tập còn hiệu lực để tạo lịch!");
+                }
                 req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
             } else {
                 resp.sendRedirect(req.getContextPath() + "/schedule");
@@ -103,6 +109,9 @@ public class ScheduleController extends HttpServlet {
             if (idStr != null && !idStr.trim().isEmpty()) {
                 // Update
                 schedule = service.getScheduleById(Integer.parseInt(idStr));
+                if (schedule == null) {
+                    throw new IllegalArgumentException("Không tìm thấy lịch tập để cập nhật");
+                }
                 schedule.setUpdatedAt(Instant.now());
             } else {
                 // Create
@@ -115,6 +124,8 @@ public class ScheduleController extends HttpServlet {
                 User trainer = new User();
                 trainer.setId(Integer.parseInt(trainerIdStr));
                 schedule.setTrainer(trainer);
+            } else {
+                schedule.setTrainer(null);
             }
 
             // Set member
@@ -123,24 +134,32 @@ public class ScheduleController extends HttpServlet {
                 User member = new User();
                 member.setId(Integer.parseInt(memberIdStr));
                 schedule.setMember(member);
+            } else {
+                schedule.setMember(null);
             }
 
             // Set schedule date
             String scheduleDateStr = req.getParameter("scheduleDate");
             if (scheduleDateStr != null && !scheduleDateStr.trim().isEmpty()) {
                 schedule.setScheduleDate(LocalDate.parse(scheduleDateStr));
+            } else {
+                schedule.setScheduleDate(null);
             }
 
             // Set schedule time
             String scheduleTimeStr = req.getParameter("scheduleTime");
             if (scheduleTimeStr != null && !scheduleTimeStr.trim().isEmpty()) {
                 schedule.setScheduleTime(LocalTime.parse(scheduleTimeStr));
+            } else {
+                schedule.setScheduleTime(null);
             }
 
             // Set duration
             String durationStr = req.getParameter("durationHours");
             if (durationStr != null && !durationStr.trim().isEmpty()) {
                 schedule.setDurationHours(new BigDecimal(durationStr));
+            } else {
+                schedule.setDurationHours(null);
             }
 
             // Set status
@@ -161,9 +180,19 @@ public class ScheduleController extends HttpServlet {
 
             resp.sendRedirect(req.getContextPath() + "/schedule");
 
+        } catch (IllegalArgumentException e) {
+            req.setAttribute("errorMessage", e.getMessage());
+            req.setAttribute("schedule", schedule);
+            req.setAttribute("formAction", formAction);
+            req.setAttribute("trainers", service.getAllTrainers());
+            req.setAttribute("members", service.getActiveMembersWithPackage());
+            if (((List<?>) req.getAttribute("members")).isEmpty()) {
+                req.setAttribute("errorMessage", "Không có hội viên nào có gói tập còn hiệu lực để tạo lịch!");
+            }
+            req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
         } catch (Exception e) {
             e.printStackTrace();
-            req.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            req.setAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
             req.setAttribute("schedule", schedule);
             req.setAttribute("formAction", formAction);
             req.setAttribute("trainers", service.getAllTrainers());
