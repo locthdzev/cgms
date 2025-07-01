@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
     <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
-    <title>Thêm Member mới - CGMS</title>
+    <title>Thêm Personal Trainer mới - CGMS</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
@@ -57,10 +57,10 @@
 <main class="main-content position-relative border-radius-lg">
     <!-- Include Navbar Component with parameters -->
     <jsp:include page="navbar.jsp">
-        <jsp:param name="pageTitle" value="Thêm Member mới" />
-        <jsp:param name="parentPage" value="Danh sách Member" />
-        <jsp:param name="parentPageUrl" value="user" />
-        <jsp:param name="currentPage" value="Thêm Member mới" />
+        <jsp:param name="pageTitle" value="Thêm Personal Trainer mới" />
+        <jsp:param name="parentPage" value="Danh sách Personal Trainer" />
+        <jsp:param name="parentPageUrl" value="trainer" />
+        <jsp:param name="currentPage" value="Thêm Personal Trainer mới" />
     </jsp:include>
     
     <div class="container-fluid py-4">
@@ -68,13 +68,13 @@
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <h6>Thêm Member mới</h6>
+                        <h6>Thêm Personal Trainer mới</h6>
                         <div>
-                            <a href="user" class="btn btn-outline-secondary btn-sm me-2">
+                            <a href="trainer" class="btn btn-outline-secondary btn-sm me-2">
                                 <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
                             </a>
-                            <a href="addTrainer" class="btn btn-info btn-sm">
-                                <i class="fas fa-plus me-2"></i>Thêm Personal Trainer
+                            <a href="addUser" class="btn btn-info btn-sm">
+                                <i class="fas fa-plus me-2"></i>Thêm Member
                             </a>
                         </div>
                     </div>
@@ -85,7 +85,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         <% } %>
-                        <form method="post" id="addUserForm" onsubmit="return validateForm()">
+                        <form method="post" id="addTrainerForm" onsubmit="return validateForm()">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Email *</label>
@@ -114,7 +114,19 @@
                                         <option value="Nữ">Nữ</option>
                                     </select>
                                 </div>
-                                <input type="hidden" name="role" value="Member" />
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Zalo</label>
+                                    <input type="text" name="zalo" class="form-control" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Facebook</label>
+                                    <input type="text" name="facebook" class="form-control" />
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Kinh nghiệm</label>
+                                    <textarea name="experience" class="form-control" rows="3"></textarea>
+                                </div>
+                                <input type="hidden" name="role" value="Personal Trainer" />
                                 <input type="hidden" name="status" value="Active"/>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Ngày sinh</label>
@@ -135,7 +147,7 @@
                             <div class="d-flex justify-content-end mt-4">
                                 <button type="reset" class="btn btn-light me-2">Làm mới</button>
                                 <button class="btn btn-primary" type="submit">Lưu</button>
-                                <a href="user" class="btn btn-secondary ms-2">Quay lại</a>
+                                <a href="trainer" class="btn btn-secondary ms-2">Quay lại</a>
                             </div>
                         </form>
                     </div>

@@ -2,7 +2,7 @@
 <%@page import="Models.User"%>
 <%
     // Lấy thông tin người dùng cần chỉnh sửa
-    User user = (User) request.getAttribute("user");
+    User trainer = (User) request.getAttribute("trainer");
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
     <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
-    <title>Chỉnh sửa Member - CGMS</title>
+    <title>Chỉnh sửa Personal Trainer - CGMS</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
@@ -27,10 +27,10 @@
 <main class="main-content position-relative border-radius-lg">
     <!-- Include Navbar Component with parameters -->
     <jsp:include page="navbar.jsp">
-        <jsp:param name="pageTitle" value="Chỉnh sửa Member" />
-        <jsp:param name="parentPage" value="Danh sách Member" />
-        <jsp:param name="parentPageUrl" value="user" />
-        <jsp:param name="currentPage" value="Chỉnh sửa Member" />
+        <jsp:param name="pageTitle" value="Chỉnh sửa Personal Trainer" />
+        <jsp:param name="parentPage" value="Danh sách Personal Trainer" />
+        <jsp:param name="parentPageUrl" value="trainer" />
+        <jsp:param name="currentPage" value="Chỉnh sửa Personal Trainer" />
     </jsp:include>
     
     <div class="container-fluid py-4">
@@ -38,8 +38,8 @@
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <h6>Chỉnh sửa Member</h6>
-                        <a href="user" class="btn btn-outline-secondary btn-sm">
+                        <h6>Chỉnh sửa Personal Trainer</h6>
+                        <a href="trainer" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
                         </a>
                     </div>
@@ -51,46 +51,58 @@
                         </div>
                         <% } %>
                         <form method="post">
-                            <input type="hidden" name="id" value="<%= user.getId() %>"/>
+                            <input type="hidden" name="id" value="<%= trainer.getId() %>"/>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Email *</label>
-                                    <input type="email" name="email" class="form-control" value="<%= user.getEmail() %>" required/>
+                                    <input type="email" name="email" class="form-control" value="<%= trainer.getEmail() %>" required/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Tên đăng nhập *</label>
-                                    <input type="text" name="userName" class="form-control" value="<%= user.getUserName() %>" required/>
+                                    <input type="text" name="userName" class="form-control" value="<%= trainer.getUserName() %>" required/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Họ tên *</label>
-                                    <input type="text" name="fullName" class="form-control" value="<%= user.getFullName() %>" required/>
+                                    <input type="text" name="fullName" class="form-control" value="<%= trainer.getFullName() %>" required/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Số điện thoại</label>
-                                    <input type="text" name="phoneNumber" class="form-control" value="<%= user.getPhoneNumber() != null ? user.getPhoneNumber() : "" %>"/>
+                                    <input type="text" name="phoneNumber" class="form-control" value="<%= trainer.getPhoneNumber() != null ? trainer.getPhoneNumber() : "" %>"/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Địa chỉ</label>
-                                    <input type="text" name="address" class="form-control" value="<%= user.getAddress() != null ? user.getAddress() : "" %>"/>
+                                    <input type="text" name="address" class="form-control" value="<%= trainer.getAddress() != null ? trainer.getAddress() : "" %>"/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Giới tính</label>
                                     <select name="gender" class="form-control">
-                                        <option value="Nam" <%= "Nam".equals(user.getGender()) ? "selected" : "" %>>Nam</option>
-                                        <option value="Nữ" <%= "Nữ".equals(user.getGender()) ? "selected" : "" %>>Nữ</option>
+                                        <option value="Nam" <%= "Nam".equals(trainer.getGender()) ? "selected" : "" %>>Nam</option>
+                                        <option value="Nữ" <%= "Nữ".equals(trainer.getGender()) ? "selected" : "" %>>Nữ</option>
                                     </select>
                                 </div>
-                                <input type="hidden" name="role" value="Member" />
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Zalo</label>
+                                    <input type="text" name="zalo" class="form-control" value="<%= trainer.getZalo() != null ? trainer.getZalo() : "" %>"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Facebook</label>
+                                    <input type="text" name="facebook" class="form-control" value="<%= trainer.getFacebook() != null ? trainer.getFacebook() : "" %>"/>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Kinh nghiệm</label>
+                                    <textarea name="experience" class="form-control" rows="3"><%= trainer.getExperience() != null ? trainer.getExperience() : "" %></textarea>
+                                </div>
+                                <input type="hidden" name="role" value="Personal Trainer" />
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Trạng thái *</label>
                                     <select name="status" class="form-control" required>
-                                        <option value="Active" <%= "Active".equals(user.getStatus()) ? "selected" : "" %>>Active</option>
-                                        <option value="Inactive" <%= "Inactive".equals(user.getStatus()) ? "selected" : "" %>>Inactive</option>
+                                        <option value="Active" <%= "Active".equals(trainer.getStatus()) ? "selected" : "" %>>Active</option>
+                                        <option value="Inactive" <%= "Inactive".equals(trainer.getStatus()) ? "selected" : "" %>>Inactive</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Ngày sinh</label>
-                                    <input type="date" name="dob" class="form-control" value="<%= user.getDob() != null ? user.getDob() : "" %>"/>
+                                    <input type="date" name="dob" class="form-control" value="<%= trainer.getDob() != null ? trainer.getDob().toString() : "" %>"/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Mật khẩu mới (để trống nếu không thay đổi)</label>
@@ -100,7 +112,7 @@
                             <div class="d-flex justify-content-end mt-4">
                                 <button type="reset" class="btn btn-light me-2">Làm mới</button>
                                 <button class="btn btn-primary" type="submit">Lưu</button>
-                                <a href="user" class="btn btn-secondary ms-2">Quay lại</a>
+                                <a href="trainer" class="btn btn-secondary ms-2">Quay lại</a>
                             </div>
                         </form>
                     </div>
