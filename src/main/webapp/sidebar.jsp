@@ -41,126 +41,138 @@
                 />
             <span class="ms-1 font-weight-bold">CGMS</span>
         </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link <%= isPackage ? "active" : "" %>" href="${pageContext.request.contextPath}/listPackage">
-          <div
-            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-          >
-            <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
-          </div>
-          <span class="nav-link-text ms-1">Gói tập Gym</span>
-        </a>
-      </li>
-      <!-- Dropdown menu cho Quản lý người dùng -->
-      <li class="nav-item">
-        <a class="nav-link <%= isUserManagement ? "active" : "" %>" href="#" data-bs-toggle="collapse" data-bs-target="#userManagementCollapse" aria-expanded="<%= isUserManagement ? "true" : "false" %>">
-          <div
-            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-          >
-            <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
-          </div>
-          <span class="nav-link-text ms-1">Quản lý người dùng</span>
-          <i class="fas fa-angle-down ms-auto"></i>
-        </a>
-        <div class="collapse <%= isUserManagement ? "show" : "" %>" id="userManagementCollapse">
-          <ul class="navbar-nav ps-4">
+    </div>
+    <hr class="horizontal dark mt-0" />
+    <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
+        <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link <%= isMember ? "active" : "" %>" href="${pageContext.request.contextPath}/user">
-                <span class="nav-link-text ms-1">
-                  <i class="fas fa-users text-dark text-sm opacity-10 me-1"></i>
-                  Quản lý Member
-                </span>
-              </a>
+                <a class="nav-link <%= isDashboard ? "active" : "" %>" href="${pageContext.request.contextPath}/dashboard">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                        >
+                        <i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Dashboard</span>
+                </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link <%= isTrainer ? "active" : "" %>" href="${pageContext.request.contextPath}/trainer">
-                <span class="nav-link-text ms-1">
-                  <i class="fas fa-user-tie text-dark text-sm opacity-10 me-1"></i>
-                  Quản lý Personal Trainer
-                </span>
-              </a>
+                <a class="nav-link <%= isPackage ? "active" : "" %>" href="${pageContext.request.contextPath}/listPackage">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                        >
+                        <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Gói tập Gym</span>
+                </a>
             </li>
-          </ul>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link <%= isProduct ? "active" : "" %>" href="${pageContext.request.contextPath}/product">
-          <div
-            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-          >
-            <i class="ni ni-bag-17 text-dark text-sm opacity-10"></i>
-          </div>
-          <span class="nav-link-text ms-1">Quản lý sản phẩm</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link <%= isVoucher ? "active" : "" %>" href="${pageContext.request.contextPath}/voucher?action=list">
-          <div
-            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-          >
-            <i class="ni ni-tag text-dark text-sm opacity-10"></i>
-          </div>
-          <span class="nav-link-text ms-1">Quản lý Voucher</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link <%= isFeedback ? "active" : "" %>" href="${pageContext.request.contextPath}/feedback">
-          <div
-            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-          >
-            <i class="ni ni-chat-round text-dark text-sm opacity-10"></i>
-          </div>
-          <span class="nav-link-text ms-1">Quản lý Feedback</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link <%= isSchedule ? "active" : "" %>" href="${pageContext.request.contextPath}/schedule">
-            <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-                >
-                <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
-            </div>
-            <span class="nav-link-text ms-1">Quản lý lịch tập</span>
-        </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <%= isInventory ? "active" : "" %>" href="${pageContext.request.contextPath}/inventory">
-          <div
-              class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-              <i class="ni ni-box-2 text-dark text-sm opacity-10"></i> <!-- Biểu tượng cho kho hàng -->
-          </div>
-          <span class="nav-link-text ms-1">Quản lý kho hàng</span>
-      </a>
-  </li>
-      <li class="nav-item mt-3">
-        <h6
-          class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6"
-        >
-          Tài khoản
-        </h6>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link <%= isProfile ? "active" : "" %>" href="${pageContext.request.contextPath}/profile">
-          <div
-            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-          >
-            <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
-          </div>
-          <span class="nav-link-text ms-1">Hồ sơ</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="${pageContext.request.contextPath}/logout">
-          <div
-            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-          >
-            <i class="ni ni-button-power text-dark text-sm opacity-10"></i>
-          </div>
-          <span class="nav-link-text ms-1">Đăng xuất</span>
-        </a>
-      </li>
-    </ul>
-  </div>
-</aside> 
+            <li class="nav-item">
+                <a class="nav-link <%= isUserManagement ? "active" : "" %>" href="#" data-bs-toggle="collapse" data-bs-target="#userManagementCollapse" aria-expanded="<%= isUserManagement ? "true" : "false" %>">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                        >
+                        <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Quản lý người dùng</span>
+                    <i class="fas fa-angle-down ms-auto"></i>
+                </a>
+                <div class="collapse <%= isUserManagement ? "show" : "" %>" id="userManagementCollapse">
+<ul class="navbar-nav ps-4">
+                        <li class="nav-item">
+                            <a class="nav-link <%= isMember ? "active" : "" %>" href="${pageContext.request.contextPath}/user">
+                                <span class="nav-link-text ms-1">
+                                    <i class="fas fa-users text-dark text-sm opacity-10 me-1"></i>
+                                    Quản lý Member
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= isTrainer ? "active" : "" %>" href="${pageContext.request.contextPath}/trainer">
+                                <span class="nav-link-text ms-1">
+                                    <i class="fas fa-user-tie text-dark text-sm opacity-10 me-1"></i>
+                                    Quản lý Personal Trainer
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isProduct ? "active" : "" %>" href="${pageContext.request.contextPath}/product">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                        >
+                        <i class="ni ni-bag-17 text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Quản lý sản phẩm</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isSchedule ? "active" : "" %>" href="${pageContext.request.contextPath}/schedule">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                        >
+                        <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Quản lý lịch tập</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isVoucher ? "active" : "" %>" href="${pageContext.request.contextPath}/voucher?action=list">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                        >
+                        <i class="ni ni-tag text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Quản lý Voucher</span>
+                </a>
+            </li>
+            <li class="nav-item">
+<a class="nav-link <%= isFeedback ? "active" : "" %>" href="${pageContext.request.contextPath}/feedback">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                        >
+                        <i class="ni ni-chat-round text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Quản lý Feedback</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isInventory ? "active" : "" %>" href="${pageContext.request.contextPath}/inventory">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                        >
+                        <i class="ni ni-box-2 text-dark text-sm opacity-10"></i> <!-- Biểu tượng cho kho hàng -->
+                    </div>
+                    <span class="nav-link-text ms-1">Quản lý kho hàng</span>
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <h6
+                    class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6"
+                    >
+                    Tài khoản
+                </h6>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isProfile ? "active" : "" %>" href="${pageContext.request.contextPath}/profile">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                        >
+                        <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Hồ sơ</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="${pageContext.request.contextPath}/logout">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                        >
+                        <i class="ni ni-button-power text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Đăng xuất</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</aside>
