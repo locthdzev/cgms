@@ -102,6 +102,19 @@ public class UserService {
         return userDAO.updateUser(user);
     }
 
+    public boolean updateUserWithPassword(User user, String newPassword) {
+        // Tạo salt mới và hash mật khẩu mới
+        String salt = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16);
+        String hashedPassword = hashPassword(newPassword, salt);
+
+        // Cập nhật mật khẩu và salt mới
+        user.setPassword(hashedPassword);
+        user.setSalt(salt);
+        user.setUpdatedAt(java.time.Instant.now());
+
+        return userDAO.updateUser(user);
+    }
+
     public boolean updateUserStatus(int userId, String status) {
         return userDAO.updateUserStatus(userId, status);
     }

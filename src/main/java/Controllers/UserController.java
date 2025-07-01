@@ -6,6 +6,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 import jakarta.servlet.annotation.WebServlet;
 import Models.MemberLevel;
 
@@ -18,15 +19,19 @@ public class UserController extends HttpServlet {
             throws ServletException, IOException {
         String servletPath = req.getServletPath();
         if ("/user".equals(servletPath)) {
-            // Hiển thị danh sách user
-            List<User> users = userService.getAllUsers();
-            req.setAttribute("userList", users);
+            // Hiển thị danh sách Member
+            List<User> allUsers = userService.getAllUsers();
+            // Lọc chỉ lấy Member
+            List<User> members = allUsers.stream()
+                    .filter(user -> "Member".equals(user.getRole()))
+                    .collect(Collectors.toList());
+            req.setAttribute("userList", members);
             req.getRequestDispatcher("/user.jsp").forward(req, resp);
         } else if ("/addUser".equals(servletPath)) {
-            // Hiển thị form thêm user
+            // Hiển thị form thêm Member
             req.getRequestDispatcher("/addUser.jsp").forward(req, resp);
         } else if ("/editUser".equals(servletPath)) {
-            // Hiển thị form chỉnh sửa user
+            // Hiển thị form chỉnh sửa Member
             String idStr = req.getParameter("id");
             if (idStr != null) {
                 int id = Integer.parseInt(idStr);
@@ -35,7 +40,7 @@ public class UserController extends HttpServlet {
             }
             req.getRequestDispatcher("/editUser.jsp").forward(req, resp);
         } else if ("/updateUserStatus".equals(servletPath)) {
-            // Cập nhật trạng thái người dùng (GET)
+            // Cập nhật trạng thái Member (GET)
             String idStr = req.getParameter("id");
             String status = req.getParameter("status");
             if (idStr != null && status != null) {
@@ -43,14 +48,13 @@ public class UserController extends HttpServlet {
                 boolean updated = userService.updateUserStatus(id, status);
                 HttpSession session = req.getSession();
                 if (updated) {
-                    session.setAttribute("successMessage", "Cập nhật trạng thái người dùng thành công!");
+                    session.setAttribute("successMessage", "Cập nhật trạng thái Member thành công!");
                 } else {
-                    session.setAttribute("errorMessage", "Cập nhật trạng thái người dùng thất bại!");
+                    session.setAttribute("errorMessage", "Cập nhật trạng thái Member thất bại!");
                 }
             }
             resp.sendRedirect(req.getContextPath() + "/user");
         }
-        // ... các action khác nếu cần ...
     }
 
     @Override
@@ -58,7 +62,7 @@ public class UserController extends HttpServlet {
             throws ServletException, IOException {
         String servletPath = req.getServletPath();
         if ("/addUser".equals(servletPath)) {
-            // Xử lý thêm user
+            // Xử lý thêm Member
             User user = new User();
             user.setEmail(req.getParameter("email"));
             user.setUserName(req.getParameter("userName"));
@@ -66,7 +70,7 @@ public class UserController extends HttpServlet {
             user.setPhoneNumber(req.getParameter("phoneNumber"));
             user.setAddress(req.getParameter("address"));
             user.setGender(req.getParameter("gender"));
-            user.setRole(req.getParameter("role"));
+            user.setRole("Member"); // Luôn là Member
             user.setStatus("Active"); // luôn là Active khi tạo mới
             String dobStr = req.getParameter("dob");
             if (dobStr != null && !dobStr.isEmpty()) {
@@ -79,14 +83,14 @@ public class UserController extends HttpServlet {
             boolean created = userService.createUser(user, rawPassword);
             HttpSession session = req.getSession();
             if (created) {
-                session.setAttribute("successMessage", "Thêm người dùng mới thành công!");
+                session.setAttribute("successMessage", "Thêm Member mới thành công!");
                 resp.sendRedirect(req.getContextPath() + "/user");
             } else {
-                req.setAttribute("errorMessage", "Tạo người dùng thất bại. Vui lòng kiểm tra lại dữ liệu!");
+                req.setAttribute("errorMessage", "Tạo Member thất bại. Vui lòng kiểm tra lại dữ liệu!");
                 req.getRequestDispatcher("/addUser.jsp").forward(req, resp);
             }
         } else if ("/editUser".equals(servletPath)) {
-            // Xử lý cập nhật user
+            // Xử lý cập nhật Member
             String idStr = req.getParameter("id");
             if (idStr != null) {
                 int id = Integer.parseInt(idStr);
@@ -97,7 +101,7 @@ public class UserController extends HttpServlet {
                 user.setPhoneNumber(req.getParameter("phoneNumber"));
                 user.setAddress(req.getParameter("address"));
                 user.setGender(req.getParameter("gender"));
-                user.setRole(req.getParameter("role"));
+                user.setRole("Member"); // Luôn là Member
                 user.setStatus(req.getParameter("status"));
                 String dobStr = req.getParameter("dob");
                 if (dobStr != null && !dobStr.isEmpty()) {
@@ -107,21 +111,30 @@ public class UserController extends HttpServlet {
                 MemberLevel defaultLevel = new MemberLevel();
                 defaultLevel.setId(1);
                 user.setLevel(defaultLevel);
-                boolean updated = userService.updateUser(user);
+
+                // Kiểm tra xem có cập nhật mật khẩu không
+                String newPassword = req.getParameter("password");
+                boolean updated;
+                if (newPassword != null && !newPassword.isEmpty()) {
+                    updated = userService.updateUserWithPassword(user, newPassword);
+                } else {
+                    updated = userService.updateUser(user);
+                }
+
                 HttpSession session = req.getSession();
                 if (updated) {
-                    session.setAttribute("successMessage", "Cập nhật thông tin người dùng thành công!");
+                    session.setAttribute("successMessage", "Cập nhật thông tin Member thành công!");
                     resp.sendRedirect(req.getContextPath() + "/user");
                 } else {
                     req.setAttribute("user", user);
-                    req.setAttribute("errorMessage", "Cập nhật người dùng thất bại. Vui lòng kiểm tra lại dữ liệu!");
+                    req.setAttribute("errorMessage", "Cập nhật Member thất bại. Vui lòng kiểm tra lại dữ liệu!");
                     req.getRequestDispatcher("/editUser.jsp").forward(req, resp);
                 }
             } else {
                 resp.sendRedirect(req.getContextPath() + "/user");
             }
         } else if ("/updateUserStatus".equals(servletPath)) {
-            // Cập nhật trạng thái người dùng (POST)
+            // Cập nhật trạng thái Member (POST)
             String idStr = req.getParameter("id");
             String status = req.getParameter("status");
             if (idStr != null && status != null) {
@@ -129,9 +142,9 @@ public class UserController extends HttpServlet {
                 boolean updated = userService.updateUserStatus(id, status);
                 HttpSession session = req.getSession();
                 if (updated) {
-                    session.setAttribute("successMessage", "Cập nhật trạng thái người dùng thành công!");
+                    session.setAttribute("successMessage", "Cập nhật trạng thái Member thành công!");
                 } else {
-                    session.setAttribute("errorMessage", "Cập nhật trạng thái người dùng thất bại!");
+                    session.setAttribute("errorMessage", "Cập nhật trạng thái Member thất bại!");
                 }
             }
             resp.sendRedirect(req.getContextPath() + "/user");
