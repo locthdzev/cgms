@@ -2,8 +2,8 @@
 <%@page import="java.util.List"%>
 <%@page import="Models.User"%>
 <%
-    List<User> userList = (List<User>) request.getAttribute("userList");
-    User user = (User) request.getAttribute("user");
+    List<User> trainerList = (List<User>) request.getAttribute("trainerList");
+    User trainer = (User) request.getAttribute("trainer");
     String formAction = (String) request.getAttribute("formAction");
     if (formAction == null) formAction = "list";
     
@@ -37,7 +37,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
     <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
-    <title>Quản lý Member - CGMS</title>
+    <title>Quản lý Personal Trainer - CGMS</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
@@ -117,29 +117,29 @@
 <main class="main-content position-relative border-radius-lg">
     <!-- Include Navbar Component with parameters -->
     <jsp:include page="navbar.jsp">
-        <jsp:param name="pageTitle" value="Quản lý Member" />
+        <jsp:param name="pageTitle" value="Quản lý Personal Trainer" />
         <jsp:param name="parentPage" value="Dashboard" />
         <jsp:param name="parentPageUrl" value="dashboard.jsp" />
-        <jsp:param name="currentPage" value="Quản lý Member" />
+        <jsp:param name="currentPage" value="Quản lý Personal Trainer" />
     </jsp:include>
     
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
-                <% if (userList != null) { %>
+                <% if (trainerList != null) { %>
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <h6>Danh sách Member</h6>
+                        <h6>Danh sách Personal Trainer</h6>
                         <div>
                             <a href="dashboard.jsp" class="btn btn-outline-secondary btn-sm me-2">
                                 <i class="fas fa-arrow-left me-2"></i>Quay lại
                             </a>
                             <div class="btn-group">
-                                <a href="addUser" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-plus me-2"></i>Thêm Member
+                                <a href="addTrainer" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus me-2"></i>Thêm Personal Trainer
                                 </a>
-                                <a href="trainer" class="btn btn-info btn-sm ms-2">
-                                    <i class="fas fa-users me-2"></i>Xem Personal Trainer
+                                <a href="user" class="btn btn-info btn-sm ms-2">
+                                    <i class="fas fa-users me-2"></i>Xem Member
                                 </a>
                             </div>
                         </div>
@@ -150,25 +150,25 @@
                                 <thead>
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">ID</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Email</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tên đăng nhập</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Họ tên</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Email</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Số điện thoại</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Vai trò</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Zalo</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Facebook</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Trạng thái</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Thao tác</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <% for (User u : userList) { %>
-                                    <% if ("Member".equals(u.getRole())) { %>
+                                <% for (User u : trainerList) { %>
+                                    <% if ("Personal Trainer".equals(u.getRole())) { %>
                                     <tr>
                                         <td class="text-center"><h6 class="mb-0 text-sm"><%= u.getId() %></h6></td>
-                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getEmail() %></h6></td>
-                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getUserName() %></h6></td>
                                         <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getFullName() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getEmail() %></h6></td>
                                         <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getPhoneNumber() %></h6></td>
-                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getRole() %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getZalo() != null ? u.getZalo() : "-" %></h6></td>
+                                        <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getFacebook() != null ? u.getFacebook() : "-" %></h6></td>
                                         <td class="ps-2">
                                             <% if ("Active".equals(u.getStatus())) { %>
                                                 <span class="badge badge-sm bg-gradient-success">Hoạt động</span>
@@ -182,7 +182,7 @@
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item view-user-btn" href="#" 
+                                                    <li><a class="dropdown-item view-trainer-btn" href="#" 
                                                             data-id="<%= u.getId() %>"
                                                             data-fullname="<%= u.getFullName() %>"
                                                             data-email="<%= u.getEmail() %>"
@@ -190,11 +190,14 @@
                                                             data-phone="<%= u.getPhoneNumber() != null ? u.getPhoneNumber() : "" %>"
                                                             data-address="<%= u.getAddress() != null ? u.getAddress() : "" %>"
                                                             data-gender="<%= u.getGender() != null ? u.getGender() : "" %>"
+                                                            data-zalo="<%= u.getZalo() != null ? u.getZalo() : "" %>"
+                                                            data-facebook="<%= u.getFacebook() != null ? u.getFacebook() : "" %>"
+                                                            data-experience="<%= u.getExperience() != null ? u.getExperience() : "" %>"
                                                             data-role="<%= u.getRole() %>"
                                                             data-status="<%= u.getStatus() %>"
                                                             data-dob="<%= u.getDob() != null ? u.getDob().toString() : "" %>">
                                                             <i class="fas fa-eye me-2"></i>Xem chi tiết</a></li>
-                                                    <li><a class="dropdown-item" href="editUser?id=<%= u.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
+                                                    <li><a class="dropdown-item" href="editTrainer?id=<%= u.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
                                                     <li>
                                                         <a class="dropdown-item update-status-btn" href="#" 
                                                             data-id="<%= u.getId() %>" 
@@ -217,8 +220,8 @@
                 <% } else { %>
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <h6><%= ("create".equals(formAction) ? "Thêm Member mới" : ("edit".equals(formAction) ? "Chỉnh sửa Member" : "Chi tiết Member")) %></h6>
-                        <a href="user" class="btn btn-outline-secondary btn-sm">
+                        <h6><%= ("create".equals(formAction) ? "Thêm Personal Trainer mới" : ("edit".equals(formAction) ? "Chỉnh sửa Personal Trainer" : "Chi tiết Personal Trainer")) %></h6>
+                        <a href="trainer" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
                         </a>
                     </div>
@@ -231,52 +234,64 @@
                         <% } %>
                         <form method="post">
                             <input type="hidden" name="formAction" value="<%= formAction %>"/>
-                            <% if (user != null && user.getId() != null) { %>
-                                <input type="hidden" name="id" value="<%= user.getId() %>"/>
+                            <% if (trainer != null && trainer.getId() != null) { %>
+                                <input type="hidden" name="id" value="<%= trainer.getId() %>"/>
                             <% } %>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Email *</label>
-                                    <input type="email" name="email" class="form-control" value="<%= user != null ? user.getEmail() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
+                                    <input type="email" name="email" class="form-control" value="<%= trainer != null ? trainer.getEmail() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Tên đăng nhập *</label>
-                                    <input type="text" name="userName" class="form-control" value="<%= user != null ? user.getUserName() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
+                                    <input type="text" name="userName" class="form-control" value="<%= trainer != null ? trainer.getUserName() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Họ tên *</label>
-                                    <input type="text" name="fullName" class="form-control" value="<%= user != null ? user.getFullName() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
+                                    <input type="text" name="fullName" class="form-control" value="<%= trainer != null ? trainer.getFullName() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Số điện thoại</label>
-                                    <input type="text" name="phoneNumber" class="form-control" value="<%= user != null ? user.getPhoneNumber() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %>/>
+                                    <input type="text" name="phoneNumber" class="form-control" value="<%= trainer != null ? trainer.getPhoneNumber() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %>/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Địa chỉ</label>
-                                    <input type="text" name="address" class="form-control" value="<%= user != null ? user.getAddress() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %>/>
+                                    <input type="text" name="address" class="form-control" value="<%= trainer != null ? trainer.getAddress() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %>/>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Giới tính</label>
                                     <select name="gender" class="form-control" <%= "view".equals(formAction) ? "readonly disabled" : "" %>>
-                                        <option value="Nam" <%= user != null && "Nam".equals(user.getGender()) ? "selected" : "" %>>Nam</option>
-                                        <option value="Nữ" <%= user != null && "Nữ".equals(user.getGender()) ? "selected" : "" %>>Nữ</option>
+                                        <option value="Nam" <%= trainer != null && "Nam".equals(trainer.getGender()) ? "selected" : "" %>>Nam</option>
+                                        <option value="Nữ" <%= trainer != null && "Nữ".equals(trainer.getGender()) ? "selected" : "" %>>Nữ</option>
                                     </select>
                                 </div>
-                                <input type="hidden" name="role" value="Member"/>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Zalo</label>
+                                    <input type="text" name="zalo" class="form-control" value="<%= trainer != null ? trainer.getZalo() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %>/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Facebook</label>
+                                    <input type="text" name="facebook" class="form-control" value="<%= trainer != null ? trainer.getFacebook() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %>/>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Kinh nghiệm</label>
+                                    <textarea name="experience" class="form-control" rows="3" <%= "view".equals(formAction) ? "readonly" : "" %>><%= trainer != null ? trainer.getExperience() : "" %></textarea>
+                                </div>
+                                <input type="hidden" name="role" value="Personal Trainer"/>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Trạng thái *</label>
                                     <% if ("view".equals(formAction)) { %>
-                                        <input type="text" name="status" class="form-control" value="<%= user != null ? user.getStatus() : "" %>" readonly/>
+                                        <input type="text" name="status" class="form-control" value="<%= trainer != null ? trainer.getStatus() : "" %>" readonly/>
                                     <% } else { %>
                                         <select name="status" class="form-control" required>
-                                            <option value="Active" <%= user != null && "Active".equals(user.getStatus()) ? "selected" : "" %>>Hoạt động</option>
-                                            <option value="Inactive" <%= user != null && "Inactive".equals(user.getStatus()) ? "selected" : "" %>>Không hoạt động</option>
+                                            <option value="Active" <%= trainer != null && "Active".equals(trainer.getStatus()) ? "selected" : "" %>>Hoạt động</option>
+                                            <option value="Inactive" <%= trainer != null && "Inactive".equals(trainer.getStatus()) ? "selected" : "" %>>Không hoạt động</option>
                                         </select>
                                     <% } %>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Ngày sinh</label>
-                                    <input type="date" name="dob" class="form-control" value="<%= user != null && user.getDob() != null ? user.getDob().toString() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %>/>
+                                    <input type="date" name="dob" class="form-control" value="<%= trainer != null && trainer.getDob() != null ? trainer.getDob().toString() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %>/>
                                 </div>
                                 <% if ("create".equals(formAction)) { %>
                                 <div class="col-md-6 mb-3">
@@ -290,7 +305,7 @@
                                 <button type="reset" class="btn btn-light me-2">Làm mới</button>
                                 <button class="btn btn-primary" type="submit">Lưu</button>
                                 <% } %>
-                                <a href="user" class="btn btn-secondary ms-2">Quay lại</a>
+                                <a href="trainer" class="btn btn-secondary ms-2">Quay lại</a>
                             </div>
                         </form>
                     </div>
@@ -301,12 +316,12 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật trạng thái Member</h5>
+                                <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật trạng thái Personal Trainer</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <p>Bạn có chắc chắn muốn thay đổi trạng thái của Member <span id="userName"></span>?</p>
-                                <form id="updateStatusForm" action="updateUserStatus" method="post">
+                                <p>Bạn có chắc chắn muốn thay đổi trạng thái của Personal Trainer <span id="userName"></span>?</p>
+                                <form id="updateStatusForm" action="updateTrainerStatus" method="post">
                                     <input type="hidden" id="userId" name="id" value="">
                                     <div class="mb-3">
                                         <label class="form-label">Trạng thái mới</label>
@@ -329,7 +344,7 @@
                     <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="viewUserModalLabel">Chi tiết Member</h5>
+                                <h5 class="modal-title" id="viewUserModalLabel">Chi tiết Personal Trainer</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
@@ -371,6 +386,18 @@
                                                 <tr>
                                                     <td class="fw-bold">Địa chỉ</td>
                                                     <td id="userAddress"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Zalo</td>
+                                                    <td id="userZalo"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Facebook</td>
+                                                    <td id="userFacebook"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Kinh nghiệm</td>
+                                                    <td id="userExperience"></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Ngày sinh</td>
@@ -424,7 +451,7 @@
                         });
                         
                         // Thêm sự kiện click cho các nút xem chi tiết
-                        document.querySelectorAll('.view-user-btn').forEach(function(button) {
+                        document.querySelectorAll('.view-trainer-btn').forEach(function(button) {
                             button.addEventListener('click', function() {
                                 const id = this.getAttribute('data-id');
                                 const fullName = this.getAttribute('data-fullname');
@@ -433,6 +460,9 @@
                                 const phone = this.getAttribute('data-phone');
                                 const address = this.getAttribute('data-address');
                                 const gender = this.getAttribute('data-gender');
+                                const zalo = this.getAttribute('data-zalo');
+                                const facebook = this.getAttribute('data-facebook');
+                                const experience = this.getAttribute('data-experience');
                                 const role = this.getAttribute('data-role');
                                 const status = this.getAttribute('data-status');
                                 const dob = this.getAttribute('data-dob');
@@ -443,6 +473,9 @@
                                 document.getElementById('userPhone').textContent = phone || 'Không có';
                                 document.getElementById('userAddress').textContent = address || 'Không có';
                                 document.getElementById('userGender').textContent = gender || 'Không có';
+                                document.getElementById('userZalo').textContent = zalo || 'Không có';
+                                document.getElementById('userFacebook').textContent = facebook || 'Không có';
+                                document.getElementById('userExperience').textContent = experience || 'Không có';
                                 document.getElementById('userRole').textContent = role || 'Không có';
                                 document.getElementById('userDob').textContent = dob || 'Không có';
                                 
@@ -457,7 +490,7 @@
                                 }
                                 
                                 // Cập nhật link chỉnh sửa
-                                document.getElementById('editUserBtn').href = 'editUser?id=' + id;
+                                document.getElementById('editUserBtn').href = 'editTrainer?id=' + id;
                                 
                                 var viewModal = new bootstrap.Modal(document.getElementById('viewUserModal'));
                                 viewModal.show();
