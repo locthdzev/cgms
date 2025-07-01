@@ -114,6 +114,26 @@
           <span class="nav-link-text ms-1">Quản lý Feedback</span>
         </a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link <%= isSchedule ? "active" : "" %>" href="${pageContext.request.contextPath}/schedule">
+            <div
+                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                >
+                <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text ms-1">Quản lý lịch tập</span>
+        </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= isInventory ? "active" : "" %>" href="${pageContext.request.contextPath}/inventory">
+          <div
+              class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+              >
+              <i class="ni ni-box-2 text-dark text-sm opacity-10"></i> <!-- Biểu tượng cho kho hàng -->
+          </div>
+          <span class="nav-link-text ms-1">Quản lý kho hàng</span>
+      </a>
+  </li>
       <li class="nav-item mt-3">
         <h6
           class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6"
