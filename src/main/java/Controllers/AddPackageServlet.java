@@ -6,8 +6,10 @@ package Controllers;
 
 import Models.Package;
 import DAOs.PackageDAO;
+import Utilities.VNDUtils;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -86,8 +88,27 @@ public class AddPackageServlet extends HttpServlet {
                 return;
             }
 
-            // Chuyển đổi dữ liệu
-            BigDecimal price = new BigDecimal(priceStr);
+            // Xử lý và validate giá tiền VND
+            BigDecimal price;
+            try {
+                // Parse giá tiền từ định dạng VND
+                price = VNDUtils.parseVND(priceStr);
+
+                // Validate giá tiền
+                String priceValidationMessage = VNDUtils.getValidationMessage(price);
+                if (priceValidationMessage != null) {
+                    request.setAttribute("errorMessage", priceValidationMessage);
+                    request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                    return;
+                }
+            } catch (ParseException e) {
+                request.setAttribute("errorMessage",
+                        "Định dạng giá tiền không hợp lệ. Vui lòng nhập số tiền hợp lệ (ví dụ: 1.000.000)");
+                request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
+                return;
+            }
+
+            // Chuyển đổi dữ liệu khác
             int duration = Integer.parseInt(durationStr);
             Integer sessions = null;
             if (sessionsStr != null && !sessionsStr.trim().isEmpty()) {
@@ -116,11 +137,12 @@ public class AddPackageServlet extends HttpServlet {
                 request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "Dữ liệu số không hợp lệ: " + e.getMessage());
+            request.setAttribute("errorMessage",
+                    "Dữ liệu số không hợp lệ. Vui lòng kiểm tra lại thời hạn và số buổi tập.");
             request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            request.setAttribute("errorMessage", "Có lỗi xảy ra khi thêm gói tập. Vui lòng thử lại sau.");
             request.getRequestDispatcher("/addPackage.jsp").forward(request, response);
         }
     }

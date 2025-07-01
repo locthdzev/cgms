@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="Models.Package" %>
 <%@ page import="java.util.List" %>
+<%@ page import="Utilities.VNDUtils" %>
 <%
     List<Package> packageList = (List<Package>) request.getAttribute("packages");
     
@@ -188,7 +189,7 @@
                                             <a class="dropdown-item view-details-btn" href="#" 
                                                data-id="<%= pkg.getId() %>" 
                                                data-name="<%= pkg.getName() %>" 
-                                               data-price="<%= String.format("%,.0f", pkg.getPrice()) %>" 
+                                               data-price="<%= VNDUtils.formatVND(pkg.getPrice()) %>"
                                                data-duration="<%= pkg.getDuration() %>" 
                                                data-sessions="<%= pkg.getSessions() != null ? pkg.getSessions() : "Không giới hạn" %>" 
                                                data-description="<%= pkg.getDescription() != null ? pkg.getDescription() : "Không có mô tả" %>" 
@@ -217,7 +218,7 @@
                                 <h5 class="card-title"><%= pkg.getName() %></h5>
                                 <p class="card-text text-sm mb-2"><%= pkg.getDescription() %></p>
                                 <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <span class="text-dark font-weight-bold"><%= String.format("%,.0f", pkg.getPrice()) %> VNĐ</span>
+                                    <span class="text-dark font-weight-bold"><%= VNDUtils.formatVNDWithUnit(pkg.getPrice()) %></span>
                                     <span class="badge bg-gradient-info"><%= pkg.getDuration() %> ngày</span>
                                 </div>
                             </div>
@@ -284,7 +285,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <span class="detail-label">Thời hạn:</span> 
-                                    <span id="packageDetailDuration" class="ms-2"></span> tháng
+                                    <span id="packageDetailDuration" class="ms-2"></span> ngày
                                 </div>
                                 <div class="mb-2">
                                     <span class="detail-label">Số buổi tập:</span> 
