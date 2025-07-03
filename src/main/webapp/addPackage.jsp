@@ -20,99 +20,18 @@
     <body class="g-sidenav-show bg-gray-100">
         <div class="min-height-300 bg-dark position-absolute w-100"></div>
         
-        <!-- Sidebar -->
-        <aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4" id="sidenav-main">
-            <div class="sidenav-header">
-                <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-                <a class="navbar-brand m-0" href="dashboard.jsp">
-                    <img src="./assets/img/weightlifting.png" width="26px" height="26px" class="navbar-brand-img h-100" alt="main_logo" />
-                    <span class="ms-1 font-weight-bold">CGMS</span>
-                </a>
-            </div>
-            <hr class="horizontal dark mt-0" />
-            <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.jsp">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="listPackage">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Gói tập Gym</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/tables.html">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Tables</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/billing.html">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-credit-card text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Billing</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/virtual-reality.html">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-app text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Virtual Reality</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/rtl.html">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-world-2 text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">RTL</span>
-                        </a>
-                    </li>
-                    <li class="nav-item mt-3">
-                        <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">
-                            Account pages
-                        </h6>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/profile.html">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Profile</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </aside>
+        <!-- Include Sidebar Component -->
+        <%@ include file="sidebar.jsp" %>
         
         <!-- Main content -->
         <main class="main-content position-relative border-radius-lg">
-            <!-- Navbar -->
-            <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" data-scroll="false">
-                <div class="container-fluid py-1 px-3">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-                            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="dashboard.jsp">Dashboard</a></li>
-                            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="listPackage">Danh sách gói tập</a></li>
-                            <li class="breadcrumb-item text-sm text-white active" aria-current="page">Thêm gói tập mới</li>
-                        </ol>
-                        <h6 class="font-weight-bolder text-white mb-0">Thêm gói tập mới</h6>
-                    </nav>
-                </div>
-            </nav>
-            <!-- End Navbar -->
+            <!-- Include Navbar Component with parameters -->
+            <jsp:include page="navbar.jsp">
+                <jsp:param name="pageTitle" value="Thêm gói tập mới" />
+                <jsp:param name="parentPage" value="Danh sách gói tập" />
+                <jsp:param name="parentPageUrl" value="listPackage" />
+                <jsp:param name="currentPage" value="Thêm gói tập mới" />
+            </jsp:include>
             
             <div class="container-fluid py-4">
                 <!-- Hiển thị thông báo lỗi nếu có -->
@@ -142,7 +61,9 @@
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="price" class="form-label">Giá (VNĐ) *</label>
-                                            <input type="number" class="form-control" id="price" name="price" required>
+                                            <input type="text" class="form-control" id="price" name="price"
+                                                   placeholder="Ví dụ: 1.000.000" required>
+                                            <div class="form-text">Nhập giá tiền theo định dạng VND (ví dụ: 1.000.000)</div>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -184,6 +105,94 @@
         <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
         <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
         <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+
+        <script>
+            // Hàm định dạng số tiền VND
+            function formatVND(value) {
+                // Loại bỏ tất cả ký tự không phải số
+                const numericValue = value.replace(/[^\d]/g, '');
+
+                if (numericValue === '') return '';
+
+                // Thêm dấu chấm phân cách hàng nghìn
+                return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            // Hàm validate giá tiền
+            function validatePrice(value) {
+                const numericValue = value.replace(/[^\d]/g, '');
+                const price = parseInt(numericValue);
+
+                if (isNaN(price) || price <= 0) {
+                    return 'Giá tiền phải lớn hơn 0';
+                }
+
+                if (price < 10000) {
+                    return 'Giá tiền tối thiểu là 10.000 VNĐ';
+                }
+
+                if (price > 50000000) {
+                    return 'Giá tiền tối đa là 50.000.000 VNĐ';
+                }
+
+                return null;
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const priceInput = document.getElementById('price');
+                const form = document.querySelector('form');
+
+                // Xử lý input mask cho trường giá tiền
+                priceInput.addEventListener('input', function(e) {
+                    const cursorPosition = e.target.selectionStart;
+                    const oldValue = e.target.value;
+                    const newValue = formatVND(oldValue);
+
+                    e.target.value = newValue;
+
+                    // Điều chỉnh vị trí con trỏ
+                    const newCursorPosition = cursorPosition + (newValue.length - oldValue.length);
+                    e.target.setSelectionRange(newCursorPosition, newCursorPosition);
+                });
+
+                // Validation khi submit form
+                form.addEventListener('submit', function(e) {
+                    const priceValue = priceInput.value;
+                    const errorMessage = validatePrice(priceValue);
+
+                    if (errorMessage) {
+                        e.preventDefault();
+                        alert(errorMessage);
+                        priceInput.focus();
+                        return false;
+                    }
+                });
+
+                // Validation real-time
+                priceInput.addEventListener('blur', function() {
+                    const priceValue = this.value;
+                    const errorMessage = validatePrice(priceValue);
+
+                    // Xóa thông báo lỗi cũ
+                    const existingError = this.parentNode.querySelector('.price-error');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+
+                    if (errorMessage) {
+                        // Hiển thị thông báo lỗi
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'text-danger small mt-1 price-error';
+                        errorDiv.textContent = errorMessage;
+                        this.parentNode.appendChild(errorDiv);
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    }
+                });
+            });
+        </script>
     </body>
 </html>
 

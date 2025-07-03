@@ -1,7 +1,7 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
-!**/src/test/**/target/
+!**/src/test/**/build/
 
 ### IntelliJ IDEA ###
 .idea/
@@ -34,3 +34,16 @@ nb-configuration.xml
 
 ### Mac OS ###
 .DS_Store
+
+# Application configuration
+src/main/resources/app.properties
+
+# Tomcat context file (optional, may contain env-specific config)
+src/main/webapp/META-INF/context.xml
+
+# Logs
+*.log
+logs/
+
+# OS files
+Thumbs.db

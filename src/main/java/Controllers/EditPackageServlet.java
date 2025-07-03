@@ -2,13 +2,16 @@ package Controllers;
 
 import Models.Package;
 import DAOs.PackageDAO;
+import Utilities.VNDUtils;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.time.Instant;
 
 /**
@@ -32,7 +35,9 @@ public class EditPackageServlet extends HttpServlet {
         String idParam = request.getParameter("id");
 
         if (idParam == null || idParam.trim().isEmpty()) {
-            response.sendRedirect("listPackage?error=ID+gói+tập+không+hợp+lệ");
+            HttpSession session = request.getSession();
+            session.setAttribute("errorMessage", "ID gói tập không hợp lệ");
+            response.sendRedirect("listPackage");
             return;
         }
 
@@ -42,7 +47,9 @@ public class EditPackageServlet extends HttpServlet {
             Package pkg = packageDAO.getPackageById(id);
 
             if (pkg == null) {
-                response.sendRedirect("listPackage?error=Không+tìm+thấy+gói+tập");
+                HttpSession session = request.getSession();
+                session.setAttribute("errorMessage", "Không tìm thấy gói tập");
+                response.sendRedirect("listPackage");
                 return;
             }
 
@@ -50,10 +57,14 @@ public class EditPackageServlet extends HttpServlet {
             request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
-            response.sendRedirect("listPackage?error=ID+gói+tập+không+hợp+lệ");
+            HttpSession session = request.getSession();
+            session.setAttribute("errorMessage", "ID gói tập không hợp lệ");
+            response.sendRedirect("listPackage");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("listPackage?error=" + e.getMessage());
+            HttpSession session = request.getSession();
+            session.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            response.sendRedirect("listPackage");
         }
     }
 
@@ -70,6 +81,7 @@ public class EditPackageServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
+        HttpSession session = request.getSession();
 
         try {
             // Lấy dữ liệu từ form
@@ -101,7 +113,39 @@ public class EditPackageServlet extends HttpServlet {
 
             // Chuyển đổi dữ liệu
             int id = Integer.parseInt(idStr);
-            BigDecimal price = new BigDecimal(priceStr);
+
+            // Xử lý và validate giá tiền VND
+            BigDecimal price;
+            try {
+                // Parse giá tiền từ định dạng VND
+                price = VNDUtils.parseVND(priceStr);
+
+                // Validate giá tiền
+                String priceValidationMessage = VNDUtils.getValidationMessage(price);
+                if (priceValidationMessage != null) {
+                    request.setAttribute("errorMessage", priceValidationMessage);
+
+                    // Lấy lại thông tin gói tập để hiển thị lại form
+                    PackageDAO packageDAO = new PackageDAO();
+                    Package pkg = packageDAO.getPackageById(id);
+                    request.setAttribute("package", pkg);
+
+                    request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                    return;
+                }
+            } catch (ParseException e) {
+                request.setAttribute("errorMessage",
+                        "Định dạng giá tiền không hợp lệ. Vui lòng nhập số tiền hợp lệ (ví dụ: 1.000.000)");
+
+                // Lấy lại thông tin gói tập để hiển thị lại form
+                PackageDAO packageDAO = new PackageDAO();
+                Package pkg = packageDAO.getPackageById(id);
+                request.setAttribute("package", pkg);
+
+                request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
+                return;
+            }
+
             int duration = Integer.parseInt(durationStr);
             Integer sessions = null;
             if (sessionsStr != null && !sessionsStr.trim().isEmpty()) {
@@ -113,7 +157,8 @@ public class EditPackageServlet extends HttpServlet {
             Package pkg = packageDAO.getPackageById(id);
 
             if (pkg == null) {
-                response.sendRedirect("listPackage?error=Không+tìm+thấy+gói+tập");
+                session.setAttribute("errorMessage", "Không tìm thấy gói tập");
+                response.sendRedirect("listPackage");
                 return;
             }
 
@@ -131,18 +176,20 @@ public class EditPackageServlet extends HttpServlet {
 
             if (success) {
                 // Chuyển hướng đến trang danh sách gói tập với thông báo thành công
-                response.sendRedirect("listPackage?message=update_success");
+                session.setAttribute("successMessage", "Cập nhật gói tập \"" + name + "\" thành công!");
+                response.sendRedirect("listPackage");
             } else {
                 request.setAttribute("errorMessage", "Không thể cập nhật gói tập. Vui lòng thử lại.");
                 request.setAttribute("package", pkg);
                 request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "Dữ liệu số không hợp lệ: " + e.getMessage());
+            request.setAttribute("errorMessage",
+                    "Dữ liệu số không hợp lệ. Vui lòng kiểm tra lại thời hạn và số buổi tập.");
             request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            request.setAttribute("errorMessage", "Có lỗi xảy ra khi cập nhật gói tập. Vui lòng thử lại sau.");
             request.getRequestDispatcher("/editPackage.jsp").forward(request, response);
         }
     }
