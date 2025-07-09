@@ -1,15 +1,18 @@
 package Controllers;
 
-import Models.Voucher;
-import Services.VoucherService;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+
+import Models.Voucher;
+import Services.VoucherService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 public class VoucherController extends HttpServlet {
     private final VoucherService service = new VoucherService();
@@ -87,6 +90,20 @@ public class VoucherController extends HttpServlet {
             }
 
             v.setStatus(req.getParameter("status"));
+
+            // Validate voucher data
+            List<String> validationErrors = service.validateVoucher(v);
+            if (!validationErrors.isEmpty()) {
+                StringBuilder errorMessage = new StringBuilder("Lỗi validation:<ul>");
+                for (String error : validationErrors) {
+                    errorMessage.append("<li>").append(error).append("</li>");
+                }
+                errorMessage.append("</ul>");
+                req.setAttribute("errorMessage", errorMessage.toString());
+                req.setAttribute("voucher", v);
+                req.getRequestDispatcher("/voucher-form.jsp").forward(req, resp);
+                return;
+            }
 
             if (idStr != null && !idStr.trim().isEmpty()) {
                 service.updateVoucher(v);
