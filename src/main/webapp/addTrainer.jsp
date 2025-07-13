@@ -46,6 +46,12 @@
         .medium { background-color: #fd7e14; width: 60%; }
         .strong { background-color: #20c997; width: 80%; }
         .very-strong { background-color: #198754; width: 100%; }
+        .image-preview {
+            max-width: 300px;
+            max-height: 200px;
+            display: none;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body class="g-sidenav-show bg-gray-100">
@@ -85,7 +91,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         <% } %>
-                        <form method="post" id="addTrainerForm" onsubmit="return validateForm()">
+                        <form method="post" id="addTrainerForm" onsubmit="return validateForm()" enctype="multipart/form-data">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Email *</label>
@@ -126,6 +132,14 @@
                                     <label class="form-label">Kinh nghiệm</label>
                                     <textarea name="experience" class="form-control" rows="3"></textarea>
                                 </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Ảnh chứng chỉ</label>
+                                    <input type="file" name="certificateImage" class="form-control" accept="image/*" onchange="previewCertificateImage(this)"/>
+                                    <small class="text-muted">Chấp nhận các file hình ảnh (JPG, PNG, GIF). Tối đa 10MB.</small>
+                                    <div>
+                                        <img id="certificateImagePreview" class="image-preview" alt="Certificate Preview" />
+                                    </div>
+                                </div>
                                 <input type="hidden" name="role" value="Personal Trainer" />
                                 <input type="hidden" name="status" value="Active"/>
                                 <div class="col-md-6 mb-3">
@@ -158,8 +172,8 @@
 </main>
 <script src="assets/js/core/popper.min.js" type="text/javascript"></script>
 <script src="assets/js/core/bootstrap.min.js" type="text/javascript"></script>
-<script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
-<script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
+<script src="assets/js/plugins/perfect-scrollbar.min.js" type="text/javascript"></script>
+<script src="assets/js/plugins/smooth-scrollbar.min.js" type="text/javascript"></script>
 <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 <script>
     // Kiểm tra độ mạnh mật khẩu
@@ -243,6 +257,20 @@
         }
         
         return true;
+    }
+
+    function previewCertificateImage(input) {
+        var preview = document.getElementById('certificateImagePreview');
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.style.display = 'none';
+        }
     }
 </script>
 </body>
