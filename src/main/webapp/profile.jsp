@@ -40,9 +40,9 @@
     <link
       rel="apple-touch-icon"
       sizes="76x76"
-      href="./assets/img/weightlifting.png"
+      href="assets/img/weightlifting.png"
     />
-    <link rel="icon" type="image/png" href="./assets/img/weightlifting.png" />
+    <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
     <title>Hồ sơ cá nhân - CGMS</title>
     <!--     Fonts and icons     -->
     <link
@@ -59,14 +59,11 @@
       rel="stylesheet"
     />
     <!-- Font Awesome Icons -->
-    <script
-      src="https://kit.fontawesome.com/42d5adcbca.js"
-      crossorigin="anonymous"
-    ></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
     <!-- CSS Files -->
     <link
       id="pagestyle"
-      href="./assets/css/argon-dashboard.css?v=2.1.0"
+      href="assets/css/argon-dashboard.css?v=2.1.0"
       rel="stylesheet"
     />
     <style>
@@ -225,7 +222,11 @@
       <% } %>
     </div>
 
+    <% if (loggedInUser != null && "Personal Trainer".equals(loggedInUser.getRole())) { %>
+    <%@ include file="pt_sidebar.jsp" %>
+    <% } else { %>
     <%@ include file="sidebar.jsp" %>
+    <% } %>
     <main
       class="main-content position-relative max-height-vh-100 h-100 border-radius-lg"
     >
@@ -242,7 +243,7 @@
             <div class="col-auto">
               <div class="avatar avatar-xl position-relative">
                 <img
-                  src="./assets/svg/user-37448.svg"
+                  src="assets/svg/user-37448.svg"
                   alt="profile_image"
                   class="w-100 border-radius-lg shadow-sm"
                 />
@@ -316,7 +317,7 @@
                 </div>
               </div>
               <div class="card-body">
-                <form id="updateProfileForm" action="ProfileController" method="post">
+                <form id="updateProfileForm" action="ProfileController" method="post" enctype="multipart/form-data">
                 <p class="text-uppercase text-sm">Thông tin người dùng</p>
                 <div class="row">
                   <div class="col-md-6">
@@ -363,21 +364,6 @@
                       />
                     </div>
                   </div>
-                </div>
-                <hr class="horizontal dark" />
-                <p class="text-uppercase text-sm">Thông tin liên hệ</p>
-                <div class="row">
-                  <div class="col-md-12">
-                    <div class="form-group">
-                      <label class="form-control-label">Địa chỉ</label>
-                      <input 
-                        class="form-control" 
-                        type="text" 
-                        name="address"
-                        value="<%= profileUser.getAddress() != null ? profileUser.getAddress() : "" %>" 
-                      />
-                    </div>
-                  </div>
                   <div class="col-md-6">
                     <div class="form-group">
                       <label class="form-control-label">Giới tính</label>
@@ -401,6 +387,86 @@
                     </div>
                   </div>
                 </div>
+                <hr class="horizontal dark" />
+                <p class="text-uppercase text-sm">Thông tin liên hệ</p>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label class="form-control-label">Địa chỉ</label>
+                      <input 
+                        class="form-control" 
+                        type="text" 
+                        name="address"
+                        value="<%= profileUser.getAddress() != null ? profileUser.getAddress() : "" %>" 
+                      />
+                    </div>
+                  </div>
+                  <% if (request.getAttribute("isPersonalTrainer") != null && (Boolean)request.getAttribute("isPersonalTrainer")) { %>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-control-label">Zalo</label>
+                      <input
+                        class="form-control"
+                        type="text"
+                        name="zalo"
+                        value="<%= profileUser.getZalo() != null ? profileUser.getZalo() : "" %>"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-control-label">Facebook</label>
+                      <input
+                        class="form-control"
+                        type="text"
+                        name="facebook"
+                        value="<%= profileUser.getFacebook() != null ? profileUser.getFacebook() : "" %>"
+                      />
+                    </div>
+                  </div>
+                  <% } %>
+                </div>
+                
+                <% if (request.getAttribute("isPersonalTrainer") != null && (Boolean)request.getAttribute("isPersonalTrainer")) { %>
+                <hr class="horizontal dark" />
+                <p class="text-uppercase text-sm">Thông tin chuyên môn</p>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label class="form-control-label">Kinh nghiệm</label>
+                      <textarea
+                        class="form-control"
+                        name="experience"
+                        rows="3"
+                      ><%= profileUser.getExperience() != null ? profileUser.getExperience() : "" %></textarea>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label class="form-control-label">Chứng chỉ</label>
+                      <input
+                        class="form-control"
+                        type="file"
+                        name="certificateImage"
+                        accept="image/*"
+                        onchange="previewCertificateImage(this)"
+                      />
+                      <small class="text-muted">Chấp nhận các file hình ảnh (JPG, PNG, GIF). Tối đa 10MB.</small>
+                    </div>
+                  </div>
+                  <% if (profileUser.getCertificateImageUrl() != null && !profileUser.getCertificateImageUrl().isEmpty()) { %>
+                  <div class="col-md-12 mt-3">
+                    <label class="form-control-label">Chứng chỉ hiện tại</label>
+                    <div>
+                      <img src="<%= profileUser.getCertificateImageUrl() %>" alt="Certificate" class="img-fluid" style="max-width: 300px; max-height: 200px; border-radius: 8px;" onerror="this.onerror=null; this.src='assets/img/placeholder-image.jpg';">
+                    </div>
+                  </div>
+                  <% } %>
+                  <div class="col-md-12 mt-3">
+                    <img id="certificateImagePreview" class="img-fluid" style="max-width: 300px; max-height: 200px; border-radius: 8px; display: none;" alt="Certificate Preview" />
+                  </div>
+                </div>
+                <% } %>
                 </form>
                 <hr class="horizontal dark" />
                 <p class="text-uppercase text-sm">Đổi mật khẩu</p>
@@ -412,7 +478,7 @@
                         <div class="password-container">
                           <input class="form-control" type="password" name="currentPassword" id="currentPassword" required />
                           <span class="password-toggle" onclick="togglePassword('currentPassword')">
-                            <img src="./assets/svg/eye-show-svgrepo-com.svg" id="currentPassword-toggle-icon" alt="Show/Hide Password">
+                            <img src="assets/svg/eye-show-svgrepo-com.svg" id="currentPassword-toggle-icon" alt="Show/Hide Password">
                           </span>
                         </div>
                       </div>
@@ -423,7 +489,7 @@
                         <div class="password-container">
                           <input class="form-control" type="password" name="newPassword" id="newPassword" required minlength="8" maxlength="32" oninput="checkPasswordStrength()" />
                           <span class="password-toggle" onclick="togglePassword('newPassword')">
-                            <img src="./assets/svg/eye-show-svgrepo-com.svg" id="newPassword-toggle-icon" alt="Show/Hide Password">
+                            <img src="assets/svg/eye-show-svgrepo-com.svg" id="newPassword-toggle-icon" alt="Show/Hide Password">
                           </span>
                         </div>
                       </div>
@@ -443,7 +509,7 @@
                         <div class="password-container">
                           <input class="form-control" type="password" name="confirmPassword" id="confirmPassword" required minlength="8" maxlength="32" />
                           <span class="password-toggle" onclick="togglePassword('confirmPassword')">
-                            <img src="./assets/svg/eye-show-svgrepo-com.svg" id="confirmPassword-toggle-icon" alt="Show/Hide Password">
+                            <img src="assets/svg/eye-show-svgrepo-com.svg" id="confirmPassword-toggle-icon" alt="Show/Hide Password">
                           </span>
                         </div>
                       </div>
@@ -460,7 +526,7 @@
           <div class="col-md-4">
             <div class="card card-profile">
               <img
-                src="./assets/img/bg-profile.jpg"
+                src="assets/img/bg-profile.jpg"
                 alt="Image placeholder"
                 class="card-img-top"
               />
@@ -469,7 +535,7 @@
                   <div class="mt-n4 mt-lg-n6 mb-4 mb-lg-0">
                     <a href="javascript:;">
                       <img
-                        src="./assets/svg/user-37448.svg"
+                        src="assets/svg/user-37448.svg"
                         class="rounded-circle img-fluid border border-2 border-white"
                       />
                     </a>
@@ -652,10 +718,10 @@
       </div>
     </div>
     <!--   Core JS Files   -->
-    <script src="./assets/js/core/popper.min.js"></script>
-    <script src="./assets/js/core/bootstrap.min.js"></script>
-    <script src="./assets/js/plugins/perfect-scrollbar.min.js"></script>
-    <script src="./assets/js/plugins/smooth-scrollbar.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
     <script>
       var win = navigator.platform.indexOf("Win") > -1;
       if (win && document.querySelector("#sidenav-scrollbar")) {
@@ -668,7 +734,7 @@
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="./assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+    <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
@@ -702,10 +768,10 @@
         
         if (passwordInput.type === 'password') {
           passwordInput.type = 'text';
-          toggleIcon.src = './assets/svg/eye-off-svgrepo-com.svg';
+          toggleIcon.src = 'assets/svg/eye-off-svgrepo-com.svg';
         } else {
           passwordInput.type = 'password';
-          toggleIcon.src = './assets/svg/eye-show-svgrepo-com.svg';
+          toggleIcon.src = 'assets/svg/eye-show-svgrepo-com.svg';
         }
       }
       
@@ -851,6 +917,22 @@
         }
         
         return true;
+      }
+    </script>
+    <script>
+      // Thêm hàm xem trước ảnh chứng chỉ
+      function previewCertificateImage(input) {
+          var preview = document.getElementById('certificateImagePreview');
+          if (input.files && input.files[0]) {
+              var reader = new FileReader();
+              reader.onload = function(e) {
+                  preview.src = e.target.result;
+                  preview.style.display = 'block';
+              }
+              reader.readAsDataURL(input.files[0]);
+          } else {
+              preview.style.display = 'none';
+          }
       }
     </script>
   </body>
