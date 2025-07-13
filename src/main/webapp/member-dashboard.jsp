@@ -6,8 +6,8 @@
     
     // Kiểm tra xem người dùng đã đăng nhập và có vai trò Member không
     if (loggedInUser == null || !"Member".equals(loggedInUser.getRole())) {
-        response.sendRedirect("login");
-        return;
+      response.sendRedirect("login");
+      return;
     }
     
     // Lấy thông báo từ session nếu có
@@ -219,7 +219,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body p-3">
-                        <div class="row">
+    <div class="row">
                             <div class="col-lg-6">
                                 <div class="d-flex">
                                     <div class="avatar avatar-xl bg-gradient-primary rounded-circle">
@@ -240,7 +240,7 @@
                                 </a>
                             </div>
                         </div>
-                    </div>
+          </div>
                 </div>
             </div>
         </div>
@@ -325,14 +325,14 @@
                             <div class="col-4 text-end">
                                 <div class="icon icon-shape bg-gradient-info shadow text-center border-radius-md">
                                     <i class="fas fa-star text-lg opacity-10" aria-hidden="true"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              </div>
             </div>
+          </div>
         </div>
-        
+      </div>
+    </div>
+  </div>
+  
         <!-- Membership and schedule section -->
         <div class="row mt-4">
             <div class="col-lg-5 mb-lg-0 mb-4">
@@ -553,8 +553,8 @@
 </main>
 
 <!-- Core JS Files -->
-<script src="assets/js/core/popper.min.js"></script>
-<script src="assets/js/core/bootstrap.min.js"></script>
+  <script src="assets/js/core/popper.min.js"></script>
+  <script src="assets/js/core/bootstrap.min.js"></script>
 <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
 <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
 <script src="assets/js/plugins/chartjs.min.js"></script>
