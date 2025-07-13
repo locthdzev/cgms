@@ -155,6 +155,7 @@
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Số điện thoại</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Zalo</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Facebook</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Chứng chỉ</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Trạng thái</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Thao tác</th>
                                 </tr>
@@ -169,6 +170,15 @@
                                         <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getPhoneNumber() %></h6></td>
                                         <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getZalo() != null ? u.getZalo() : "-" %></h6></td>
                                         <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getFacebook() != null ? u.getFacebook() : "-" %></h6></td>
+                                        <td class="ps-2">
+                                            <% if (u.getCertificateImageUrl() != null && !u.getCertificateImageUrl().isEmpty()) { %>
+                                                <a href="<%= u.getCertificateImageUrl() %>" target="_blank" class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-certificate me-1"></i>Xem
+                                                </a>
+                                            <% } else { %>
+                                                <span class="text-muted">Không có</span>
+                                            <% } %>
+                                        </td>
                                         <td class="ps-2">
                                             <% if ("Active".equals(u.getStatus())) { %>
                                                 <span class="badge badge-sm bg-gradient-success">Hoạt động</span>
@@ -195,6 +205,7 @@
                                                             data-experience="<%= u.getExperience() != null ? u.getExperience() : "" %>"
                                                             data-role="<%= u.getRole() %>"
                                                             data-status="<%= u.getStatus() %>"
+                                                            data-certificate-image="<%= u.getCertificateImageUrl() != null ? u.getCertificateImageUrl() : "" %>"
                                                             data-dob="<%= u.getDob() != null ? u.getDob().toString() : "" %>">
                                                             <i class="fas fa-eye me-2"></i>Xem chi tiết</a></li>
                                                     <li><a class="dropdown-item" href="editTrainer?id=<%= u.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
@@ -277,6 +288,14 @@
                                     <label class="form-label">Kinh nghiệm</label>
                                     <textarea name="experience" class="form-control" rows="3" <%= "view".equals(formAction) ? "readonly" : "" %>><%= trainer != null ? trainer.getExperience() : "" %></textarea>
                                 </div>
+                                <% if (trainer != null && trainer.getCertificateImageUrl() != null && !trainer.getCertificateImageUrl().isEmpty()) { %>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Chứng chỉ</label>
+                                    <div>
+                                        <img src="<%= trainer.getCertificateImageUrl() %>" alt="Certificate" class="img-fluid" style="max-width: 300px; max-height: 200px;" onerror="this.onerror=null; this.src='assets/img/placeholder-image.jpg';">
+                                    </div>
+                                </div>
+                                <% } %>
                                 <input type="hidden" name="role" value="Personal Trainer"/>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Trạng thái *</label>
@@ -403,6 +422,15 @@
                                                     <td class="fw-bold">Ngày sinh</td>
                                                     <td id="userDob"></td>
                                                 </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Chứng chỉ</td>
+                                                    <td>
+                                                        <div id="certificateImageContainer">
+                                                            <img id="certificateImage" class="img-fluid rounded" style="max-width: 100%; max-height: 200px; display: none;" alt="Chứng chỉ" />
+                                                            <span id="noCertificateText" style="display: none;">Không có</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -466,6 +494,7 @@
                                 const role = this.getAttribute('data-role');
                                 const status = this.getAttribute('data-status');
                                 const dob = this.getAttribute('data-dob');
+                                const certificateImageUrl = this.getAttribute('data-certificate-image');
                                 
                                 document.getElementById('userFullName').textContent = fullName;
                                 document.getElementById('userEmail').textContent = email || 'Không có';
@@ -478,6 +507,19 @@
                                 document.getElementById('userExperience').textContent = experience || 'Không có';
                                 document.getElementById('userRole').textContent = role || 'Không có';
                                 document.getElementById('userDob').textContent = dob || 'Không có';
+                                
+                                // Hiển thị ảnh chứng chỉ nếu có
+                                const certificateImage = document.getElementById('certificateImage');
+                                const noCertificateText = document.getElementById('noCertificateText');
+                                
+                                if (certificateImageUrl && certificateImageUrl !== 'null' && certificateImageUrl !== '') {
+                                    certificateImage.src = certificateImageUrl;
+                                    certificateImage.style.display = 'block';
+                                    noCertificateText.style.display = 'none';
+                                } else {
+                                    certificateImage.style.display = 'none';
+                                    noCertificateText.style.display = 'block';
+                                }
                                 
                                 // Cập nhật trạng thái với badge
                                 const statusBadge = document.getElementById('viewUserStatus');

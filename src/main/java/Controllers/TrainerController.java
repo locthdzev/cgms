@@ -8,9 +8,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.MultipartConfig;
 import Models.MemberLevel;
 
 @WebServlet({ "/trainer", "/addTrainer", "/editTrainer", "/updateTrainerStatus" })
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, // 1MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 30 // 30MB
+)
 public class TrainerController extends HttpServlet {
     private final UserService userService = new UserService();
 
@@ -87,6 +92,25 @@ public class TrainerController extends HttpServlet {
                 trainer.setDob(java.time.LocalDate.parse(dobStr));
             }
 
+            // Xử lý upload chứng chỉ
+            Part certificateFilePart = req.getPart("certificateImage");
+            if (certificateFilePart != null && certificateFilePart.getSize() > 0) {
+                String fileName = certificateFilePart.getSubmittedFileName();
+                String contentType = certificateFilePart.getContentType();
+
+                try {
+                    // Upload to MinIO and get URL
+                    String certificateImageUrl = userService.uploadCertificateImage(
+                            certificateFilePart.getInputStream(), fileName, contentType);
+                    trainer.setCertificateImageUrl(certificateImageUrl);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    req.setAttribute("errorMessage", "Lỗi khi tải lên chứng chỉ: " + e.getMessage());
+                    req.getRequestDispatcher("/addTrainer.jsp").forward(req, resp);
+                    return;
+                }
+            }
+
             String rawPassword = req.getParameter("password");
             MemberLevel defaultLevel = new MemberLevel();
             defaultLevel.setId(1);
@@ -128,6 +152,26 @@ public class TrainerController extends HttpServlet {
                 String dobStr = req.getParameter("dob");
                 if (dobStr != null && !dobStr.isEmpty()) {
                     trainer.setDob(java.time.LocalDate.parse(dobStr));
+                }
+
+                // Xử lý upload chứng chỉ
+                Part certificateFilePart = req.getPart("certificateImage");
+                if (certificateFilePart != null && certificateFilePart.getSize() > 0) {
+                    String fileName = certificateFilePart.getSubmittedFileName();
+                    String contentType = certificateFilePart.getContentType();
+
+                    try {
+                        // Upload to MinIO and get URL
+                        String certificateImageUrl = userService.uploadCertificateImage(
+                                certificateFilePart.getInputStream(), fileName, contentType);
+                        trainer.setCertificateImageUrl(certificateImageUrl);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        req.setAttribute("errorMessage", "Lỗi khi tải lên chứng chỉ: " + e.getMessage());
+                        req.setAttribute("trainer", trainer);
+                        req.getRequestDispatcher("/editTrainer.jsp").forward(req, resp);
+                        return;
+                    }
                 }
 
                 // Đảm bảo luôn có level
