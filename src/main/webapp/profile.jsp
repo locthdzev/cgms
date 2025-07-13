@@ -3,6 +3,7 @@
 <%
     // Lấy thông tin người dùng đăng nhập từ session
     User loggedInUser = (User) session.getAttribute("loggedInUser");
+    
     // Lấy thông tin người dùng hiển thị hồ sơ (có thể chính là người đăng nhập)
     User profileUser = (User) request.getAttribute("user");
     if (profileUser == null) {

@@ -51,7 +51,7 @@
                     <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
                     >
-                        <i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
+                        <i class="fas fa-tachometer-alt text-primary text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Dashboard</span>
                 </a>
@@ -62,7 +62,7 @@
                     <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
                     >
-                        <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
+                        <i class="fas fa-dumbbell text-danger text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Gói tập Gym</span>
                 </a>
@@ -73,7 +73,7 @@
                     <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
                     >
-                        <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
+                        <i class="fas fa-users-cog text-warning text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Quản lý người dùng</span>
 <%--                    <i class="fas fa-angle-down ms-auto"></i>--%>
@@ -84,7 +84,7 @@
                             <a class="nav-link <%= isMember ? "active" : "" %>"
                                href="${pageContext.request.contextPath}/user">
                                 <span class="nav-link-text ms-1">
-                                    <i class="fas fa-users text-dark text-sm opacity-10 me-1"></i>
+                                    <i class="fas fa-users text-info text-sm opacity-10 me-1"></i>
                                     Quản lý Member
                                 </span>
                             </a>
@@ -93,7 +93,7 @@
                             <a class="nav-link <%= isTrainer ? "active" : "" %>"
                                href="${pageContext.request.contextPath}/trainer">
                                 <span class="nav-link-text ms-1">
-                                    <i class="fas fa-user-tie text-dark text-sm opacity-10 me-1"></i>
+                                    <i class="fas fa-user-tie text-success text-sm opacity-10 me-1"></i>
                                     Quản lý Personal Trainer
                                 </span>
                             </a>
@@ -106,7 +106,7 @@
                     <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
                     >
-                        <i class="ni ni-bag-17 text-dark text-sm opacity-10"></i>
+                        <i class="fas fa-shopping-cart text-success text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Quản lý sản phẩm</span>
                 </a>
@@ -117,7 +117,7 @@
                     <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
                     >
-                        <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
+                        <i class="fas fa-calendar-alt text-warning text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Quản lý lịch tập</span>
                 </a>
@@ -128,7 +128,7 @@
                     <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
                     >
-                        <i class="ni ni-tag text-dark text-sm opacity-10"></i>
+                        <i class="fas fa-tag text-danger text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Quản lý Voucher</span>
                 </a>
@@ -139,7 +139,7 @@
                     <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
                     >
-                        <i class="ni ni-chat-round text-dark text-sm opacity-10"></i>
+                        <i class="fas fa-comments text-primary text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Quản lý Feedback</span>
                 </a>
@@ -150,7 +150,7 @@
                     <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
                     >
-                        <i class="ni ni-box-2 text-dark text-sm opacity-10"></i> <!-- Biểu tượng cho kho hàng -->
+                        <i class="fas fa-boxes text-warning text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Quản lý kho hàng</span>
                 </a>
@@ -167,7 +167,7 @@
                     <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
                     >
-                        <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
+                        <i class="fas fa-user text-info text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Hồ sơ</span>
                 </a>
@@ -177,7 +177,7 @@
                     <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
                     >
-                        <i class="ni ni-button-power text-dark text-sm opacity-10"></i>
+                        <i class="fas fa-sign-out-alt text-secondary text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Đăng xuất</span>
                 </a>
