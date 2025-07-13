@@ -164,6 +164,52 @@
         <url-pattern>/voucher</url-pattern>
     </servlet-mapping>
 
+    <!-- Member pages -->
+    <servlet>
+        <servlet-name>member-packages</servlet-name>
+        <jsp-file>/member-packages.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>member-packages</servlet-name>
+        <url-pattern>/member-packages</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>member-schedule</servlet-name>
+        <jsp-file>/member-schedule.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>member-schedule</servlet-name>
+        <url-pattern>/member-schedule</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>member-shop</servlet-name>
+        <jsp-file>/member-shop.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>member-shop</servlet-name>
+        <url-pattern>/member-shop</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>member-cart</servlet-name>
+        <jsp-file>/member-cart.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>member-cart</servlet-name>
+        <url-pattern>/member-cart</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>member-feedback</servlet-name>
+        <jsp-file>/member-feedback.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>member-feedback</servlet-name>
+        <url-pattern>/member-feedback</url-pattern>
+    </servlet-mapping>
+
     <!-- Authentication Filter -->
     <filter>
         <filter-name>AuthenticationFilter</filter-name>

@@ -225,6 +225,8 @@
 
     <% if (loggedInUser != null && "Personal Trainer".equals(loggedInUser.getRole())) { %>
     <%@ include file="pt_sidebar.jsp" %>
+    <% } else if (loggedInUser != null && "Member".equals(loggedInUser.getRole())) { %>
+    <%@ include file="member_sidebar.jsp" %>
     <% } else { %>
     <%@ include file="sidebar.jsp" %>
     <% } %>
