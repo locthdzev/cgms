@@ -29,7 +29,15 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <%= "member-packages.jsp".equals(pageName) ? "active" : "" %>" href="member-packages.jsp">
+                <a class="nav-link <%= "all-packages.jsp".equals(pageName) ? "active" : "" %>" href="all-packages">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-list text-success text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Gói tập</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= "member-packages.jsp".equals(pageName) ? "active" : "" %>" href="member-packages-controller">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-dumbbell text-danger text-sm opacity-10"></i>
                     </div>

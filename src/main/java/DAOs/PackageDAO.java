@@ -240,6 +240,58 @@ public class PackageDAO {
     }
 
     /**
+     * Lấy tất cả các gói tập đang hoạt động từ cơ sở dữ liệu
+     * 
+     * @return Danh sách các gói tập đang hoạt động
+     */
+    public List<Package> getAllActivePackages() {
+        List<Package> packages = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "SELECT * FROM Packages WHERE Status = 'Active'";
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Package pkg = new Package();
+                pkg.setId(rs.getInt("PackageId"));
+                pkg.setName(rs.getString("Name"));
+                pkg.setPrice(rs.getBigDecimal("Price"));
+                pkg.setDuration(rs.getInt("Duration"));
+                pkg.setSessions(rs.getObject("Sessions") != null ? rs.getInt("Sessions") : null);
+                pkg.setDescription(rs.getString("Description"));
+                pkg.setCreatedAt(
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toInstant() : null);
+                pkg.setUpdatedAt(
+                        rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toInstant() : null);
+                pkg.setStatus(rs.getString("Status"));
+
+                packages.add(pkg);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    DbConnection.closeConnection(conn);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return packages;
+    }
+
+    /**
      * Lấy thông tin gói tập theo ID
      * 
      * @param id ID của gói tập cần lấy
