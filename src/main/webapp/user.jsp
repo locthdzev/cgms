@@ -2,13 +2,13 @@
 <%@page import="java.util.List"%>
 <%@page import="Models.User"%>
 <%
+    // Lấy thông tin người dùng đăng nhập từ session
+    User loggedInUser = (User) session.getAttribute("loggedInUser");
+    
     List<User> userList = (List<User>) request.getAttribute("userList");
     User user = (User) request.getAttribute("user");
     String formAction = (String) request.getAttribute("formAction");
     if (formAction == null) formAction = "list";
-    
-    // Lấy thông tin người dùng đăng nhập từ session
-    User loggedInUser = (User) session.getAttribute("loggedInUser");
     
     // Lấy thông báo từ request hoặc session
     String successMessage = (String) request.getAttribute("successMessage");

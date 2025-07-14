@@ -105,6 +105,8 @@ public class GoogleLoginController extends HttpServlet {
                 // Chuyển hướng tùy theo vai trò
                 if ("Admin".equalsIgnoreCase(fullUser.getRole())) {
                     response.sendRedirect("dashboard");
+                } else if ("Personal Trainer".equalsIgnoreCase(fullUser.getRole())) {
+                    response.sendRedirect("pt_dashboard.jsp");
                 } else {
                     response.sendRedirect("member-dashboard");
                 }
