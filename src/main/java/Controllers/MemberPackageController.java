@@ -3,8 +3,12 @@ package Controllers;
 import Models.Package;
 import Models.MemberPackage;
 import Models.User;
+import Models.Payment;
 import DAOs.PackageDAO;
 import DAOs.MemberPackageDAO;
+import DAOs.PaymentDAO;
+import DAOs.PaymentLinkDAO;
+import DAOs.MemberPurchaseHistoryDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -19,6 +23,9 @@ import java.time.LocalDate;
 public class MemberPackageController extends HttpServlet {
     private PackageDAO packageDAO = new PackageDAO();
     private MemberPackageDAO memberPackageDAO = new MemberPackageDAO();
+    private PaymentDAO paymentDAO = new PaymentDAO();
+    private PaymentLinkDAO paymentLinkDAO = new PaymentLinkDAO();
+    private MemberPurchaseHistoryDAO memberPurchaseHistoryDAO = new MemberPurchaseHistoryDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -26,42 +33,73 @@ public class MemberPackageController extends HttpServlet {
         HttpSession session = request.getSession();
         User loggedInUser = (User) session.getAttribute("loggedInUser");
 
+        // Kiểm tra người dùng đã đăng nhập chưa
         if (loggedInUser == null) {
-            response.sendRedirect("login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        // Lấy danh sách các gói tập có sẵn
-        List<Package> availablePackages = packageDAO.getAllActivePackages();
-        request.setAttribute("availablePackages", availablePackages);
+        // Kiểm tra thông báo thanh toán thành công
+        String message = request.getParameter("message");
+        if (message != null && message.equals("payment_success")) {
+            // Xử lý cập nhật trạng thái thanh toán nếu cần
+            handlePaymentSuccess(loggedInUser.getId());
+        }
 
-        // Lấy danh sách các gói tập của member đã đăng ký
-        List<MemberPackage> memberPackages = memberPackageDAO.getMemberPackagesByUserId(loggedInUser.getId());
+        // Lấy danh sách gói tập của thành viên
+        List<MemberPackage> memberPackages = memberPackageDAO.getMemberPackagesByMemberId(loggedInUser.getId());
         request.setAttribute("memberPackages", memberPackages);
 
-        // Xử lý thông báo thành công và lỗi
-        String message = request.getParameter("message");
-        String error = request.getParameter("error");
+        // Lấy danh sách gói tập có sẵn để đăng ký
+        List<Package> availablePackages = packageDAO.getActivePackages();
+        request.setAttribute("availablePackages", availablePackages);
 
-        if (message != null) {
-            String successMessage;
-            switch (message) {
-                case "register_success":
-                    successMessage = "Đăng ký gói tập thành công!";
-                    break;
-                default:
-                    successMessage = message;
-                    break;
-            }
-            request.setAttribute("successMessage", successMessage);
-        }
-
-        if (error != null) {
-            request.setAttribute("errorMessage", error);
-        }
-
-        // Chuyển đến trang hiển thị gói tập
         request.getRequestDispatcher("/member-packages.jsp").forward(request, response);
+    }
+
+    private void handlePaymentSuccess(int memberId) {
+        try {
+            // Lấy danh sách gói tập của thành viên có trạng thái PENDING
+            List<MemberPackage> pendingPackages = memberPackageDAO.getPendingMemberPackagesByMemberId(memberId);
+
+            for (MemberPackage memberPackage : pendingPackages) {
+                // Lấy payment liên quan đến gói tập
+                List<Payment> payments = paymentDAO.getPaymentsByMemberPackageId(memberPackage.getId());
+
+                if (payments != null && !payments.isEmpty()) {
+                    Payment payment = payments.get(0);
+
+                    // Kiểm tra nếu payment đã hoàn thành nhưng gói tập vẫn PENDING
+                    if ("COMPLETED".equals(payment.getStatus()) && "PENDING".equals(memberPackage.getStatus())) {
+                        // Cập nhật trạng thái gói tập thành ACTIVE
+                        boolean updated = memberPackageDAO.updateMemberPackageStatus(memberPackage.getId(), "ACTIVE");
+
+                        if (updated) {
+                            // Lưu lịch sử mua hàng
+                            memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
+                        }
+                    }
+                    // Nếu payment vẫn PENDING nhưng URL trả về là payment_success
+                    else if ("PENDING".equals(payment.getStatus())) {
+                        // Cập nhật trạng thái thanh toán thành COMPLETED
+                        boolean paymentUpdated = paymentDAO.updatePaymentStatus(payment.getId(), "COMPLETED", null);
+
+                        if (paymentUpdated) {
+                            // Cập nhật trạng thái gói tập thành ACTIVE
+                            boolean packageUpdated = memberPackageDAO.updateMemberPackageStatus(memberPackage.getId(),
+                                    "ACTIVE");
+
+                            if (packageUpdated) {
+                                // Lưu lịch sử mua hàng
+                                memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -70,40 +108,48 @@ public class MemberPackageController extends HttpServlet {
         HttpSession session = request.getSession();
         User loggedInUser = (User) session.getAttribute("loggedInUser");
 
+        // Kiểm tra người dùng đã đăng nhập chưa
         if (loggedInUser == null) {
-            response.sendRedirect("login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
+        // Lấy thông tin từ form
         String action = request.getParameter("action");
 
         if ("register".equals(action)) {
-            // Xử lý đăng ký gói tập mới
-            int packageId = Integer.parseInt(request.getParameter("packageId"));
+            try {
+                // Đăng ký gói tập mới
+                int packageId = Integer.parseInt(request.getParameter("packageId"));
+                Package selectedPackage = packageDAO.getPackageById(packageId);
 
-            // Tạo đối tượng User
-            User member = new User();
-            member.setId(loggedInUser.getId());
+                if (selectedPackage != null) {
+                    // Tạo gói tập mới cho thành viên
+                    MemberPackage memberPackage = new MemberPackage();
+                    memberPackage.setMember(loggedInUser);
+                    memberPackage.setPackageField(selectedPackage);
+                    memberPackage.setTotalPrice(selectedPackage.getPrice());
+                    memberPackage.setStartDate(LocalDate.now());
+                    memberPackage.setEndDate(LocalDate.now().plusDays(selectedPackage.getDuration()));
+                    memberPackage.setRemainingSessions(selectedPackage.getSessions());
+                    memberPackage.setStatus("PENDING");
 
-            // Tạo đối tượng Package
-            Package pkg = new Package();
-            pkg.setId(packageId);
+                    // Lưu vào database
+                    int memberPackageId = memberPackageDAO.createMemberPackage(memberPackage);
 
-            // Tạo đối tượng MemberPackage
-            MemberPackage memberPackage = new MemberPackage();
-            memberPackage.setMember(member);
-            memberPackage.setPackageField(pkg);
-
-            boolean success = memberPackageDAO.createMemberPackage(memberPackage);
-
-            if (success) {
-                response.sendRedirect("member-packages-controller?message=register_success");
-            } else {
-                response.sendRedirect("member-packages-controller?error=register_failed");
+                    if (memberPackageId > 0) {
+                        // Chuyển đến trang thanh toán
+                        response.sendRedirect(
+                                request.getContextPath() + "/payment/checkout?memberPackageId=" + memberPackageId);
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } else {
-            // Mặc định chuyển đến trang hiển thị gói tập
-            doGet(request, response);
         }
+
+        // Nếu có lỗi, quay lại trang gói tập
+        response.sendRedirect(request.getContextPath() + "/member-packages-controller");
     }
 }

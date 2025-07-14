@@ -11,6 +11,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -289,6 +291,60 @@ public class PackageDAO {
         }
 
         return packages;
+    }
+
+    public List<Package> getActivePackages() {
+        String sql = "SELECT * FROM Packages WHERE Status = 'ACTIVE'";
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        List<Package> packages = new ArrayList<>();
+
+        try {
+            conn = DbConnection.getConnection();
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Package pkg = new Package();
+                pkg.setId(rs.getInt("PackageId"));
+                pkg.setName(rs.getString("Name"));
+                pkg.setDescription(rs.getString("Description"));
+                pkg.setPrice(rs.getBigDecimal("Price"));
+                pkg.setDuration(rs.getInt("Duration"));
+                pkg.setSessions(rs.getInt("Sessions"));
+                pkg.setStatus(rs.getString("Status"));
+
+                Timestamp createdAt = rs.getTimestamp("CreatedAt");
+                if (createdAt != null) {
+                    pkg.setCreatedAt(createdAt.toInstant());
+                }
+
+                Timestamp updatedAt = rs.getTimestamp("UpdatedAt");
+                if (updatedAt != null) {
+                    pkg.setUpdatedAt(updatedAt.toInstant());
+                }
+
+                packages.add(pkg);
+            }
+
+            return packages;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    DbConnection.closeConnection(conn);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
