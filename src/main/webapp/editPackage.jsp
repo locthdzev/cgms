@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="Models.Package"%>
+<%@page import="Utilities.VNDUtils"%>
 <%
     // Lấy thông tin gói tập cần chỉnh sửa
     Package pkg = (Package) request.getAttribute("package");
@@ -76,8 +77,10 @@
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="price" class="form-label">Giá (VNĐ) *</label>
-                                            <input type="number" class="form-control" id="price" name="price" 
-                                                   value="<%= pkg.getPrice() %>" required>
+                                            <input type="text" class="form-control" id="price" name="price"
+                                                   value="<%= VNDUtils.formatVND(pkg.getPrice()) %>"
+                                                   placeholder="Ví dụ: 1.000.000" required>
+                                            <div class="form-text">Nhập giá tiền theo định dạng VND (ví dụ: 1.000.000)</div>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -126,6 +129,94 @@
         <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
         <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
         <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+
+        <script>
+            // Hàm định dạng số tiền VND
+            function formatVND(value) {
+                // Loại bỏ tất cả ký tự không phải số
+                const numericValue = value.replace(/[^\d]/g, '');
+
+                if (numericValue === '') return '';
+
+                // Thêm dấu chấm phân cách hàng nghìn
+                return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            // Hàm validate giá tiền
+            function validatePrice(value) {
+                const numericValue = value.replace(/[^\d]/g, '');
+                const price = parseInt(numericValue);
+
+                if (isNaN(price) || price <= 0) {
+                    return 'Giá tiền phải lớn hơn 0';
+                }
+
+                if (price < 10000) {
+                    return 'Giá tiền tối thiểu là 10.000 VNĐ';
+                }
+
+                if (price > 50000000) {
+                    return 'Giá tiền tối đa là 50.000.000 VNĐ';
+                }
+
+                return null;
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const priceInput = document.getElementById('price');
+                const form = document.querySelector('form');
+
+                // Xử lý input mask cho trường giá tiền
+                priceInput.addEventListener('input', function(e) {
+                    const cursorPosition = e.target.selectionStart;
+                    const oldValue = e.target.value;
+                    const newValue = formatVND(oldValue);
+
+                    e.target.value = newValue;
+
+                    // Điều chỉnh vị trí con trỏ
+                    const newCursorPosition = cursorPosition + (newValue.length - oldValue.length);
+                    e.target.setSelectionRange(newCursorPosition, newCursorPosition);
+                });
+
+                // Validation khi submit form
+                form.addEventListener('submit', function(e) {
+                    const priceValue = priceInput.value;
+                    const errorMessage = validatePrice(priceValue);
+
+                    if (errorMessage) {
+                        e.preventDefault();
+                        alert(errorMessage);
+                        priceInput.focus();
+                        return false;
+                    }
+                });
+
+                // Validation real-time
+                priceInput.addEventListener('blur', function() {
+                    const priceValue = this.value;
+                    const errorMessage = validatePrice(priceValue);
+
+                    // Xóa thông báo lỗi cũ
+                    const existingError = this.parentNode.querySelector('.price-error');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+
+                    if (errorMessage) {
+                        // Hiển thị thông báo lỗi
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'text-danger small mt-1 price-error';
+                        errorDiv.textContent = errorMessage;
+                        this.parentNode.appendChild(errorDiv);
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    }
+                });
+            });
+        </script>
     </body>
 </html>
 

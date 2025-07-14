@@ -2,13 +2,13 @@
 <%@page import="java.util.List"%>
 <%@page import="Models.User"%>
 <%
+    // Lấy thông tin người dùng đăng nhập từ session
+    User loggedInUser = (User) session.getAttribute("loggedInUser");
+    
     List<User> userList = (List<User>) request.getAttribute("userList");
     User user = (User) request.getAttribute("user");
     String formAction = (String) request.getAttribute("formAction");
     if (formAction == null) formAction = "list";
-    
-    // Lấy thông tin người dùng đăng nhập từ session
-    User loggedInUser = (User) session.getAttribute("loggedInUser");
     
     // Lấy thông báo từ request hoặc session
     String successMessage = (String) request.getAttribute("successMessage");
@@ -37,7 +37,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
     <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
-    <title>Quản lý người dùng - CGMS</title>
+    <title>Quản lý Member - CGMS</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
@@ -117,10 +117,10 @@
 <main class="main-content position-relative border-radius-lg">
     <!-- Include Navbar Component with parameters -->
     <jsp:include page="navbar.jsp">
-        <jsp:param name="pageTitle" value="Quản lý người dùng" />
+        <jsp:param name="pageTitle" value="Quản lý Member" />
         <jsp:param name="parentPage" value="Dashboard" />
         <jsp:param name="parentPageUrl" value="dashboard.jsp" />
-        <jsp:param name="currentPage" value="Quản lý người dùng" />
+        <jsp:param name="currentPage" value="Quản lý Member" />
     </jsp:include>
     
     <div class="container-fluid py-4">
@@ -129,14 +129,19 @@
                 <% if (userList != null) { %>
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <h6>Danh sách người dùng</h6>
+                        <h6>Danh sách Member</h6>
                         <div>
                             <a href="dashboard.jsp" class="btn btn-outline-secondary btn-sm me-2">
                                 <i class="fas fa-arrow-left me-2"></i>Quay lại
                             </a>
-                            <a href="addUser" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus me-2"></i>Thêm người dùng
-                            </a>
+                            <div class="btn-group">
+                                <a href="addUser" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus me-2"></i>Thêm Member
+                                </a>
+                                <a href="trainer" class="btn btn-info btn-sm ms-2">
+                                    <i class="fas fa-users me-2"></i>Xem Personal Trainer
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
@@ -156,6 +161,7 @@
                                 </thead>
                                 <tbody>
                                 <% for (User u : userList) { %>
+                                    <% if ("Member".equals(u.getRole())) { %>
                                     <tr>
                                         <td class="text-center"><h6 class="mb-0 text-sm"><%= u.getId() %></h6></td>
                                         <td class="ps-2"><h6 class="mb-0 text-sm"><%= u.getEmail() %></h6></td>
@@ -185,7 +191,8 @@
                                                             data-address="<%= u.getAddress() != null ? u.getAddress() : "" %>"
                                                             data-gender="<%= u.getGender() != null ? u.getGender() : "" %>"
                                                             data-role="<%= u.getRole() %>"
-                                                            data-status="<%= u.getStatus() %>">
+                                                            data-status="<%= u.getStatus() %>"
+                                                            data-dob="<%= u.getDob() != null ? u.getDob().toString() : "" %>">
                                                             <i class="fas fa-eye me-2"></i>Xem chi tiết</a></li>
                                                     <li><a class="dropdown-item" href="editUser?id=<%= u.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
                                                     <li>
@@ -200,6 +207,7 @@
                                             </div>
                                         </td>
                                     </tr>
+                                    <% } %>
                                 <% } %>
                                 </tbody>
                             </table>
@@ -209,7 +217,7 @@
                 <% } else { %>
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <h6><%= ("create".equals(formAction) ? "Thêm người dùng mới" : ("edit".equals(formAction) ? "Chỉnh sửa người dùng" : "Chi tiết người dùng")) %></h6>
+                        <h6><%= ("create".equals(formAction) ? "Thêm Member mới" : ("edit".equals(formAction) ? "Chỉnh sửa Member" : "Chi tiết Member")) %></h6>
                         <a href="user" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
                         </a>
@@ -249,12 +257,12 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Giới tính</label>
-                                    <input type="text" name="gender" class="form-control" value="<%= user != null ? user.getGender() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %>/>
+                                    <select name="gender" class="form-control" <%= "view".equals(formAction) ? "readonly disabled" : "" %>>
+                                        <option value="Nam" <%= user != null && "Nam".equals(user.getGender()) ? "selected" : "" %>>Nam</option>
+                                        <option value="Nữ" <%= user != null && "Nữ".equals(user.getGender()) ? "selected" : "" %>>Nữ</option>
+                                    </select>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Vai trò *</label>
-                                    <input type="text" name="role" class="form-control" value="<%= user != null ? user.getRole() : "" %>" <%= "view".equals(formAction) ? "readonly" : "" %> required/>
-                                </div>
+                                <input type="hidden" name="role" value="Member"/>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Trạng thái *</label>
                                     <% if ("view".equals(formAction)) { %>
@@ -293,11 +301,11 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật trạng thái người dùng</h5>
+                                <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật trạng thái Member</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <p>Bạn có chắc chắn muốn thay đổi trạng thái của người dùng <span id="userName"></span>?</p>
+                                <p>Bạn có chắc chắn muốn thay đổi trạng thái của Member <span id="userName"></span>?</p>
                                 <form id="updateStatusForm" action="updateUserStatus" method="post">
                                     <input type="hidden" id="userId" name="id" value="">
                                     <div class="mb-3">
@@ -321,7 +329,7 @@
                     <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="viewUserModalLabel">Chi tiết người dùng</h5>
+                                <h5 class="modal-title" id="viewUserModalLabel">Chi tiết Member</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">

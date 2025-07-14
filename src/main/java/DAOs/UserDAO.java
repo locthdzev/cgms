@@ -28,7 +28,11 @@ public class UserDAO {
                 if (rs.getDate("DOB") != null) {
                     user.setDob(rs.getDate("DOB").toLocalDate());
                 }
+                user.setZalo(rs.getString("Zalo"));
+                user.setFacebook(rs.getString("Facebook"));
+                user.setExperience(rs.getString("Experience"));
                 user.setStatus(rs.getString("Status"));
+                user.setCertificateImageUrl(rs.getString("CertificateImageUrl"));
                 // ... set các trường khác nếu cần ...
             }
         } catch (Exception e) {
@@ -38,7 +42,7 @@ public class UserDAO {
     }
 
     public boolean createUser(User user) {
-        String sql = "INSERT INTO Users (Email, Password, Salt, UserName, GoogleId, Role, FullName, PhoneNumber, Address, Gender, DOB, LevelId, CreatedAt, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (Email, Password, Salt, UserName, GoogleId, Role, FullName, PhoneNumber, Address, Gender, DOB, Zalo, Facebook, Experience, LevelId, CreatedAt, Status, CertificateImageUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DbConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getEmail());
@@ -57,20 +61,29 @@ public class UserDAO {
             } else {
                 ps.setNull(11, java.sql.Types.DATE);
             }
+            // Zalo
+            ps.setString(12, user.getZalo());
+            // Facebook
+            ps.setString(13, user.getFacebook());
+            // Experience
+            ps.setString(14, user.getExperience());
             // LevelId - Handle null level
             if (user.getLevel() != null) {
-                ps.setInt(12, user.getLevel().getId());
+                ps.setInt(15, user.getLevel().getId());
             } else {
                 // Set default level ID (1) if level is null
-                ps.setInt(12, 1);
+                ps.setInt(15, 1);
             }
             // CreatedAt
             if (user.getCreatedAt() != null) {
-                ps.setTimestamp(13, java.sql.Timestamp.from(user.getCreatedAt()));
+                ps.setTimestamp(16, java.sql.Timestamp.from(user.getCreatedAt()));
             } else {
-                ps.setNull(13, java.sql.Types.TIMESTAMP);
+                ps.setNull(16, java.sql.Types.TIMESTAMP);
             }
-            ps.setString(14, user.getStatus());
+            ps.setString(17, user.getStatus());
+            // CertificateImageUrl
+            ps.setString(18, user.getCertificateImageUrl());
+
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -126,6 +139,9 @@ public class UserDAO {
                 if (rs.getDate("DOB") != null) {
                     user.setDob(rs.getDate("DOB").toLocalDate());
                 }
+                user.setZalo(rs.getString("Zalo"));
+                user.setFacebook(rs.getString("Facebook"));
+                user.setExperience(rs.getString("Experience"));
                 user.setStatus(rs.getString("Status"));
                 // Set other fields as needed
             }
@@ -158,8 +174,12 @@ public class UserDAO {
                 if (rs.getDate("DOB") != null) {
                     user.setDob(rs.getDate("DOB").toLocalDate());
                 }
+                user.setZalo(rs.getString("Zalo"));
+                user.setFacebook(rs.getString("Facebook"));
+                user.setExperience(rs.getString("Experience"));
                 user.setStatus(rs.getString("Status"));
-                // Set other fields as needed
+                user.setCertificateImageUrl(rs.getString("CertificateImageUrl"));
+                // ... set các trường khác nếu cần ...
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -183,8 +203,12 @@ public class UserDAO {
                 user.setAddress(rs.getString("Address"));
                 user.setGender(rs.getString("Gender"));
                 user.setDob(rs.getDate("DOB") != null ? rs.getDate("DOB").toLocalDate() : null);
+                user.setZalo(rs.getString("Zalo"));
+                user.setFacebook(rs.getString("Facebook"));
+                user.setExperience(rs.getString("Experience"));
                 user.setRole(rs.getString("Role"));
                 user.setStatus(rs.getString("Status"));
+                user.setCertificateImageUrl(rs.getString("CertificateImageUrl"));
                 user.setCreatedAt(
                         rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toInstant() : null);
                 user.setUpdatedAt(
@@ -199,38 +223,47 @@ public class UserDAO {
     }
 
     public User getUserById(int id) {
+        User user = null;
         String sql = "SELECT * FROM Users WHERE UserId = ?";
         try (Connection conn = DbConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                User user = new User();
+                user = new User();
                 user.setId(rs.getInt("UserId"));
-                user.setEmail(rs.getString("Email"));
                 user.setUserName(rs.getString("UserName"));
+                user.setEmail(rs.getString("Email"));
+                user.setPassword(rs.getString("Password"));
+                user.setSalt(rs.getString("Salt"));
+                user.setGoogleId(rs.getString("GoogleId"));
+                user.setRole(rs.getString("Role"));
                 user.setFullName(rs.getString("FullName"));
                 user.setPhoneNumber(rs.getString("PhoneNumber"));
                 user.setAddress(rs.getString("Address"));
                 user.setGender(rs.getString("Gender"));
-                user.setDob(rs.getDate("DOB") != null ? rs.getDate("DOB").toLocalDate() : null);
-                user.setRole(rs.getString("Role"));
+                if (rs.getDate("DOB") != null) {
+                    user.setDob(rs.getDate("DOB").toLocalDate());
+                }
+                user.setZalo(rs.getString("Zalo"));
+                user.setFacebook(rs.getString("Facebook"));
+                user.setExperience(rs.getString("Experience"));
                 user.setStatus(rs.getString("Status"));
+                user.setCertificateImageUrl(rs.getString("CertificateImageUrl"));
                 user.setCreatedAt(
                         rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toInstant() : null);
                 user.setUpdatedAt(
                         rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toInstant() : null);
                 // ... set các trường khác nếu cần ...
-                return user;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return user;
     }
 
     public boolean updateUser(User user) {
-        String sql = "UPDATE Users SET Email=?, UserName=?, Password=?, Salt=?, FullName=?, PhoneNumber=?, Address=?, Gender=?, DOB=?, Role=?, Status=?, UpdatedAt=? WHERE UserId=?";
+        String sql = "UPDATE Users SET Email=?, UserName=?, Password=?, Salt=?, FullName=?, PhoneNumber=?, Address=?, Gender=?, DOB=?, Zalo=?, Facebook=?, Experience=?, Role=?, Status=?, UpdatedAt=?, CertificateImageUrl=? WHERE UserId=?";
         try (Connection conn = DbConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getEmail());
@@ -246,11 +279,18 @@ public class UserDAO {
             } else {
                 ps.setNull(9, java.sql.Types.DATE);
             }
-            ps.setString(10, user.getRole());
-            ps.setString(11, user.getStatus());
-            ps.setTimestamp(12, user.getUpdatedAt() != null ? java.sql.Timestamp.from(user.getUpdatedAt())
-                    : new java.sql.Timestamp(System.currentTimeMillis()));
-            ps.setInt(13, user.getId());
+            ps.setString(10, user.getZalo());
+            ps.setString(11, user.getFacebook());
+            ps.setString(12, user.getExperience());
+            ps.setString(13, user.getRole());
+            ps.setString(14, user.getStatus());
+            if (user.getUpdatedAt() != null) {
+                ps.setTimestamp(15, java.sql.Timestamp.from(user.getUpdatedAt()));
+            } else {
+                ps.setTimestamp(15, java.sql.Timestamp.from(java.time.Instant.now()));
+            }
+            ps.setString(16, user.getCertificateImageUrl());
+            ps.setInt(17, user.getId());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();

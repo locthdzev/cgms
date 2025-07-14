@@ -4,14 +4,17 @@ import DAOs.UserDAO;
 import DAOs.PasswordResetTokenDAO;
 import Models.User;
 import Models.PasswordResetToken;
+import Utilities.MinioUtil;
 import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.UUID;
 import Utilities.EmailSender;
+import java.io.InputStream;
 
 public class UserService {
     private UserDAO userDAO = new UserDAO();
     private PasswordResetTokenDAO passwordResetTokenDAO = new PasswordResetTokenDAO();
+    private static final String CERTIFICATE_IMAGES_FOLDER = "Certificates";
 
     public User authenticate(String username, String password) {
         User user = userDAO.getUserByUsername(username);
@@ -99,6 +102,19 @@ public class UserService {
 
     public boolean updateUser(User user) {
         user.setUpdatedAt(java.time.Instant.now());
+        return userDAO.updateUser(user);
+    }
+
+    public boolean updateUserWithPassword(User user, String newPassword) {
+        // Tạo salt mới và hash mật khẩu mới
+        String salt = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16);
+        String hashedPassword = hashPassword(newPassword, salt);
+
+        // Cập nhật mật khẩu và salt mới
+        user.setPassword(hashedPassword);
+        user.setSalt(salt);
+        user.setUpdatedAt(java.time.Instant.now());
+
         return userDAO.updateUser(user);
     }
 
@@ -279,5 +295,18 @@ public class UserService {
         }
 
         return "error";
+    }
+
+    /**
+     * Upload certificate image to MinIO
+     * 
+     * @param inputStream The input stream of the image file
+     * @param fileName    Original file name
+     * @param contentType Content type of the file
+     * @return The URL of the uploaded image
+     */
+    public String uploadCertificateImage(InputStream inputStream, String fileName, String contentType)
+            throws Exception {
+        return MinioUtil.uploadFile(inputStream, fileName, contentType, CERTIFICATE_IMAGES_FOLDER);
     }
 }

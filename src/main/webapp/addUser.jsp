@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
     <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
-    <title>Thêm người dùng mới - CGMS</title>
+    <title>Thêm Member mới - CGMS</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
@@ -32,6 +32,20 @@
             color: rgba(255, 255, 255, 0.8);
             font-size: 0.875rem;
         }
+        .password-strength {
+            margin-top: 5px;
+            height: 5px;
+            border-radius: 5px;
+        }
+        .password-strength-text {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        .very-weak { background-color: #dc3545; width: 20%; }
+        .weak { background-color: #ffc107; width: 40%; }
+        .medium { background-color: #fd7e14; width: 60%; }
+        .strong { background-color: #20c997; width: 80%; }
+        .very-strong { background-color: #198754; width: 100%; }
     </style>
 </head>
 <body class="g-sidenav-show bg-gray-100">
@@ -43,10 +57,10 @@
 <main class="main-content position-relative border-radius-lg">
     <!-- Include Navbar Component with parameters -->
     <jsp:include page="navbar.jsp">
-        <jsp:param name="pageTitle" value="Thêm người dùng mới" />
-        <jsp:param name="parentPage" value="Danh sách người dùng" />
+        <jsp:param name="pageTitle" value="Thêm Member mới" />
+        <jsp:param name="parentPage" value="Danh sách Member" />
         <jsp:param name="parentPageUrl" value="user" />
-        <jsp:param name="currentPage" value="Thêm người dùng mới" />
+        <jsp:param name="currentPage" value="Thêm Member mới" />
     </jsp:include>
     
     <div class="container-fluid py-4">
@@ -54,10 +68,15 @@
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <h6>Thêm người dùng mới</h6>
-                        <a href="user" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
-                        </a>
+                        <h6>Thêm Member mới</h6>
+                        <div>
+                            <a href="user" class="btn btn-outline-secondary btn-sm me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                            </a>
+                            <a href="addTrainer" class="btn btn-info btn-sm">
+                                <i class="fas fa-plus me-2"></i>Thêm Personal Trainer
+                            </a>
+                        </div>
                     </div>
                     <div class="card-body">
                         <% if (request.getAttribute("errorMessage") != null) { %>
@@ -66,7 +85,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         <% } %>
-                        <form method="post">
+                        <form method="post" id="addUserForm" onsubmit="return validateForm()">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Email *</label>
@@ -95,13 +114,7 @@
                                         <option value="Nữ">Nữ</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Vai trò *</label>
-                                    <select name="role" class="form-control" required>
-                                        <option value="Member">Member</option>
-                                        <option value="Personal Trainer">Personal Trainer</option>
-                                    </select>
-                                </div>
+                                <input type="hidden" name="role" value="Member" />
                                 <input type="hidden" name="status" value="Active"/>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Ngày sinh</label>
@@ -109,7 +122,14 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Mật khẩu *</label>
-                                    <input type="password" name="password" class="form-control" required/>
+                                    <input type="password" name="password" id="password" class="form-control" required/>
+                                    <div class="password-strength mt-2"></div>
+                                    <div class="password-strength-text text-sm"></div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Xác nhận mật khẩu *</label>
+                                    <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" required/>
+                                    <div class="invalid-feedback">Mật khẩu xác nhận không khớp</div>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end mt-4">
@@ -129,5 +149,89 @@
 <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
 <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
 <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+<script>
+    // Kiểm tra độ mạnh mật khẩu
+    document.getElementById('password').addEventListener('input', function() {
+        const password = this.value;
+        const strengthBar = document.querySelector('.password-strength');
+        const strengthText = document.querySelector('.password-strength-text');
+        
+        // Xóa tất cả các class
+        strengthBar.className = 'password-strength';
+        
+        // Kiểm tra độ mạnh
+        let strength = 0;
+        if (password.length >= 8) strength += 1;
+        if (password.match(/[a-z]+/)) strength += 1;
+        if (password.match(/[A-Z]+/)) strength += 1;
+        if (password.match(/[0-9]+/)) strength += 1;
+        if (password.match(/[^a-zA-Z0-9]+/)) strength += 1;
+        
+        // Hiển thị kết quả
+        switch (strength) {
+            case 0:
+                strengthBar.classList.add('very-weak');
+                strengthText.textContent = 'Rất yếu';
+                strengthText.style.color = '#dc3545';
+                break;
+            case 1:
+                strengthBar.classList.add('very-weak');
+                strengthText.textContent = 'Rất yếu';
+                strengthText.style.color = '#dc3545';
+                break;
+            case 2:
+                strengthBar.classList.add('weak');
+                strengthText.textContent = 'Yếu';
+                strengthText.style.color = '#ffc107';
+                break;
+            case 3:
+                strengthBar.classList.add('medium');
+                strengthText.textContent = 'Trung bình';
+                strengthText.style.color = '#fd7e14';
+                break;
+            case 4:
+                strengthBar.classList.add('strong');
+                strengthText.textContent = 'Mạnh';
+                strengthText.style.color = '#20c997';
+                break;
+            case 5:
+                strengthBar.classList.add('very-strong');
+                strengthText.textContent = 'Rất mạnh';
+                strengthText.style.color = '#198754';
+                break;
+        }
+    });
+    
+    // Kiểm tra xác nhận mật khẩu
+    document.getElementById('confirmPassword').addEventListener('input', function() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = this.value;
+        
+        if (password !== confirmPassword) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+    
+    // Kiểm tra form trước khi submit
+    function validateForm() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const strengthText = document.querySelector('.password-strength-text').textContent;
+        
+        if (password !== confirmPassword) {
+            alert('Mật khẩu xác nhận không khớp!');
+            return false;
+        }
+        
+        if (strengthText === 'Rất yếu' || strengthText === 'Yếu') {
+            alert('Mật khẩu quá yếu! Vui lòng chọn mật khẩu mạnh hơn.');
+            return false;
+        }
+        
+        return true;
+    }
+</script>
 </body>
 </html> 

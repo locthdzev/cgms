@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="Models.Package" %>
 <%@ page import="java.util.List" %>
+<%@ page import="Utilities.VNDUtils" %>
 <%
     List<Package> packageList = (List<Package>) request.getAttribute("packages");
     
@@ -152,91 +153,107 @@
             </jsp:include>
             
             <div class="container-fluid py-4">
-                <div class="row mb-4">
-                    <div class="col-12 d-flex justify-content-between align-items-center">
-                        <h4 class="text-white mb-0">Danh sách gói tập</h4>
-                        <div>
-                            <a href="dashboard.jsp" class="btn btn-outline-secondary btn-sm me-2">
-                                <i class="fas fa-arrow-left me-2"></i>Quay lại
-                            </a>
-                            <a href="addPackage" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus me-2"></i>Thêm gói tập mới
-                            </a>
+                            
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+                                <h6>Danh sách gói tập</h6>
+                                <div>
+                                    <a href="dashboard.jsp" class="btn btn-outline-secondary btn-sm me-2">
+                                        <i class="fas fa-arrow-left me-2"></i>Quay lại
+                                    </a>
+                                    <a href="addPackage" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus me-2"></i>Thêm gói tập mới
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-body px-0 pt-0 pb-2">
+                                <% if (packageList != null && !packageList.isEmpty()) { %>
+                                <div class="table-responsive p-0">
+                                    <table class="table align-items-center mb-0">
+                                        <thead class="bg-white" style="position: sticky; top: 0; z-index: 11;">
+                                            <tr>
+                                                <th class="text-uppercase text-secondary text-xs font-weight-bold text-center bg-white" style="position: sticky; top: 0; z-index: 12; min-width: 60px;">ID</th>
+                                                <th class="text-uppercase text-secondary text-xs font-weight-bold bg-white" style="position: sticky; top: 0; z-index: 12; min-width: 180px;">Tên gói</th>
+                                                <th class="text-uppercase text-secondary text-xs font-weight-bold bg-white" style="position: sticky; top: 0; z-index: 12; min-width: 120px;">Giá</th>
+                                                <th class="text-uppercase text-secondary text-xs font-weight-bold bg-white" style="position: sticky; top: 0; z-index: 12; min-width: 100px;">Thời hạn</th>
+                                                <th class="text-uppercase text-secondary text-xs font-weight-bold bg-white" style="position: sticky; top: 0; z-index: 12; min-width: 100px;">Số buổi</th>
+                                                <th class="text-uppercase text-secondary text-xs font-weight-bold bg-white" style="position: sticky; top: 0; z-index: 12; min-width: 120px;">Trạng thái</th>
+                                                <th class="text-uppercase text-secondary text-xs font-weight-bold bg-white" style="position: sticky; top: 0; z-index: 12; min-width: 140px;">Ngày tạo</th>
+                                                <th class="text-uppercase text-secondary text-xs font-weight-bold text-center bg-white" style="position: sticky; top: 0; z-index: 12; min-width: 110px;">Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% for (Package pkg : packageList) { %>
+                                            <tr>
+                                                <td class="text-center"><h6 class="mb-0 text-sm"><%= pkg.getId() %></h6></td>
+                                                <td class="ps-2">
+                                                    <h6 class="mb-0 text-sm"><%= pkg.getName() %></h6>
+                                                </td>
+                                                <td class="ps-2"><h6 class="mb-0 text-sm"><%= VNDUtils.formatVNDWithUnit(pkg.getPrice()) %></h6></td>
+                                                <td class="ps-2"><span class="badge bg-gradient-info"><%= pkg.getDuration() %> ngày</span></td>
+                                                <td class="ps-2"><%= pkg.getSessions() != null ? pkg.getSessions() : "Không giới hạn" %></td>
+                                                <td class="ps-2">
+                                                    <% if ("Active".equals(pkg.getStatus())) { %>
+                                                        <span class="badge badge-sm bg-gradient-success">Hoạt động</span>
+                                                    <% } else { %>
+                                                        <span class="badge badge-sm bg-gradient-secondary">Không hoạt động</span>
+                                                    <% } %>
+                                                </td>
+                                                <td class="ps-2">
+                                                    <p class="text-xs text-secondary mb-0">
+                                                        <%= pkg.getCreatedAt() != null ? pkg.getCreatedAt() : "" %>
+                                                    </p>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-icon-only text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="editPackage?id=<%= pkg.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
+                                                            <li><a class="dropdown-item view-details-btn" href="#" 
+                                                                data-id="<%= pkg.getId() %>"
+                                                                data-name="<%= pkg.getName() %>"
+                                                                data-price="<%= VNDUtils.formatVND(pkg.getPrice()) %>"
+                                                                data-duration="<%= pkg.getDuration() %>"
+                                                                data-sessions="<%= pkg.getSessions() != null ? pkg.getSessions() : "Không giới hạn" %>"
+                                                                data-description="<%= pkg.getDescription() != null ? pkg.getDescription() : "Không có mô tả" %>"
+                                                                data-status="<%= pkg.getStatus() %>"
+                                                                data-created="<%= pkg.getCreatedAt() != null ? pkg.getCreatedAt() : "N/A" %>"
+                                                                data-updated="<%= pkg.getUpdatedAt() != null ? pkg.getUpdatedAt() : "N/A" %>">
+                                                                <i class="fas fa-eye me-2"></i>Xem chi tiết</a></li>
+                                                            <li>
+                                                                <a class="dropdown-item toggle-status-btn <%= "Active".equals(pkg.getStatus()) ? "delete-action" : "" %>" href="#" 
+                                                                    data-id="<%= pkg.getId() %>" 
+                                                                    data-name="<%= pkg.getName() %>" 
+                                                                    data-status="<%= pkg.getStatus() %>">
+                                                                    <i class="fas fa-<%= "Active".equals(pkg.getStatus()) ? "ban" : "check" %> me-2"></i>
+                                                                    <%= "Active".equals(pkg.getStatus()) ? "Vô hiệu hóa" : "Kích hoạt" %>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <% } else { %>
+                                <div class="card-body text-center py-5">
+                                    <h5>Không có gói tập nào.</h5>
+                                    <p>Hãy thêm gói tập mới để bắt đầu.</p>
+                                    <a href="addPackage" class="btn btn-primary mt-3">
+                                        <i class="fas fa-plus me-2"></i>Thêm gói tập mới
+                                    </a>
+                                </div>
+                                <% } %>
+                            </div>
                         </div>
                     </div>
                 </div>
-                            
-                <div class="row">
-                    <% if (packageList != null && !packageList.isEmpty()) {
-                        for (Package pkg : packageList) { %>
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card package-card">
-                            <% if ("Active".equals(pkg.getStatus())) { %>
-                            <span class="badge bg-gradient-success status-badge">Hoạt động</span>
-                            <% } else { %>
-                            <span class="badge bg-gradient-secondary status-badge">Không hoạt động</span>
-                            <% } %>
-                            
-                            <div class="package-actions">
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-icon-only bg-gradient-light text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-ellipsis-v"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="editPackage?id=<%= pkg.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
-                                        <li>
-                                            <a class="dropdown-item view-details-btn" href="#" 
-                                               data-id="<%= pkg.getId() %>" 
-                                               data-name="<%= pkg.getName() %>" 
-                                               data-price="<%= String.format("%,.0f", pkg.getPrice()) %>" 
-                                               data-duration="<%= pkg.getDuration() %>" 
-                                               data-sessions="<%= pkg.getSessions() != null ? pkg.getSessions() : "Không giới hạn" %>" 
-                                               data-description="<%= pkg.getDescription() != null ? pkg.getDescription() : "Không có mô tả" %>" 
-                                               data-status="<%= pkg.getStatus() %>"
-                                               data-created="<%= pkg.getCreatedAt() != null ? pkg.getCreatedAt() : "N/A" %>"
-                                               data-updated="<%= pkg.getUpdatedAt() != null ? pkg.getUpdatedAt() : "N/A" %>">
-                                                <i class="fas fa-eye me-2"></i>Xem chi tiết
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item toggle-status-btn <%= "Active".equals(pkg.getStatus()) ? "delete-action" : "" %>" href="#" 
-                                               data-id="<%= pkg.getId() %>" 
-                                               data-name="<%= pkg.getName() %>" 
-                                               data-status="<%= pkg.getStatus() %>">
-                                                <i class="fas fa-<%= "Active".equals(pkg.getStatus()) ? "ban" : "check" %> me-2"></i>
-                                                <%= "Active".equals(pkg.getStatus()) ? "Vô hiệu hóa" : "Kích hoạt" %>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <img src="assets/svg/rain-7750488.svg"
-                                 class="card-img-top package-image" alt="<%= pkg.getName() %>">
-                            <div class="card-body">
-                                <h5 class="card-title"><%= pkg.getName() %></h5>
-                                <p class="card-text text-sm mb-2"><%= pkg.getDescription() %></p>
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <span class="text-dark font-weight-bold"><%= String.format("%,.0f", pkg.getPrice()) %> VNĐ</span>
-                                    <span class="badge bg-gradient-info"><%= pkg.getDuration() %> ngày</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <% }
-                    } else { %>
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-body text-center py-5">
-                                <h5>Không có gói tập nào.</h5>
-                                <p>Hãy thêm gói tập mới để bắt đầu.</p>
-                                <a href="addPackage" class="btn btn-primary mt-3">
-                                    <i class="fas fa-plus me-2"></i>Thêm gói tập mới
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <% } %>
                 </div>
             </div>
         </main>
@@ -284,7 +301,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <span class="detail-label">Thời hạn:</span> 
-                                    <span id="packageDetailDuration" class="ms-2"></span> tháng
+                                    <span id="packageDetailDuration" class="ms-2"></span> ngày
                                 </div>
                                 <div class="mb-2">
                                     <span class="detail-label">Số buổi tập:</span> 

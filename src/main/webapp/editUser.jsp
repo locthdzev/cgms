@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
     <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
-    <title>Chỉnh sửa người dùng - CGMS</title>
+    <title>Chỉnh sửa Member - CGMS</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
@@ -27,10 +27,10 @@
 <main class="main-content position-relative border-radius-lg">
     <!-- Include Navbar Component with parameters -->
     <jsp:include page="navbar.jsp">
-        <jsp:param name="pageTitle" value="Chỉnh sửa người dùng" />
-        <jsp:param name="parentPage" value="Danh sách người dùng" />
+        <jsp:param name="pageTitle" value="Chỉnh sửa Member" />
+        <jsp:param name="parentPage" value="Danh sách Member" />
         <jsp:param name="parentPageUrl" value="user" />
-        <jsp:param name="currentPage" value="Chỉnh sửa người dùng" />
+        <jsp:param name="currentPage" value="Chỉnh sửa Member" />
     </jsp:include>
     
     <div class="container-fluid py-4">
@@ -38,7 +38,7 @@
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <h6>Chỉnh sửa người dùng</h6>
+                        <h6>Chỉnh sửa Member</h6>
                         <a href="user" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
                         </a>
@@ -80,13 +80,7 @@
                                         <option value="Nữ" <%= "Nữ".equals(user.getGender()) ? "selected" : "" %>>Nữ</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Vai trò *</label>
-                                    <select name="role" class="form-control" required>
-                                        <option value="Member" <%= "Member".equals(user.getRole()) ? "selected" : "" %>>Member</option>
-                                        <option value="Personal Trainer" <%= "Personal Trainer".equals(user.getRole()) ? "selected" : "" %>>Personal Trainer</option>
-                                    </select>
-                                </div>
+                                <input type="hidden" name="role" value="Member" />
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Trạng thái *</label>
                                     <select name="status" class="form-control" required>
