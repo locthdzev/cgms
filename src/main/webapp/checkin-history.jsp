@@ -59,6 +59,9 @@
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">STT</th>
+                                        <% if (member == null) { %>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Member</th>
+                                        <% } %>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ngày Check-In</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Giờ Check-In</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
@@ -70,6 +73,16 @@
                                     for (Checkin c : checkinList) { %>
                                         <tr>
                                             <td><%= stt++ %></td>
+                                            <% if (member == null) { %>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm"><%= c.getMember().getFullName() != null ? c.getMember().getFullName() : c.getMember().getUserName() %></h6>
+                                                        <p class="text-xs text-secondary mb-0"><%= c.getMember().getEmail() %></p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <% } %>
                                             <td><%= c.getCheckinDate() != null ? c.getCheckinDate().format(dateFormatter) : "" %></td>
                                             <td><%= c.getCheckinTime() != null ? c.getCheckinTime().format(timeFormatter) : "" %></td>
                                             <td>
@@ -80,7 +93,7 @@
                                         </tr>
                                 <%   }
                                    } else { %>
-                                    <tr><td colspan="4" class="text-center py-4">Không có dữ liệu check-in</td></tr>
+                                    <tr><td colspan="<%= member == null ? "5" : "4" %>" class="text-center py-4">Không có dữ liệu check-in</td></tr>
                                 <% } %>
                                 </tbody>
                             </table>

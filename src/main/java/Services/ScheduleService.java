@@ -156,7 +156,7 @@ public class ScheduleService {
 
     public List<User> getAllTrainers() {
         return userDAO.getAllUsers().stream()
-                .filter(user -> "Trainer".equals(user.getRole()))
+                .filter(user -> "Personal Trainer".equals(user.getRole()))
                 .collect(Collectors.toList());
     }
 

@@ -10,4 +10,8 @@ public class CheckinService {
     public List<Checkin> getCheckinHistoryByMemberId(int memberId) {
         return checkinDAO.getCheckinHistoryByMemberId(memberId);
     }
+
+    public List<Checkin> getAllCheckins() {
+        return checkinDAO.getAllCheckins();
+    }
 }

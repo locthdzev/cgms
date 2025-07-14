@@ -3,6 +3,12 @@
 <%@page import="Models.User"%>
 <%@page import="Models.Schedule"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
+<%@page import="java.time.LocalDate"%>
+<%@page import="java.time.DayOfWeek"%>
+<%@page import="java.time.temporal.TemporalAdjusters"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.stream.Collectors"%>
 <%
     List<Schedule> scheduleList = (List<Schedule>) request.getAttribute("scheduleList");
     Schedule schedule = (Schedule) request.getAttribute("schedule");
@@ -39,6 +45,31 @@
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    
+    // Xử lý lịch tháng
+    LocalDate currentDate = LocalDate.now();
+    String monthParam = request.getParameter("month");
+    String yearParam = request.getParameter("year");
+    
+    if (monthParam != null && yearParam != null) {
+        try {
+            currentDate = LocalDate.of(Integer.parseInt(yearParam), Integer.parseInt(monthParam), 1);
+        } catch (Exception e) {
+            currentDate = LocalDate.now();
+        }
+    }
+    
+    LocalDate firstDayOfMonth = currentDate.withDayOfMonth(1);
+    LocalDate lastDayOfMonth = currentDate.with(TemporalAdjusters.lastDayOfMonth());
+    LocalDate firstDayOfCalendar = firstDayOfMonth.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    LocalDate lastDayOfCalendar = lastDayOfMonth.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+    
+    // Nhóm lịch tập theo ngày
+    Map<LocalDate, List<Schedule>> schedulesByDate = new HashMap<>();
+    if (scheduleList != null) {
+        schedulesByDate = scheduleList.stream()
+            .collect(Collectors.groupingBy(s -> s.getScheduleDate()));
+    }
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -81,19 +112,198 @@
             min-width: 300px;
         }
         
-        /* Detail styles */
-        .detail-label {
+        /* Calendar styles */
+        .calendar-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .calendar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-nav button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .calendar-nav button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .calendar-title {
+            font-size: 1.5rem;
             font-weight: 600;
-            color: #344767;
+            margin: 0;
         }
         
-        /* Delete button style */
-        .delete-action {
-            color: #f5365c !important;
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e9ecef;
         }
         
-        .delete-action:hover {
-            background-color: #ffeef1 !important;
+        .calendar-day-header {
+            background: #f8f9fa;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.875rem;
+        }
+        
+        .calendar-day {
+            background: white;
+            min-height: 120px;
+            padding: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .calendar-day:hover {
+            background: #f8f9fa;
+        }
+        
+        .calendar-day.other-month {
+            background: #f8f9fa;
+            color: #adb5bd;
+        }
+        
+        .calendar-day.today {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+        }
+        
+        .day-number {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .calendar-day.other-month .day-number {
+            color: #adb5bd;
+        }
+        
+        .schedule-item {
+            background: #e8f5e8;
+            border-left: 3px solid #28a745;
+            padding: 5px 8px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .schedule-item:hover {
+            background: #d4edda;
+            transform: translateY(-1px);
+        }
+        
+        .schedule-item.pending {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        
+        .schedule-item.confirmed {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+        
+        .schedule-item.completed {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        
+        .schedule-item.cancelled {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        
+        .schedule-time {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .schedule-participants {
+            color: #6c757d;
+            font-size: 0.7rem;
+        }
+        
+        .more-schedules {
+            background: #e9ecef;
+            color: #6c757d;
+            text-align: center;
+            padding: 3px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        
+        .calendar-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.875rem;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        /* Modal styles */
+        .modal-dialog {
+            max-width: 600px;
+        }
+        
+        .schedule-detail {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .schedule-detail h6 {
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        
+        .schedule-detail p {
+            margin-bottom: 10px;
+            color: #6c757d;
         }
         
         /* Status badge styles */
@@ -113,8 +323,6 @@
             background: linear-gradient(135deg, #dc3545, #c82333) !important;
         }
         
-
-
         /* Dropdown fixes */
         .dropdown-menu {
             z-index: 1050 !important;
@@ -137,6 +345,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+            }
+            
+            .calendar-day {
+                min-height: 80px;
+                padding: 5px;
+            }
+            
+            .day-number {
+                font-size: 0.9rem;
+            }
+            
+            .schedule-item {
+                font-size: 0.65rem;
+                padding: 3px 5px;
+            }
         }
     </style>
 </head>
@@ -183,161 +412,113 @@
         <div class="row">
             <div class="col-12">
                 <% if (scheduleList != null) { %>
-
                 
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <h6>Danh sách lịch tập</h6>
+                        <h6>Lịch tập tháng</h6>
                         <div>
                             <a href="dashboard.jsp" class="btn btn-outline-secondary btn-sm me-2">
                                 <i class="fas fa-arrow-left me-2"></i>Quay lại
                             </a>
-                            <a href="${pageContext.request.contextPath}/addSchedule" class="btn btn-primary btn-sm">
+                            <a href="${pageContext.request.contextPath}/addSchedule" class="btn btn-primary btn-sm me-2">
                                 <i class="fas fa-plus me-2"></i>Thêm lịch tập
+                            </a>
+                            <a href="checkinHistory" class="btn btn-info btn-sm">
+                                <i class="fas fa-history me-2"></i>Lịch sử Check-In
                             </a>
                         </div>
                     </div>
-                    <div class="card-body px-0 pt-0 pb-2">
-                        <div class="table-responsive p-0">
-                            <table class="table align-items-center mb-0">
-                                <thead>
-                                <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">ID</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Trainer</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Member</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Ngày tập</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Giờ tập</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Thời lượng</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Trạng thái</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Thao tác</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <%
-                                if (scheduleList != null && !scheduleList.isEmpty()) {
-                                    for (Schedule s : scheduleList) {
+                    <div class="card-body p-0">
+                        <div class="calendar-container">
+                            <!-- Calendar Header -->
+                            <div class="calendar-header">
+                                <div class="calendar-nav">
+                                    <button onclick="changeMonth(-1)">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <h2 class="calendar-title">
+                                        <%= currentDate.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.forLanguageTag("vi")) %> <%= currentDate.getYear() %>
+                                    </h2>
+                                    <button onclick="changeMonth(1)">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Calendar Grid -->
+                            <div class="calendar-grid">
+                                <!-- Day Headers -->
+                                <div class="calendar-day-header">T2</div>
+                                <div class="calendar-day-header">T3</div>
+                                <div class="calendar-day-header">T4</div>
+                                <div class="calendar-day-header">T5</div>
+                                <div class="calendar-day-header">T6</div>
+                                <div class="calendar-day-header">T7</div>
+                                <div class="calendar-day-header">CN</div>
+                                
+                                <!-- Calendar Days -->
+                                <% 
+                                LocalDate currentDay = firstDayOfCalendar;
+                                while (!currentDay.isAfter(lastDayOfCalendar)) {
+                                    boolean isCurrentMonth = currentDay.getMonth() == currentDate.getMonth();
+                                    boolean isToday = currentDay.equals(LocalDate.now());
+                                    List<Schedule> daySchedules = schedulesByDate.get(currentDay);
                                 %>
-                                    <tr>
-                                        <td class="text-center"><h6 class="mb-0 text-sm"><%= s.getId() %></h6></td>
-                                        <td class="ps-2">
-                                            <h6 class="mb-0 text-sm"><%= s.getTrainer().getFullName() != null ? s.getTrainer().getFullName() : s.getTrainer().getUserName() %></h6>
-                                        </td>
-                                        <td class="ps-2">
-                                            <h6 class="mb-0 text-sm"><%= s.getMember().getFullName() != null ? s.getMember().getFullName() : s.getMember().getUserName() %></h6>
-                                        </td>
-                                        <td class="ps-2">
-                                            <h6 class="mb-0 text-sm"><%= s.getScheduleDate().format(dateFormatter) %></h6>
-                                        </td>
-                                        <td class="ps-2">
-                                            <h6 class="mb-0 text-sm"><%= s.getScheduleTime().format(timeFormatter) %></h6>
-                                        </td>
-                                        <td class="ps-2">
-                                            <h6 class="mb-0 text-sm">
-                                                <% 
-                                                    double d = s.getDurationHours() != null ? s.getDurationHours().doubleValue() : 0;
-                                                    int hours = (int) d;
-                                                    int minutes = (int) ((d - hours) * 60);
-                                                    String label = "";
-                                                    if (hours > 0 && minutes > 0) {
-                                                        label = hours + " giờ " + minutes + " phút";
-                                                    } else if (hours > 0) {
-                                                        label = hours + " giờ";
-                                                    } else if (minutes > 0) {
-                                                        label = minutes + " phút";
-                                                    } else {
-                                                        label = "-";
-                                                    }
-                                                %>
-                                                <%= label %>
-                                            </h6>
-                                        </td>
-                                        <td class="ps-2">
+                                    <div class="calendar-day <%= !isCurrentMonth ? "other-month" : "" %> <%= isToday ? "today" : "" %>">
+                                        <div class="day-number"><%= currentDay.getDayOfMonth() %></div>
+                                        
+                                        <% if (daySchedules != null && !daySchedules.isEmpty()) { %>
                                             <% 
-                                                String statusClass = "";
-                                                String statusText = "";
-                                                switch(s.getStatus()) {
-                                                    case "Pending":
-                                                        statusClass = "status-pending";
-                                                        statusText = "Chờ xác nhận";
-                                                        break;
-                                                    case "Confirmed":
-                                                        statusClass = "status-confirmed";
-                                                        statusText = "Đã xác nhận";
-                                                        break;
-                                                    case "Completed":
-                                                        statusClass = "status-completed";
-                                                        statusText = "Hoàn thành";
-                                                        break;
-                                                    case "Cancelled":
-                                                        statusClass = "status-cancelled";
-                                                        statusText = "Đã hủy";
-                                                        break;
-                                                    default:
-                                                        statusClass = "bg-gradient-secondary";
-                                                        statusText = s.getStatus();
-                                                }
+                                            int maxDisplay = 3;
+                                            for (int i = 0; i < Math.min(daySchedules.size(), maxDisplay); i++) {
+                                                Schedule s = daySchedules.get(i);
+                                                String statusClass = s.getStatus().toLowerCase();
                                             %>
-                                            <span class="badge badge-sm <%= statusClass %>"><%= statusText %></span>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-icon-only text-dark dropdown-toggle" type="button" id="dropdownMenuButton<%= s.getId() %>" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                                    <i class="fas fa-ellipsis-v"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton<%= s.getId() %>"
-                                                    <li><a class="dropdown-item view-schedule-btn" href="#" 
-                                                            data-id="<%= s.getId() %>"
-                                                            data-trainer="<%= s.getTrainer().getFullName() != null ? s.getTrainer().getFullName() : s.getTrainer().getUserName() %>"
-                                                            data-member="<%= s.getMember().getFullName() != null ? s.getMember().getFullName() : s.getMember().getUserName() %>"
-                                                            data-date="<%= s.getScheduleDate().format(dateFormatter) %>"
-                                                            data-time="<%= s.getScheduleTime().format(timeFormatter) %>"
-                                                            data-duration="<%= s.getDurationHours() %>"
-                                                            data-status="<%= statusText %>"
-                                                            data-created="<%= s.getCreatedAt() != null ? s.getCreatedAt().toString().replace("T", " ").substring(0, 16) : "" %>">
-                                                            <i class="fas fa-eye me-2"></i>Xem chi tiết</a></li>
-                                                    <li>
-                                                        <a class="dropdown-item" href="${pageContext.request.contextPath}/checkinHistory?memberId=<%= s.getMember().getId() %>">
-                                                            <i class="fas fa-history me-2"></i>Xem lịch sử Check-In
-                                                        </a>
-                                                    </li>
-                                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/editSchedule?id=<%= s.getId() %>"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
-                                                    <% if (!"Completed".equals(s.getStatus()) && !"Cancelled".equals(s.getStatus())) { %>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/schedule?action=updateStatus&id=<%= s.getId() %>&status=Confirmed"><i class="fas fa-check me-2"></i>Xác nhận</a></li>
-                                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/schedule?action=updateStatus&id=<%= s.getId() %>&status=Completed"><i class="fas fa-check-double me-2"></i>Hoàn thành</a></li>
-                                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/schedule?action=updateStatus&id=<%= s.getId() %>&status=Cancelled"><i class="fas fa-times me-2"></i>Hủy</a></li>
-                                                    <% } %>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li>
-                                                        <a class="dropdown-item delete-schedule-btn delete-action" href="#" 
-                                                            data-id="<%= s.getId() %>" 
-                                                            data-info="<%= s.getTrainer().getFullName() %> - <%= s.getMember().getFullName() %> (<%= s.getScheduleDate().format(dateFormatter) %>)">
-                                                            <i class="fas fa-trash me-2"></i>Xóa
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <%
-                                    } // end for loop
-                                } else {
+                                                <div class="schedule-item <%= statusClass %>" 
+                                                     onclick="viewSchedule('<%= s.getId() %>', '<%= s.getTrainer().getFullName() != null ? s.getTrainer().getFullName() : s.getTrainer().getUserName() %>', '<%= s.getMember().getFullName() != null ? s.getMember().getFullName() : s.getMember().getUserName() %>', '<%= s.getScheduleDate().format(dateFormatter) %>', '<%= s.getScheduleTime().format(timeFormatter) %>', '<%= s.getDurationHours() %>', '<%= s.getStatus() %>', '<%= s.getCreatedAt() != null ? s.getCreatedAt().toString().replace("T", " ").substring(0, 16) : "" %>')">
+                                                    <div class="schedule-time"><%= s.getScheduleTime().format(timeFormatter) %></div>
+                                                    <div class="schedule-participants">
+                                                        <%= s.getTrainer().getFullName() != null ? s.getTrainer().getFullName() : s.getTrainer().getUserName() %> - <%= s.getMember().getFullName() != null ? s.getMember().getFullName() : s.getMember().getUserName() %>
+                                                    </div>
+                                                </div>
+                                            <% } %>
+                                            
+                                            <% if (daySchedules.size() > maxDisplay) { %>
+                                                <div class="more-schedules" onclick="viewDaySchedules('<%= currentDay.format(dateFormatter) %>', <%= daySchedules.size() %>)">
+                                                    +<%= daySchedules.size() - maxDisplay %> lịch tập khác
+                                                </div>
+                                            <% } %>
+                                        <% } %>
+                                    </div>
+                                <% 
+                                    currentDay = currentDay.plusDays(1);
+                                } 
                                 %>
-                                    <tr>
-                                        <td colspan="8" class="text-center py-4">
-                                            <div class="text-muted">
-                                                <i class="fas fa-calendar-times fa-3x mb-3"></i>
-                                                <h6>Chưa có lịch tập nào</h6>
-                                                <p class="mb-0">Hãy thêm lịch tập đầu tiên của bạn!</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <% } %>
-                                </tbody>
-                            </table>
+                            </div>
+                            
+                            <!-- Calendar Legend -->
+                            <div class="calendar-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #e8f5e8; border-left: 3px solid #28a745;"></div>
+                                    <span>Hoàn thành</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #d1ecf1; border-left: 3px solid #17a2b8;"></div>
+                                    <span>Đã xác nhận</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #fff3cd; border-left: 3px solid #ffc107;"></div>
+                                    <span>Chờ xác nhận</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #f8d7da; border-left: 3px solid #dc3545;"></div>
+                                    <span>Đã hủy</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
                 <% } else { %>
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
@@ -499,6 +680,27 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
                                 <a href="#" id="editScheduleBtn" class="btn btn-primary">Chỉnh sửa</a>
+                                <button type="button" id="deleteScheduleBtn" class="btn btn-danger">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal xem lịch tập theo ngày -->
+                <div class="modal fade" id="viewDaySchedulesModal" tabindex="-1" aria-labelledby="viewDaySchedulesModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="viewDaySchedulesModalLabel">Lịch tập ngày <span id="selectedDate"></span></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="daySchedulesList">
+                                    <!-- Schedules will be loaded here -->
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
                             </div>
                         </div>
                     </div>
@@ -561,97 +763,113 @@
             });
             errorToast.show();
         }
-
-        // Debug: Kiểm tra số lượng dropdown buttons
-        const dropdownButtons = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-        console.log('Found ' + dropdownButtons.length + ' dropdown buttons');
-
-        // Khởi tạo Bootstrap dropdowns
-        dropdownButtons.forEach(function(button, index) {
-            console.log('Initializing dropdown button ' + index);
-            try {
-                new bootstrap.Dropdown(button);
-                console.log('Dropdown ' + index + ' initialized successfully');
-            } catch (error) {
-                console.error('Error initializing dropdown ' + index + ':', error);
-            }
-        });
-
-        // Ngăn dropdown đóng khi click vào items
-        document.querySelectorAll('.dropdown-menu').forEach(function(menu) {
-            menu.addEventListener('click', function(e) {
-                // Chỉ ngăn đóng dropdown nếu không phải là link có href
-                if (!e.target.closest('a[href]') || e.target.closest('a[href]').getAttribute('href') === '#') {
-                    e.stopPropagation();
-                }
-            });
-        });
-
-        // Thêm sự kiện click cho các nút xóa lịch tập
-        document.querySelectorAll('.delete-schedule-btn').forEach(function(button) {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const id = this.getAttribute('data-id');
-                const info = this.getAttribute('data-info');
-
-                document.getElementById('scheduleInfoToDelete').textContent = info;
-                document.getElementById('confirmDeleteBtn').href = '${pageContext.request.contextPath}/schedule?action=delete&id=' + id;
-
-                var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-                deleteModal.show();
-            });
-        });
-
-        // Thêm sự kiện click cho các nút xem chi tiết
-        document.querySelectorAll('.view-schedule-btn').forEach(function(button) {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const id = this.getAttribute('data-id');
-                const trainer = this.getAttribute('data-trainer');
-                const member = this.getAttribute('data-member');
-                const date = this.getAttribute('data-date');
-                const time = this.getAttribute('data-time');
-                const duration = this.getAttribute('data-duration');
-                const status = this.getAttribute('data-status');
-                const createdAt = this.getAttribute('data-created');
-
-                document.getElementById('scheduleTitle').textContent = trainer + ' - ' + member;
-                document.getElementById('scheduleTrainer').textContent = trainer;
-                document.getElementById('scheduleMember').textContent = member;
-                document.getElementById('scheduleDate').textContent = date;
-                document.getElementById('scheduleTime').textContent = time;
-                document.getElementById('scheduleDuration').textContent = duration + ' giờ';
-                document.getElementById('scheduleCreatedAt').textContent = createdAt || 'Không có thông tin';
-
-                // Cập nhật trạng thái với badge
-                const statusBadge = document.getElementById('viewScheduleStatus');
-                statusBadge.textContent = status;
-
-                // Cập nhật class cho badge dựa trên trạng thái
-                statusBadge.className = 'badge me-2';
-                if (status === 'Chờ xác nhận') {
-                    statusBadge.classList.add('status-pending');
-                } else if (status === 'Đã xác nhận') {
-                    statusBadge.classList.add('status-confirmed');
-                } else if (status === 'Hoàn thành') {
-                    statusBadge.classList.add('status-completed');
-                } else if (status === 'Đã hủy') {
-                    statusBadge.classList.add('status-cancelled');
-                } else {
-                    statusBadge.classList.add('bg-gradient-secondary');
-                }
-
-                // Cập nhật link chỉnh sửa
-                document.getElementById('editScheduleBtn').href = '${pageContext.request.contextPath}/editSchedule?id=' + id;
-
-                var viewModal = new bootstrap.Modal(document.getElementById('viewScheduleModal'));
-                viewModal.show();
-            });
-        });
     });
+
+    // Function to change month
+    function changeMonth(direction) {
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentMonth = parseInt(urlParams.get('month')) || new Date().getMonth() + 1;
+        let currentYear = parseInt(urlParams.get('year')) || new Date().getFullYear();
+        
+        currentMonth += direction;
+        
+        if (currentMonth > 12) {
+            currentMonth = 1;
+            currentYear++;
+        } else if (currentMonth < 1) {
+            currentMonth = 12;
+            currentYear--;
+        }
+        
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('month', currentMonth);
+        newUrl.searchParams.set('year', currentYear);
+        window.location.href = newUrl.toString();
+    }
+
+    // Function to view schedule details
+    function viewSchedule(id, trainer, member, date, time, duration, status, createdAt) {
+        document.getElementById('scheduleTitle').textContent = trainer + ' - ' + member;
+        document.getElementById('scheduleTrainer').textContent = trainer;
+        document.getElementById('scheduleMember').textContent = member;
+        document.getElementById('scheduleDate').textContent = date;
+        document.getElementById('scheduleTime').textContent = time;
+        document.getElementById('scheduleDuration').textContent = duration + ' giờ';
+        document.getElementById('scheduleCreatedAt').textContent = createdAt || 'Không có thông tin';
+
+        // Cập nhật trạng thái với badge
+        const statusBadge = document.getElementById('viewScheduleStatus');
+        statusBadge.textContent = getStatusText(status);
+
+        // Cập nhật class cho badge dựa trên trạng thái
+        statusBadge.className = 'badge me-2';
+        if (status === 'Pending') {
+            statusBadge.classList.add('status-pending');
+        } else if (status === 'Confirmed') {
+            statusBadge.classList.add('status-confirmed');
+        } else if (status === 'Completed') {
+            statusBadge.classList.add('status-completed');
+        } else if (status === 'Cancelled') {
+            statusBadge.classList.add('status-cancelled');
+        } else {
+            statusBadge.classList.add('bg-gradient-secondary');
+        }
+
+        // Cập nhật link chỉnh sửa
+        document.getElementById('editScheduleBtn').href = '${pageContext.request.contextPath}/editSchedule?id=' + id;
+
+        // Cập nhật nút xóa
+        const deleteBtn = document.getElementById('deleteScheduleBtn');
+        deleteBtn.onclick = function() {
+            showDeleteConfirm(id, trainer + ' - ' + member);
+        };
+
+        var viewModal = new bootstrap.Modal(document.getElementById('viewScheduleModal'));
+        viewModal.show();
+    }
+
+    // Function to show delete confirmation
+    function showDeleteConfirm(id, scheduleInfo) {
+        document.getElementById('scheduleInfoToDelete').textContent = scheduleInfo;
+        document.getElementById('confirmDeleteBtn').href = '${pageContext.request.contextPath}/schedule?action=delete&id=' + id;
+        
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        deleteModal.show();
+    }
+
+    // Function to view day schedules
+    function viewDaySchedules(date, count) {
+        document.getElementById('selectedDate').textContent = date;
+        
+        // Load schedules for this day
+        const schedulesList = document.getElementById('daySchedulesList');
+        schedulesList.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>';
+        
+        // Here you would typically make an AJAX call to get schedules for the specific date
+        // For now, we'll show a placeholder
+        setTimeout(() => {
+            schedulesList.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Có ${count} lịch tập trong ngày ${date}. Chức năng này sẽ được phát triển thêm.
+                </div>
+            `;
+        }, 1000);
+
+        var dayModal = new bootstrap.Modal(document.getElementById('viewDaySchedulesModal'));
+        dayModal.show();
+    }
+
+    // Helper function to get status text
+    function getStatusText(status) {
+        switch(status) {
+            case 'Pending': return 'Chờ xác nhận';
+            case 'Confirmed': return 'Đã xác nhận';
+            case 'Completed': return 'Hoàn thành';
+            case 'Cancelled': return 'Đã hủy';
+            default: return status;
+        }
+    }
 </script>
 
 </body>
