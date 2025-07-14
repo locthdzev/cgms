@@ -10,6 +10,7 @@ import java.time.Instant;
 @Table(name = "Payments")
 public class Payment {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PaymentId", nullable = false)
     private Integer id;
 
@@ -30,6 +31,16 @@ public class Payment {
 
     @Column(name = "PaymentDate", nullable = false)
     private Instant paymentDate;
+
+    @Nationalized
+    @Lob
+    @Column(name = "PaymentData")
+    private String paymentData;
+
+    @Nationalized
+    @Lob
+    @Column(name = "CallbackData")
+    private String callbackData;
 
     @Nationalized
     @Column(name = "TransactionId", length = 100)
@@ -91,6 +102,22 @@ public class Payment {
 
     public void setPaymentDate(Instant paymentDate) {
         this.paymentDate = paymentDate;
+    }
+
+    public String getPaymentData() {
+        return paymentData;
+    }
+
+    public void setPaymentData(String paymentData) {
+        this.paymentData = paymentData;
+    }
+
+    public String getCallbackData() {
+        return callbackData;
+    }
+
+    public void setCallbackData(String callbackData) {
+        this.callbackData = callbackData;
     }
 
     public String getTransactionId() {

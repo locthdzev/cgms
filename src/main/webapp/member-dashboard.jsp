@@ -20,6 +20,9 @@
     if (errorMessage != null) {
         session.removeAttribute("errorMessage");
     }
+    
+    // Đặt tiêu đề trang cho navbar
+    request.setAttribute("pageTitle", "Dashboard");
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -205,7 +208,7 @@
 <%@ include file="member_sidebar.jsp" %>
 
 <main class="main-content position-relative border-radius-lg">
-    <!-- Include Navbar Component with parameters -->
+    <!-- Include Navbar Component -->
     <jsp:include page="navbar.jsp">
         <jsp:param name="pageTitle" value="Dashboard Member" />
         <jsp:param name="parentPage" value="Dashboard" />
@@ -379,8 +382,8 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-between mt-4">
-                            <a href="member-packages.jsp" class="btn btn-sm btn-outline-light">Xem chi tiết</a>
-                            <a href="member-packages.jsp" class="btn btn-sm btn-light">Gia hạn gói tập</a>
+                            <a href="member-packages-controller" class="btn btn-sm btn-outline-light">Xem chi tiết</a>
+                            <a href="member-packages-controller" class="btn btn-sm btn-light">Gia hạn gói tập</a>
                         </div>
                     </div>
                 </div>
