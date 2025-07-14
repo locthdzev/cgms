@@ -82,6 +82,10 @@ public class User {
     @Column(name = "Status", nullable = false, length = 20)
     private String status;
 
+    @Nationalized
+    @Column(name = "CertificateImageUrl")
+    private String certificateImageUrl;
+
     public Integer getId() {
         return id;
     }
@@ -232,6 +236,14 @@ public class User {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCertificateImageUrl() {
+        return certificateImageUrl;
+    }
+
+    public void setCertificateImageUrl(String certificateImageUrl) {
+        this.certificateImageUrl = certificateImageUrl;
     }
 
 }
