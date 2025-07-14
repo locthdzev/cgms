@@ -38,4 +38,30 @@ public class CheckinDAO {
         }
         return list;
     }
+
+    public List<Checkin> getAllCheckins() {
+        List<Checkin> list = new ArrayList<>();
+        String sql = "SELECT c.*, u.FullName, u.UserName FROM Checkins c JOIN Users u ON c.MemberId = u.UserId ORDER BY c.CheckinDate DESC, c.CheckinTime DESC";
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Checkin c = new Checkin();
+                c.setId(rs.getInt("CheckinId"));
+                User member = new User();
+                member.setId(rs.getInt("MemberId"));
+                member.setFullName(rs.getString("FullName"));
+                member.setUserName(rs.getString("UserName"));
+                c.setMember(member);
+                c.setCheckinDate(rs.getDate("CheckinDate").toLocalDate());
+                c.setCheckinTime(rs.getTime("CheckinTime").toLocalTime());
+                c.setCreatedAt(rs.getTimestamp("CreatedAt").toInstant());
+                c.setStatus(rs.getString("Status"));
+                list.add(c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }
