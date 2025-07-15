@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page import="Models.User, Models.Feedback, java.util.List" %>
 <%
+    // Fetch the logged-in user
     User loggedInUser = (User) session.getAttribute("loggedInUser");
     String pageName = "member-feedback.jsp";
 %>
@@ -16,7 +17,7 @@
 
         <!-- Fonts and icons -->
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-        <link href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" rel="stylesheet">
+        <link href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
         <link id="pagestyle" href="assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
 
@@ -162,15 +163,6 @@
                             <!-- Search can be added here if needed -->
                         </div>
                         <ul class="navbar-nav justify-content-end">
-                            <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
-                                <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarSidenav">
-                                    <div class="sidenav-toggler-inner">
-                                        <i class="sidenav-toggler-line bg-white"></i>
-                                        <i class="sidenav-toggler-line bg-white"></i>
-                                        <i class="sidenav-toggler-line bg-white"></i>
-                                    </div>
-                                </a>
-                            </li>
                             <li class="nav-item px-3 d-flex align-items-center">
                                 <div class="user-welcome">
                                     <p class="user-name mb-0"><%= loggedInUser.getFullName() %></p>
@@ -270,8 +262,8 @@
                                                                     <button class="btn btn-info btn-sm view-feedback-btn" 
                                                                             data-id="${feedback.id}" 
                                                                             data-content="${feedback.content}"
-                                                                            data-status="${feedback.status}"
-                                                                            data-response="${feedback.response}"
+                                                                            data-status="${feedback.status} "
+                                                                            data-response="${feedback.response}" 
                                                                             data-bs-toggle="modal" 
                                                                             data-bs-target="#viewFeedbackModal">
                                                                         <i class="fas fa-eye"></i>
@@ -305,72 +297,60 @@
             </footer>
         </main>
 
-        <!-- View Feedback Modal -->
-        <div class="modal fade" id="viewFeedbackModal" tabindex="-1" aria-labelledby="viewFeedbackModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="viewFeedbackModalLabel">
-                            <i class="fas fa-comment-dots me-2"></i>Chi tiết Feedback
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-12 mb-3">
-                                <label class="form-label font-weight-bold">Nội dung feedback:</label>
-                                <div class="p-3 bg-gray-100 border-radius-md">
-                                    <p id="modalFeedbackContent" class="mb-0"></p>
-                                </div>
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label class="form-label font-weight-bold">Trạng thái:</label>
-                                <div id="modalFeedbackStatus"></div>
-                            </div>
-                            <div class="col-12" id="responseSection" style="display: none;">
-                                <label class="form-label font-weight-bold">Phản hồi từ quản lý:</label>
-                                <div class="p-3 bg-gradient-success border-radius-md">
-                                    <p id="modalFeedbackResponse" class="mb-0 text-white"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- New Feedback Modal -->
         <div class="modal fade" id="newFeedbackModal" tabindex="-1" aria-labelledby="newFeedbackModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="newFeedbackModalLabel">
-                            <i class="fas fa-plus-circle me-2"></i>Gửi Feedback mới
-                        </h5>
+                        <h5 class="modal-title" id="newFeedbackModalLabel">Gửi Feedback mới</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="member-feedback" method="post">
+                    <form method="post" action="${pageContext.request.contextPath}/member/feedback">
                         <div class="modal-body">
+                            <input type="hidden" name="action" value="sendFeedback">
                             <div class="mb-3">
-                                <label for="feedbackContent" class="form-label">Nội dung feedback *</label>
-                                <textarea class="form-control" id="feedbackContent" name="content" rows="5" 
-                                          placeholder="Chia sẻ ý kiến, góp ý hoặc báo cáo vấn đề của bạn..." required></textarea>
+                                <label for="guestEmail" class="form-label">Email (tùy chọn)</label>
+                                <input type="email" class="form-control" id="guestEmail" name="guestEmail" placeholder="Nhập email của bạn">
                             </div>
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Feedback của bạn sẽ được gửi đến ban quản lý và sẽ nhận được phản hồi trong thời gian sớm nhất.
+                            <div class="mb-3">
+                                <label for="content" class="form-label">Nội dung feedback <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="content" name="content" rows="4" placeholder="Nhập nội dung feedback..." required></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane me-2"></i>Gửi Feedback
-                            </button>
+                            <button type="submit" class="btn btn-primary">Gửi Feedback</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Feedback Modal -->
+        <div class="modal fade" id="viewFeedbackModal" tabindex="-1" aria-labelledby="viewFeedbackModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewFeedbackModalLabel">Chi tiết Feedback</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nội dung:</label>
+                            <p id="modalFeedbackContent" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Trạng thái:</label>
+                            <div id="modalFeedbackStatus"></div>
+                        </div>
+                        <div id="responseSection" style="display: none;">
+                            <label class="form-label fw-bold">Phản hồi từ quản lý:</label>
+                            <p id="modalFeedbackResponse" class="form-control-plaintext border p-2 rounded bg-light"></p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -383,51 +363,33 @@
         <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 
         <script>
-                                    // Handle view feedback modal
-                                    document.querySelectorAll('.view-feedback-btn').forEach(function (button) {
-                                        button.addEventListener('click', function () {
-                                            const content = button.getAttribute('data-content');
-                                            const status = button.getAttribute('data-status');
-                                            const response = button.getAttribute('data-response');
+            // Handle view feedback modal
+            document.querySelectorAll('.view-feedback-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const content = button.getAttribute('data-content');
+                    const status = button.getAttribute('data-status');
+                    const response = button.getAttribute('data-response');
 
-                                            document.getElementById('modalFeedbackContent').textContent = content;
+                    document.getElementById('modalFeedbackContent').textContent = content;
 
-                                            // Update status display
-                                            const statusElement = document.getElementById('modalFeedbackStatus');
-                                            if (status === 'Pending') {
-                                                statusElement.innerHTML = '<span class="badge status-badge status-pending"><i class="fas fa-clock me-1"></i>Chờ phản hồi</span>';
-                                            } else {
-                                                statusElement.innerHTML = '<span class="badge status-badge status-responded"><i class="fas fa-check me-1"></i>Đã phản hồi</span>';
-                                            }
+                    // Update status display
+                    const statusElement = document.getElementById('modalFeedbackStatus');
+                    if (status === 'Pending') {
+                        statusElement.innerHTML = '<span class="badge status-badge status-pending"><i class="fas fa-clock me-1"></i>Chờ phản hồi</span>';
+                    } else {
+                        statusElement.innerHTML = '<span class="badge status-badge status-responded"><i class="fas fa-check me-1"></i>Đã phản hồi</span>';
+                    }
 
-                                            // Show response if available
-                                            const responseSection = document.getElementById('responseSection');
-                                            if (response && response.trim() !== '' && response !== 'null') {
-                                                document.getElementById('modalFeedbackResponse').textContent = response;
-                                                responseSection.style.display = 'block';
-                                            } else {
-                                                responseSection.style.display = 'none';
-                                            }
-                                        });
-                                    });
-
-                                    // Auto hide toasts
-                                    setTimeout(function () {
-                                        document.querySelectorAll('.toast').forEach(function (toast) {
-                                            toast.style.animation = 'slideOut 0.3s ease forwards';
-                                            setTimeout(() => toast.remove(), 300);
-                                        });
-                                    }, 5000);
-
-                                    // Add slideOut animation
-                                    const style = document.createElement('style');
-                                    style.textContent = `
-                @keyframes slideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-                                    document.head.appendChild(style);
+                    // Show response if available
+                    const responseSection = document.getElementById('responseSection');
+                    if (response && response.trim() !== '' && response !== 'null') {
+                        document.getElementById('modalFeedbackResponse').textContent = response;
+                        responseSection.style.display = 'block';
+                    } else {
+                        responseSection.style.display = 'none';
+                    }
+                });
+            });
         </script>
     </body>
 </html>

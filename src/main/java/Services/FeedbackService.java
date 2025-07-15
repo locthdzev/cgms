@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Services;
 
 import DAOs.FeedbackDAO;
@@ -23,26 +19,20 @@ public class FeedbackService {
     }
 
     public boolean sendFeedback(int userId, String guestEmail, String content) {
-        Feedback fb = new Feedback();
-        User u = new User();
-        u.setId(userId);
-        fb.setUser(u);
-        fb.setGuestEmail(guestEmail);
-        fb.setContent(content);
-        return feedbackDAO.createFeedback(fb);
+        Feedback feedback = new Feedback();
+        User user = new User();
+        user.setId(userId);
+        feedback.setUser(user);
+        feedback.setGuestEmail(guestEmail);
+        feedback.setContent(content);
+        return feedbackDAO.createFeedback(feedback);
     }
 
-    public boolean respondFeedback(int id, String response) {
-        return feedbackDAO.respondFeedback(id, response);
+    public boolean respondFeedback(int feedbackId, String response) {
+        return feedbackDAO.respondFeedback(feedbackId, response);
     }
 
     public List<Feedback> getFeedbacksByUser(int userId) {
         return feedbackDAO.getFeedbacksByUser(userId);
     }
-    // Lấy feedback theo loại
-
-    public List<Feedback> getFeedbacksByUserAndType(int userId, String feedbackType) {
-        return feedbackDAO.getFeedbacksByUserAndType(userId, feedbackType);
-    }
-
 }
