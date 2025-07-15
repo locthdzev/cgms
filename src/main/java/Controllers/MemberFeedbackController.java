@@ -8,7 +8,6 @@ import Models.Feedback;
 import Models.User;
 import Services.FeedbackService;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -49,7 +48,8 @@ public class MemberFeedbackController extends HttpServlet {
             memberFeedbacks = feedbackService.getFeedbacksByUser(user.getId());
         }
 
-        System.out.println("DEBUG: Found " + (memberFeedbacks != null ? memberFeedbacks.size() : "null") + " feedbacks");
+        System.out
+                .println("DEBUG: Found " + (memberFeedbacks != null ? memberFeedbacks.size() : "null") + " feedbacks");
 
         req.setAttribute("memberFeedbacks", memberFeedbacks);
         req.setAttribute("selectedType", feedbackType);
