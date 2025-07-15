@@ -56,17 +56,17 @@
                 right: 20px;
                 z-index: 9999;
             }
-            
+
             .toast {
                 min-width: 300px;
             }
-            
+
             /* Detail styles */
             .detail-label {
                 font-weight: 600;
                 color: #344767;
             }
-            
+
             .feedback-detail-img {
                 max-height: 300px;
                 object-fit: cover;
@@ -205,14 +205,19 @@
                                                                            data-response="${fb.response}"
                                                                            data-created-at="<c:if test="${not empty fb.createdAt}"><jsp:useBean id="modalCreatedDate" class="java.util.Date"/><jsp:setProperty name="modalCreatedDate" property="time" value="${fb.createdAt.toEpochMilli()}"/><fmt:formatDate value="${modalCreatedDate}" pattern="dd/MM/yyyy HH:mm:ss" /></c:if>"
                                                                            data-responded-at="<c:if test="${not empty fb.respondedAt}"><jsp:useBean id="modalRespondedDate" class="java.util.Date"/><jsp:setProperty name="modalRespondedDate" property="time" value="${fb.respondedAt.toEpochMilli()}"/><fmt:formatDate value="${modalRespondedDate}" pattern="dd/MM/yyyy HH:mm:ss" /></c:if>">
-                                                                            <i class="fas fa-eye me-2"></i>Xem chi tiết
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a class="dropdown-item text-danger delete-feedback-btn" href="#" 
-                                                                           data-id="${fb.id}"
-                                                                           data-email="${fb.guestEmail}">
+                                                                               <i class="fas fa-eye me-2"></i>Xem chi tiết
+                                                                           </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a class="dropdown-item text-danger delete-feedback-btn" href="#" 
+                                                                               data-id="${fb.id}"
+                                                                            data-email="${fb.guestEmail}">
                                                                             <i class="fas fa-trash me-2"></i>Xóa
+                                                                        </a>
+                                                                        <!-- Nút Respond -->
+                                                                        <a class="dropdown-item text-primary respond-feedback-btn" href="#"
+                                                                           data-id="${fb.id}" data-email="${fb.guestEmail}">
+                                                                            <i class="fas fa-reply me-2"></i>Phản hồi
                                                                         </a>
                                                                     </li>
                                                                 </ul>
@@ -229,7 +234,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Modal xem chi tiết feedback -->
             <div class="modal fade" id="viewFeedbackModal" tabindex="-1" aria-labelledby="viewFeedbackModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -256,7 +261,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Nội dung đánh giá -->
                                 <div class="col-md-12 mb-4">
                                     <div class="card border-0 bg-light">
@@ -266,7 +271,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Phản hồi -->
                                 <div class="col-md-12 mb-3" id="responseSection">
                                     <div class="card border-0 bg-gradient-light">
@@ -284,7 +289,9 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
+
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
@@ -292,7 +299,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Modal xác nhận xóa feedback -->
             <div class="modal fade" id="deleteFeedbackModal" tabindex="-1" aria-labelledby="deleteFeedbackModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -320,6 +327,40 @@
                     </div>
                 </div>
             </div>
+            <!-- Modal phản hồi -->
+            <div class="modal fade" id="respondModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <form id="respondForm" action="feedback" method="post" class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Phản hồi Feedback</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="action" value="respond"/>
+                            <input type="hidden" id="respondId" name="id"/>
+                            <div class="mb-3">
+                                <label for="response" class="form-label">Nội dung phản hồi</label>
+                                <textarea id="response" name="response" class="form-control" rows="4" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary">Gửi phản hồi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+                document.querySelectorAll('.respond-feedback-btn').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        const id = btn.getAttribute('data-id');
+                        document.getElementById('respondId').value = id;
+                        new bootstrap.Modal(document.getElementById('respondModal')).show();
+                    });
+                });
+            </script>
+
         </main>
 
         <!-- Core JS Files -->
@@ -328,96 +369,96 @@
         <script src="./assets/js/plugins/perfect-scrollbar.min.js"></script>
         <script src="./assets/js/plugins/smooth-scrollbar.min.js"></script>
         <script src="./assets/js/argon-dashboard.min.js?v=2.1.0"></script>
-        
+
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Hiển thị toast thông báo nếu có
-                if (document.getElementById('successToast')) {
-                    var successToast = new bootstrap.Toast(document.getElementById('successToast'), {
-                        delay: 5000,
-                        animation: true
-                    });
-                    successToast.show();
-                }
-                
-                if (document.getElementById('errorToast')) {
-                    var errorToast = new bootstrap.Toast(document.getElementById('errorToast'), {
-                        delay: 5000,
-                        animation: true
-                    });
-                    errorToast.show();
-                }
-                
-                // Thêm sự kiện click cho các nút xem chi tiết
-                document.querySelectorAll('.view-feedback-btn').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        const id = this.getAttribute('data-id');
-                        const email = this.getAttribute('data-email');
-                        const content = this.getAttribute('data-content');
-                        const status = this.getAttribute('data-status');
-                        const response = this.getAttribute('data-response');
-                        const createdAt = this.getAttribute('data-created-at');
-                        const respondedAt = this.getAttribute('data-responded-at');
-                        
-                        // Cập nhật thông tin cơ bản
-                        document.getElementById('feedbackId').textContent = id;
-                        document.getElementById('feedbackEmail').textContent = email;
-                        document.getElementById('feedbackContent').textContent = content || 'Không có nội dung';
-                        document.getElementById('feedbackCreatedAt').textContent = createdAt || 'Không xác định';
-                        
-                        // Xử lý hiển thị phản hồi
-                        const responseSection = document.getElementById('responseSection');
-                        if (response && response !== 'Chưa có phản hồi') {
-                            responseSection.style.display = 'block';
-                            document.getElementById('feedbackResponse').textContent = response;
-                            document.getElementById('feedbackRespondedAt').textContent = respondedAt || 'Không xác định';
-                        } else {
-                            responseSection.style.display = 'none';
-                        }
-                        
-                        // Cập nhật trạng thái với badge
-                        const statusBadge = document.getElementById('viewFeedbackStatus');
-                        if (status === 'Responded') {
-                            statusBadge.className = 'badge bg-gradient-success';
-                            statusBadge.textContent = 'Đã phản hồi';
-                        } else if (status === 'Pending') {
-                            statusBadge.className = 'badge bg-gradient-warning';
-                            statusBadge.textContent = 'Đang chờ';
-                        } else if (status === 'Replied') {
-                            statusBadge.className = 'badge bg-gradient-info';
-                            statusBadge.textContent = 'Đã trả lời';
-                        } else if (status === 'Resolved') {
-                            statusBadge.className = 'badge bg-gradient-success';
-                            statusBadge.textContent = 'Đã giải quyết';
-                        } else {
-                            statusBadge.className = 'badge bg-gradient-secondary';
-                            statusBadge.textContent = status;
-                        }
-                        
-                        var viewModal = new bootstrap.Modal(document.getElementById('viewFeedbackModal'));
-                        viewModal.show();
-                    });
-                });
-                
-                // Thêm sự kiện click cho các nút xóa
-                document.querySelectorAll('.delete-feedback-btn').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        const id = this.getAttribute('data-id');
-                        const email = this.getAttribute('data-email');
-                        
-                        document.getElementById('deleteFeedbackId').value = id;
-                        document.getElementById('deleteEmail').textContent = email;
-                        
-                        var deleteModal = new bootstrap.Modal(document.getElementById('deleteFeedbackModal'));
-                        deleteModal.show();
-                    });
-                });
-                
-                // Xử lý nút xác nhận xóa
-                document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-                    document.getElementById('deleteFeedbackForm').submit();
-                });
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hiển thị toast thông báo nếu có
+        if (document.getElementById('successToast')) {
+            var successToast = new bootstrap.Toast(document.getElementById('successToast'), {
+                delay: 5000,
+                animation: true
             });
+            successToast.show();
+        }
+
+        if (document.getElementById('errorToast')) {
+            var errorToast = new bootstrap.Toast(document.getElementById('errorToast'), {
+                delay: 5000,
+                animation: true
+            });
+            errorToast.show();
+        }
+
+        // Thêm sự kiện click cho các nút xem chi tiết
+        document.querySelectorAll('.view-feedback-btn').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const email = this.getAttribute('data-email');
+                const content = this.getAttribute('data-content');
+                const status = this.getAttribute('data-status');
+                const response = this.getAttribute('data-response');
+                const createdAt = this.getAttribute('data-created-at');
+                const respondedAt = this.getAttribute('data-responded-at');
+
+                // Cập nhật thông tin cơ bản
+                document.getElementById('feedbackId').textContent = id;
+                document.getElementById('feedbackEmail').textContent = email;
+                document.getElementById('feedbackContent').textContent = content || 'Không có nội dung';
+                document.getElementById('feedbackCreatedAt').textContent = createdAt || 'Không xác định';
+
+                // Xử lý hiển thị phản hồi
+                const responseSection = document.getElementById('responseSection');
+                if (response && response !== 'Chưa có phản hồi') {
+                    responseSection.style.display = 'block';
+                    document.getElementById('feedbackResponse').textContent = response;
+                    document.getElementById('feedbackRespondedAt').textContent = respondedAt || 'Không xác định';
+                } else {
+                    responseSection.style.display = 'none';
+                }
+
+                // Cập nhật trạng thái với badge
+                const statusBadge = document.getElementById('viewFeedbackStatus');
+                if (status === 'Responded') {
+                    statusBadge.className = 'badge bg-gradient-success';
+                    statusBadge.textContent = 'Đã phản hồi';
+                } else if (status === 'Pending') {
+                    statusBadge.className = 'badge bg-gradient-warning';
+                    statusBadge.textContent = 'Đang chờ';
+                } else if (status === 'Replied') {
+                    statusBadge.className = 'badge bg-gradient-info';
+                    statusBadge.textContent = 'Đã trả lời';
+                } else if (status === 'Resolved') {
+                    statusBadge.className = 'badge bg-gradient-success';
+                    statusBadge.textContent = 'Đã giải quyết';
+                } else {
+                    statusBadge.className = 'badge bg-gradient-secondary';
+                    statusBadge.textContent = status;
+                }
+
+                var viewModal = new bootstrap.Modal(document.getElementById('viewFeedbackModal'));
+                viewModal.show();
+            });
+        });
+
+        // Thêm sự kiện click cho các nút xóa
+        document.querySelectorAll('.delete-feedback-btn').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const email = this.getAttribute('data-email');
+
+                document.getElementById('deleteFeedbackId').value = id;
+                document.getElementById('deleteEmail').textContent = email;
+
+                var deleteModal = new bootstrap.Modal(document.getElementById('deleteFeedbackModal'));
+                deleteModal.show();
+            });
+        });
+
+        // Xử lý nút xác nhận xóa
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+            document.getElementById('deleteFeedbackForm').submit();
+        });
+    });
         </script>
     </body>
 </html> 
