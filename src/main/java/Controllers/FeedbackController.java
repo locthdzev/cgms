@@ -44,6 +44,13 @@ public class FeedbackController extends HttpServlet {
                 session.setAttribute("errorMessage", "ID phản hồi không hợp lệ!");
             }
         }
+         else if ("respond".equals(action)) {
+        int id = Integer.parseInt(req.getParameter("id"));
+        String respText = req.getParameter("response");
+        boolean ok = feedbackService.respondFeedback(id, respText);
+        if (ok) session.setAttribute("successMessage", "Phản hồi thành công!");
+        else   session.setAttribute("errorMessage",   "Phản hồi thất bại!");
+    }
 
         // Chuyển hướng để tránh việc gửi lại form khi refresh trang
         resp.sendRedirect(req.getContextPath() + "/feedback");
