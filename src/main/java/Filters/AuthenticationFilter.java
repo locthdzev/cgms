@@ -29,8 +29,8 @@ public class AuthenticationFilter implements Filter {
 
     // Các URL chỉ dành cho Member
     private static final List<String> MEMBER_URLS = Arrays.asList(
-            "/member-dashboard", "/member-packages.jsp", "/member-schedule.jsp", "/member-shop.jsp",
-            "/member-cart.jsp", "/member-feedback.jsp");
+            "/member-dashboard", "/member-packages-controller", "/all-packages-controller", "/all-packages",
+            "/member-schedule.jsp", "/member-shop.jsp", "/member-cart.jsp", "/member-feedback.jsp");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

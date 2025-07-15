@@ -50,6 +50,25 @@ public class VoucherDAO {
         return null;
     }
 
+    public Voucher getVoucherByCode(String code) {
+        String sql = "SELECT v.*, u.UserId, u.UserName, u.Email FROM Vouchers v " +
+                "LEFT JOIN Users u ON v.MemberId = u.UserId WHERE v.Code = ?";
+
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, code);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToVoucher(rs);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public void saveVoucher(Voucher voucher) {
         String sql = "INSERT INTO Vouchers (Code, DiscountValue, DiscountType, MinPurchase, " +
                 "ExpiryDate, MemberId, CreatedAt, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
