@@ -305,7 +305,7 @@
                         <h5 class="modal-title" id="newFeedbackModalLabel">Gửi Feedback mới</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form method="post" action="${pageContext.request.contextPath}/member/feedback">
+                    <form method="post" action="member/feedback">
                         <div class="modal-body">
                             <input type="hidden" name="action" value="sendFeedback">
                             <div class="mb-3">
@@ -363,32 +363,126 @@
         <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 
         <script>
-            // Handle view feedback modal
-            document.querySelectorAll('.view-feedback-btn').forEach(function (button) {
-                button.addEventListener('click', function () {
-                    const content = button.getAttribute('data-content');
-                    const status = button.getAttribute('data-status');
-                    const response = button.getAttribute('data-response');
+            // Auto-hide toasts after 5 seconds
+            setTimeout(function() {
+                const toasts = document.querySelectorAll('.toast');
+                if (toasts) {
+                    toasts.forEach(function(toast) {
+                        if (toast) {
+                            toast.style.display = 'none';
+                        }
+                    });
+                }
+            }, 5000);
 
-                    document.getElementById('modalFeedbackContent').textContent = content;
+            // Function to show toast messages
+            function showToast(message, type) {
+                const toastContainer = document.querySelector('.toast-container');
+                if (toastContainer) {
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    toast.innerHTML = `
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                        ${message}
+                    `;
+                    toastContainer.appendChild(toast);
+                    
+                    setTimeout(() => {
+                        if (toast && toast.parentNode) {
+                            toast.remove();
+                        }
+                    }, 5000);
+                }
+            }
 
-                    // Update status display
-                    const statusElement = document.getElementById('modalFeedbackStatus');
-                    if (status === 'Pending') {
-                        statusElement.innerHTML = '<span class="badge status-badge status-pending"><i class="fas fa-clock me-1"></i>Chờ phản hồi</span>';
-                    } else {
-                        statusElement.innerHTML = '<span class="badge status-badge status-responded"><i class="fas fa-check me-1"></i>Đã phản hồi</span>';
-                    }
+            // Wait for DOM to be fully loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                // Handle form submission
+                const feedbackForm = document.querySelector('#newFeedbackModal form');
+                if (feedbackForm) {
+                    feedbackForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        const formData = new FormData(this);
+                        
+                        fetch('member/feedback', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+                            // Close modal
+                            const modalElement = document.getElementById('newFeedbackModal');
+                            if (modalElement) {
+                                const modal = bootstrap.Modal.getInstance(modalElement);
+                                if (modal) {
+                                    modal.hide();
+                                } else {
+                                    // Create new modal instance if not exists
+                                    const newModal = new bootstrap.Modal(modalElement);
+                                    newModal.hide();
+                                }
+                            }
+                            
+                            // Clear form
+                            this.reset();
+                            
+                            // Show success message
+                            showToast('Gửi feedback thành công!', 'success');
+                            
+                            // Reload page to show new feedback
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('Gửi feedback thất bại!', 'error');
+                        });
+                    });
+                }
 
-                    // Show response if available
-                    const responseSection = document.getElementById('responseSection');
-                    if (response && response.trim() !== '' && response !== 'null') {
-                        document.getElementById('modalFeedbackResponse').textContent = response;
-                        responseSection.style.display = 'block';
-                    } else {
-                        responseSection.style.display = 'none';
-                    }
-                });
+                // Handle view feedback modal
+                const viewButtons = document.querySelectorAll('.view-feedback-btn');
+                if (viewButtons) {
+                    viewButtons.forEach(function (button) {
+                        if (button) {
+                            button.addEventListener('click', function () {
+                                const content = button.getAttribute('data-content');
+                                const status = button.getAttribute('data-status');
+                                const response = button.getAttribute('data-response');
+
+                                const contentElement = document.getElementById('modalFeedbackContent');
+                                if (contentElement && content) {
+                                    contentElement.textContent = content;
+                                }
+
+                                // Update status display
+                                const statusElement = document.getElementById('modalFeedbackStatus');
+                                if (statusElement && status) {
+                                    const trimmedStatus = status.trim();
+                                    if (trimmedStatus === 'Pending') {
+                                        statusElement.innerHTML = '<span class="badge status-badge status-pending"><i class="fas fa-clock me-1"></i>Chờ phản hồi</span>';
+                                    } else {
+                                        statusElement.innerHTML = '<span class="badge status-badge status-responded"><i class="fas fa-check me-1"></i>Đã phản hồi</span>';
+                                    }
+                                }
+
+                                // Show response if available
+                                const responseSection = document.getElementById('responseSection');
+                                const responseElement = document.getElementById('modalFeedbackResponse');
+                                if (responseSection && responseElement) {
+                                    if (response && response.trim() !== '' && response !== 'null') {
+                                        responseElement.textContent = response;
+                                        responseSection.style.display = 'block';
+                                    } else {
+                                        responseSection.style.display = 'none';
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
             });
         </script>
     </body>
