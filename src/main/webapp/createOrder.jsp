@@ -119,7 +119,7 @@
                         <h6>
                             <%= isEdit ? "Chỉnh sửa đơn hàng" : "Tạo đơn hàng mới" %>
                         </h6>
-                        <a href="order" class="btn btn-outline-secondary btn-sm">
+                        <a href="order.jsp" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
                         </a>
                     </div>
@@ -289,7 +289,7 @@
                             <div class="d-flex justify-content-end mt-4">
                                 <button type="reset" class="btn btn-light me-2">Làm mới</button>
                                 <button type="submit" class="btn btn-primary">Lưu đơn hàng</button>
-                                <a href="${pageContext.request.contextPath}/order?action=list"
+                                <a href="order.jsp"
                                    class="btn btn-secondary ms-2">Quay lại danh sách</a>
                             </div>
                         </form>

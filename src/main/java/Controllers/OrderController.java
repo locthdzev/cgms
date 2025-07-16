@@ -1,9 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Controllers;
-
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,11 +18,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- *
- * @author LENOVO
- */
-
 public class OrderController extends HttpServlet {
     private final OrderService orderService = new OrderService();
     private final UserService userService = new UserService();
@@ -45,16 +35,18 @@ public class OrderController extends HttpServlet {
                 req.setAttribute("order", new Order());
                 req.setAttribute("userList", userService.getAllUsers());
                 req.setAttribute("voucherList", voucherService.getAllVouchers());
-                req.getRequestDispatcher("/order-form.jsp").forward(req, resp);
+                req.getRequestDispatcher("/createOrder.jsp").forward(req, resp);
                 break;
+                
             case "edit":
                 int id = Integer.parseInt(req.getParameter("id"));
                 Order order = orderService.getOrderById(id);
                 req.setAttribute("order", order);
                 req.setAttribute("userList", userService.getAllUsers());
                 req.setAttribute("voucherList", voucherService.getAllVouchers());
-                req.getRequestDispatcher("/order-form.jsp").forward(req, resp);
+                req.getRequestDispatcher("/editOrder.jsp").forward(req, resp);
                 break;
+                
             case "delete":
                 try {
                     orderService.deleteOrder(Integer.parseInt(req.getParameter("id")));
@@ -66,30 +58,52 @@ public class OrderController extends HttpServlet {
                 }
                 resp.sendRedirect(req.getContextPath() + "/order?action=list");
                 break;
+                
             case "view":
                 int viewId = Integer.parseInt(req.getParameter("id"));
                 Order viewOrder = orderService.getOrderById(viewId);
                 req.setAttribute("order", viewOrder);
                 req.getRequestDispatcher("/order-detail.jsp").forward(req, resp);
                 break;
+                
             case "filterByStatus":
                 String status = req.getParameter("status");
-                List<Order> filteredOrders = orderService.getOrdersByStatus(status);
+                List<Order> filteredOrders;
+                
+                if (status == null || status.trim().isEmpty()) {
+                    filteredOrders = orderService.getAllOrders();
+                } else {
+                    filteredOrders = orderService.getOrdersByStatus(status);
+                }
+                
                 req.setAttribute("orderList", filteredOrders);
+                req.setAttribute("userList", userService.getAllUsers()); // Thêm để hiển thị filter
                 req.setAttribute("selectedStatus", status);
-                req.getRequestDispatcher("/order-list.jsp").forward(req, resp);
+                req.getRequestDispatcher("/order.jsp").forward(req, resp); // Sửa tên file
                 break;
+                
             case "filterByMember":
-                int memberId = Integer.parseInt(req.getParameter("memberId"));
-                List<Order> memberOrders = orderService.getOrdersByMemberId(memberId);
+                String memberIdStr = req.getParameter("memberId");
+                List<Order> memberOrders;
+                
+                if (memberIdStr == null || memberIdStr.trim().isEmpty()) {
+                    memberOrders = orderService.getAllOrders();
+                } else {
+                    int memberId = Integer.parseInt(memberIdStr);
+                    memberOrders = orderService.getOrdersByMemberId(memberId);
+                    req.setAttribute("selectedMemberId", memberId);
+                }
+                
                 req.setAttribute("orderList", memberOrders);
-                req.setAttribute("selectedMemberId", memberId);
-                req.getRequestDispatcher("/order-list.jsp").forward(req, resp);
+                req.setAttribute("userList", userService.getAllUsers()); // Thêm để hiển thị filter
+                req.getRequestDispatcher("/order.jsp").forward(req, resp); // Sửa tên file
                 break;
-            default:
+                
+            default: // case "list"
                 List<Order> list = orderService.getAllOrders();
                 req.setAttribute("orderList", list);
-                req.getRequestDispatcher("/order-list.jsp").forward(req, resp);
+                req.setAttribute("userList", userService.getAllUsers()); // Thêm để hiển thị filter
+                req.getRequestDispatcher("/order.jsp").forward(req, resp); // Sửa tên file
                 break;
         }
     }
@@ -154,7 +168,10 @@ public class OrderController extends HttpServlet {
                 req.setAttribute("order", order);
                 req.setAttribute("userList", userService.getAllUsers());
                 req.setAttribute("voucherList", voucherService.getAllVouchers());
-                req.getRequestDispatcher("/order-form.jsp").forward(req, resp);
+                
+                // Chuyển đến trang form tương ứng
+                String targetPage = (idStr != null && !idStr.trim().isEmpty()) ? "/editOrder.jsp" : "/createOrder.jsp";
+                req.getRequestDispatcher(targetPage).forward(req, resp);
                 return;
             }
 
@@ -166,13 +183,25 @@ public class OrderController extends HttpServlet {
                 session.setAttribute("successMessage", "Tạo đơn hàng mới thành công!");
             }
 
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            session.setAttribute("errorMessage", "Lỗi: Dữ liệu số không hợp lệ - " + e.getMessage());
+            req.setAttribute("order", order);
+            req.setAttribute("userList", userService.getAllUsers());
+            req.setAttribute("voucherList", voucherService.getAllVouchers());
+            
+            String targetPage = (idStr != null && !idStr.trim().isEmpty()) ? "/editOrder.jsp" : "/createOrder.jsp";
+            req.getRequestDispatcher(targetPage).forward(req, resp);
+            return;
         } catch (Exception e) {
             e.printStackTrace();
             session.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
             req.setAttribute("order", order);
             req.setAttribute("userList", userService.getAllUsers());
             req.setAttribute("voucherList", voucherService.getAllVouchers());
-            req.getRequestDispatcher("/order-form.jsp").forward(req, resp);
+            
+            String targetPage = (idStr != null && !idStr.trim().isEmpty()) ? "/editOrder.jsp" : "/createOrder.jsp";
+            req.getRequestDispatcher(targetPage).forward(req, resp);
             return;
         }
 
