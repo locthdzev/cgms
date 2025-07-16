@@ -1,12 +1,47 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="Models.Package"%>
+<%@page import="Models.MemberPackage"%>
 <%@page import="java.text.NumberFormat"%>
 <%@page import="java.util.Locale"%>
 <%@page import="Models.User"%>
+<%@page import="java.math.BigDecimal"%>
+<%@page import="java.util.function.BiPredicate"%>
 <%
     // Đặt tiêu đề trang cho navbar
     request.setAttribute("pageTitle", "Gói Tập");
+    
+    // Lấy thông tin gói tập hiện tại của thành viên
+    List<MemberPackage> memberPackages = (List<MemberPackage>) request.getAttribute("memberPackages");
+    List<MemberPackage> activeOrPendingPackages = (List<MemberPackage>) request.getAttribute("activeOrPendingPackages");
+    boolean hasActivePackage = (Boolean) request.getAttribute("hasActivePackage");
+    
+    // Định nghĩa các biến lambda thay vì hàm
+    BiPredicate<Integer, List<MemberPackage>> isPackageRegistered = (packageId, packages) -> {
+        if (packages == null) return false;
+        for (MemberPackage mp : packages) {
+            if (mp.getPackageField().getId() == packageId && 
+                ("ACTIVE".equals(mp.getStatus()) || "PENDING".equals(mp.getStatus()))) {
+                return true;
+            }
+        }
+        return false;
+    };
+    
+    BiPredicate<Package, List<MemberPackage>> isUpgrade = (pkg, activePackages) -> {
+        if (activePackages == null || activePackages.isEmpty()) return false;
+        
+        for (MemberPackage mp : activePackages) {
+            if ("ACTIVE".equals(mp.getStatus())) {
+                // Kiểm tra nếu gói mới có giá cao hơn hoặc thời hạn dài hơn
+                if (pkg.getPrice().compareTo(mp.getPackageField().getPrice()) > 0 || 
+                    pkg.getDuration() > mp.getPackageField().getDuration()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
 %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -82,11 +117,11 @@
                         <div class="card-body px-0 pt-0 pb-2">
                             <div class="row p-3">
                                 <% 
-                                    List<Package> packages = (List<Package>) request.getAttribute("packages");
+                                    List<Package> packageList = (List<Package>) request.getAttribute("packages");
                                     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
                                     
-                                    if (packages != null && !packages.isEmpty()) {
-                                        for (Package pkg : packages) {
+                                    if (packageList != null && !packageList.isEmpty()) {
+                                        for (Package pkg : packageList) {
                                 %>
                                 <div class="col-md-4 mb-4">
                                     <div class="card package-card h-100">
@@ -118,10 +153,22 @@
                                                         data-bs-toggle="modal" data-bs-target="#detailModal<%= pkg.getId() %>">
                                                     Xem chi tiết
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-primary" 
-                                                        data-bs-toggle="modal" data-bs-target="#registerModal<%= pkg.getId() %>">
-                                                    Đăng ký
-                                                </button>
+                                                
+                                                <% if (isPackageRegistered.test(pkg.getId(), activeOrPendingPackages)) { %>
+                                                    <button type="button" class="btn btn-sm btn-secondary" disabled>
+                                                        Đang đăng ký
+                                                    </button>
+                                                <% } else if (isUpgrade.test(pkg, activeOrPendingPackages)) { %>
+                                                    <button type="button" class="btn btn-sm btn-info" 
+                                                            data-bs-toggle="modal" data-bs-target="#registerModal<%= pkg.getId() %>">
+                                                        Nâng cấp
+                                                    </button>
+                                                <% } else { %>
+                                                    <button type="button" class="btn btn-sm btn-primary" 
+                                                            data-bs-toggle="modal" data-bs-target="#registerModal<%= pkg.getId() %>">
+                                                        Đăng ký
+                                                    </button>
+                                                <% } %>
                                             </div>
                                         </div>
                                     </div>
@@ -177,7 +224,13 @@
                                     <div class="modal-dialog modal-dialog-centered" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="registerModalLabel<%= pkg.getId() %>">Đăng ký gói tập: <%= pkg.getName() %></h5>
+                                                <h5 class="modal-title" id="registerModalLabel<%= pkg.getId() %>">
+                                                    <% if (isUpgrade.test(pkg, activeOrPendingPackages)) { %>
+                                                        Nâng cấp lên gói tập: <%= pkg.getName() %>
+                                                    <% } else { %>
+                                                        Đăng ký gói tập: <%= pkg.getName() %>
+                                                    <% } %>
+                                                </h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <form action="member-packages-controller" method="post">
@@ -191,7 +244,13 @@
                                                     </div>
                                                     
                                                     <div class="p-3">
-                                                        <p>Bạn đang đăng ký gói tập <strong><%= pkg.getName() %></strong>.</p>
+                                                        <% if (isUpgrade.test(pkg, activeOrPendingPackages)) { %>
+                                                            <div class="alert alert-info" role="alert">
+                                                                <i class="fas fa-info-circle me-2"></i> Bạn đang nâng cấp lên gói tập cao cấp hơn.
+                                                            </div>
+                                                        <% } %>
+                                                        
+                                                        <p>Bạn đang <%= isUpgrade.test(pkg, activeOrPendingPackages) ? "nâng cấp lên" : "đăng ký" %> gói tập <strong><%= pkg.getName() %></strong>.</p>
                                                         <p>Gói tập này có thời hạn <strong><%= pkg.getDuration() %> ngày</strong>
                                                         <% if (pkg.getSessions() != null) { %>
                                                             và <strong><%= pkg.getSessions() %> buổi tập</strong>
@@ -208,7 +267,9 @@
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                    <button type="submit" class="btn btn-primary">Xác nhận đăng ký</button>
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <%= isUpgrade.test(pkg, activeOrPendingPackages) ? "Xác nhận nâng cấp" : "Xác nhận đăng ký" %>
+                                                    </button>
                                                 </div>
                                             </form>
                                         </div>

@@ -195,7 +195,7 @@ public class PaymentController extends HttpServlet {
             // Xử lý khi thanh toán thành công
             HttpSession session = request.getSession();
             session.setAttribute("paymentStatus", "success");
-            response.sendRedirect(request.getContextPath() + "/member-packages-controller?message=payment_success");
+            response.sendRedirect(request.getContextPath() + "/profile?message=payment_success");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=payment_process_error");

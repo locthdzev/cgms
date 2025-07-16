@@ -1,5 +1,9 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="Models.User"%>
+<%@page import="Models.MemberPackage"%>
+<%@page import="java.util.List"%>
+<%@page import="java.time.format.DateTimeFormatter"%>
+<%@page import="java.math.BigDecimal"%>
 <%
     // Lấy thông tin người dùng đăng nhập từ session
     User loggedInUser = (User) session.getAttribute("loggedInUser");
@@ -9,6 +13,10 @@
     if (profileUser == null) {
         profileUser = loggedInUser;
     }
+    
+    // Lấy danh sách gói tập của thành viên
+    List<MemberPackage> memberPackages = (List<MemberPackage>) request.getAttribute("memberPackages");
+    boolean hasMemberPackages = memberPackages != null && !memberPackages.isEmpty();
     
     // Lấy thông báo từ request hoặc session
     String successMessage = (String) request.getAttribute("successMessage");
@@ -29,6 +37,9 @@
     
     boolean hasSuccessMessage = successMessage != null;
     boolean hasErrorMessage = errorMessage != null;
+    
+    // Định dạng ngày tháng
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -563,6 +574,79 @@
                 </div>
               </div>
             </div>
+            
+            <% if (!("Personal Trainer".equals(profileUser.getRole())) && hasMemberPackages) { %>
+            <!-- Thông tin gói tập -->
+            <div class="card mt-4">
+              <div class="card-header pb-0">
+                <h6>Gói tập hiện tại của bạn</h6>
+              </div>
+              <div class="card-body pt-0">
+                <% for (MemberPackage memberPackage : memberPackages) { 
+                    if ("ACTIVE".equals(memberPackage.getStatus())) { %>
+                <div class="package-item mb-3 p-3 border rounded">
+                  <h5 class="text-gradient text-primary mb-2"><%= memberPackage.getPackageField().getName() %></h5>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Trạng thái:</span>
+                    <span class="badge bg-gradient-success">Đang hoạt động</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Ngày bắt đầu:</span>
+                    <span class="text-sm font-weight-bold"><%= memberPackage.getStartDate().format(dateFormatter) %></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Ngày kết thúc:</span>
+                    <span class="text-sm font-weight-bold"><%= memberPackage.getEndDate().format(dateFormatter) %></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Số buổi tập còn lại:</span>
+                    <span class="text-sm font-weight-bold"><%= memberPackage.getRemainingSessions() %> buổi</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Giá gói tập:</span>
+                    <span class="text-sm font-weight-bold"><%= String.format("%,.0f", memberPackage.getTotalPrice()) %> VNĐ</span>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <a href="<%= request.getContextPath() %>/all-packages" class="btn btn-sm btn-outline-primary">Nâng cấp gói tập</a>
+                    <a href="<%= request.getContextPath() %>/member-packages-controller" class="btn btn-sm btn-outline-info">Xem chi tiết</a>
+                  </div>
+                </div>
+                <% } else if ("PENDING".equals(memberPackage.getStatus())) { %>
+                <div class="package-item mb-3 p-3 border rounded">
+                  <h5 class="text-gradient text-warning mb-2"><%= memberPackage.getPackageField().getName() %></h5>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Trạng thái:</span>
+                    <span class="badge bg-gradient-warning">Chờ thanh toán</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Ngày bắt đầu:</span>
+                    <span class="text-sm font-weight-bold"><%= memberPackage.getStartDate().format(dateFormatter) %></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Ngày kết thúc:</span>
+                    <span class="text-sm font-weight-bold"><%= memberPackage.getEndDate().format(dateFormatter) %></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Giá gói tập:</span>
+                    <span class="text-sm font-weight-bold"><%= String.format("%,.0f", memberPackage.getTotalPrice()) %> VNĐ</span>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <a href="<%= request.getContextPath() %>/payment/checkout?memberPackageId=<%= memberPackage.getId() %>" class="btn btn-sm btn-warning">Thanh toán</a>
+                    <a href="<%= request.getContextPath() %>/member-packages-controller" class="btn btn-sm btn-outline-info">Xem chi tiết</a>
+                  </div>
+                </div>
+                <% } %>
+                <% } %>
+                
+                <% if (memberPackages.stream().noneMatch(p -> "ACTIVE".equals(p.getStatus()) || "PENDING".equals(p.getStatus()))) { %>
+                <div class="text-center py-3">
+                  <p class="text-sm mb-3">Bạn chưa có gói tập nào đang hoạt động</p>
+                  <a href="<%= request.getContextPath() %>/all-packages" class="btn btn-sm btn-primary">Đăng ký gói tập ngay</a>
+                </div>
+                <% } %>
+              </div>
+            </div>
+            <% } %>
           </div>
         </div>
         <footer class="footer pt-3">
