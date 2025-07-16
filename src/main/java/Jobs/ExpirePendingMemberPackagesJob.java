@@ -38,7 +38,8 @@ public class ExpirePendingMemberPackagesJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LOGGER.info("Bắt đầu kiểm tra và cập nhật các gói tập PENDING đã hết hạn thanh toán");
+        String jobName = this.getClass().getSimpleName();
+        Instant startTime = JobLogger.logJobStart(jobName);
 
         try {
             // In ra thời gian hiện tại để debug
@@ -52,25 +53,32 @@ public class ExpirePendingMemberPackagesJob implements Job {
 
             if (expiredPendingPackages.isEmpty()) {
                 LOGGER.info("Không có gói tập PENDING nào hết hạn thanh toán");
+                JobLogger.logJobSuccess(jobName, startTime, "Không có gói tập PENDING nào hết hạn thanh toán");
                 return;
             }
 
             LOGGER.info("Tìm thấy " + expiredPendingPackages.size() + " gói tập PENDING đã hết hạn thanh toán");
 
             // Cập nhật trạng thái của các gói tập đã hết hạn thanh toán
+            int updatedCount = 0;
             for (MemberPackage memberPackage : expiredPendingPackages) {
                 boolean updated = memberPackageDAO.updateMemberPackageStatus(memberPackage.getId(), "PAYMENT_EXPIRED");
                 if (updated) {
                     LOGGER.info(
                             "Đã cập nhật trạng thái gói tập ID " + memberPackage.getId() + " thành PAYMENT_EXPIRED");
+                    updatedCount++;
                 } else {
                     LOGGER.warning("Không thể cập nhật trạng thái gói tập ID " + memberPackage.getId());
                 }
             }
 
+            String message = "Đã cập nhật " + updatedCount + "/" + expiredPendingPackages.size()
+                    + " gói tập PENDING thành PAYMENT_EXPIRED";
             LOGGER.info("Hoàn thành kiểm tra và cập nhật các gói tập PENDING đã hết hạn thanh toán");
+            JobLogger.logJobSuccess(jobName, startTime, message);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Lỗi khi xử lý các gói tập PENDING đã hết hạn thanh toán", e);
+            JobLogger.logJobFailure(jobName, startTime, e);
             throw new JobExecutionException(e);
         }
     }

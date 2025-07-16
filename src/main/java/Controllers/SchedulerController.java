@@ -1,8 +1,10 @@
 package Controllers;
 
+import DAOs.JobExecutionLogDAO;
 import Jobs.ExpireActiveMemberPackagesJob;
 import Jobs.ExpirePendingMemberPackagesJob;
 import Jobs.SchedulerManager;
+import Models.JobExecutionLog;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,6 +16,10 @@ import org.quartz.impl.matchers.GroupMatcher;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,12 +30,17 @@ import java.util.Map;
 public class SchedulerController extends HttpServlet {
 
     private Scheduler scheduler;
+    private JobExecutionLogDAO jobExecutionLogDAO;
 
     @Override
     public void init() throws ServletException {
         super.init();
         try {
-            scheduler = StdSchedulerFactory.getDefaultScheduler();
+            scheduler = SchedulerManager.getScheduler();
+            if (scheduler == null) {
+                scheduler = StdSchedulerFactory.getDefaultScheduler();
+            }
+            jobExecutionLogDAO = new JobExecutionLogDAO();
         } catch (SchedulerException e) {
             throw new ServletException("Không thể khởi tạo scheduler", e);
         }
@@ -118,8 +129,12 @@ public class SchedulerController extends HttpServlet {
                             // Thêm đường dẫn trigger tương ứng
                             if (jobName.equals("expirePendingMemberPackagesJob")) {
                                 jobInfo.put("triggerPath", "pending");
+                                jobInfo.put("displayName", "Cập nhật gói tập PENDING hết hạn thanh toán");
                             } else if (jobName.equals("expireActiveMemberPackagesJob")) {
                                 jobInfo.put("triggerPath", "active");
+                                jobInfo.put("displayName", "Cập nhật gói tập ACTIVE hết hạn sử dụng");
+                            } else {
+                                jobInfo.put("displayName", jobName);
                             }
 
                             jobs.add(jobInfo);
@@ -138,6 +153,38 @@ public class SchedulerController extends HttpServlet {
             }
 
             request.setAttribute("jobs", jobs);
+
+            // Lấy danh sách log thực thi job
+            List<JobExecutionLog> executionLogs = jobExecutionLogDAO.getRecentLogs(20);
+            List<Map<String, Object>> formattedLogs = new ArrayList<>();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            for (JobExecutionLog log : executionLogs) {
+                Map<String, Object> formattedLog = new HashMap<>();
+
+                // Định dạng thời gian
+                LocalDateTime executionDateTime = LocalDateTime.ofInstant(log.getExecutionTime(),
+                        ZoneId.systemDefault());
+                formattedLog.put("timestamp", executionDateTime.format(formatter));
+
+                // Định dạng tên job
+                String jobName = log.getJobName();
+                if (jobName.equals("ExpirePendingMemberPackagesJob")) {
+                    formattedLog.put("jobName", "Cập nhật gói tập PENDING hết hạn thanh toán");
+                } else if (jobName.equals("ExpireActiveMemberPackagesJob")) {
+                    formattedLog.put("jobName", "Cập nhật gói tập ACTIVE hết hạn sử dụng");
+                } else {
+                    formattedLog.put("jobName", jobName);
+                }
+
+                formattedLog.put("success", log.isSuccess());
+                formattedLog.put("message", log.getMessage());
+                formattedLog.put("executionTime", log.getExecutionDuration());
+
+                formattedLogs.add(formattedLog);
+            }
+
+            request.setAttribute("executionLogs", formattedLogs);
 
             // Chuyển đến trang JSP
             request.getRequestDispatcher("/WEB-INF/views/admin/scheduler/dashboard.jsp").forward(request, response);

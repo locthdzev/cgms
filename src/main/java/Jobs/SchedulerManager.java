@@ -18,6 +18,9 @@ public class SchedulerManager {
      */
     public static void start() {
         try {
+            // Đảm bảo bảng log tồn tại
+            JobLogger.ensureLogTableExists();
+
             // Tạo scheduler
             scheduler = StdSchedulerFactory.getDefaultScheduler();
 
@@ -99,5 +102,14 @@ public class SchedulerManager {
         // Đăng ký job và trigger với scheduler
         scheduler.scheduleJob(jobDetail, trigger);
         LOGGER.info("Đã đăng ký job kiểm tra và cập nhật các gói tập ACTIVE đã hết hạn");
+    }
+
+    /**
+     * Lấy đối tượng Scheduler
+     * 
+     * @return Đối tượng Scheduler
+     */
+    public static Scheduler getScheduler() {
+        return scheduler;
     }
 }

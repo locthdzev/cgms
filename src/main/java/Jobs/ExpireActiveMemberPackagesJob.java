@@ -36,7 +36,8 @@ public class ExpireActiveMemberPackagesJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LOGGER.info("Bắt đầu kiểm tra và cập nhật các gói tập ACTIVE đã hết hạn");
+        String jobName = this.getClass().getSimpleName();
+        Instant startTime = JobLogger.logJobStart(jobName);
 
         try {
             // In ra thời gian hiện tại để debug
@@ -49,24 +50,31 @@ public class ExpireActiveMemberPackagesJob implements Job {
 
             if (expiredActivePackages.isEmpty()) {
                 LOGGER.info("Không có gói tập ACTIVE nào hết hạn");
+                JobLogger.logJobSuccess(jobName, startTime, "Không có gói tập ACTIVE nào hết hạn");
                 return;
             }
 
             LOGGER.info("Tìm thấy " + expiredActivePackages.size() + " gói tập ACTIVE đã hết hạn");
 
             // Cập nhật trạng thái của các gói tập đã hết hạn
+            int updatedCount = 0;
             for (MemberPackage memberPackage : expiredActivePackages) {
                 boolean updated = memberPackageDAO.updateMemberPackageStatus(memberPackage.getId(), "EXPIRED");
                 if (updated) {
                     LOGGER.info("Đã cập nhật trạng thái gói tập ID " + memberPackage.getId() + " thành EXPIRED");
+                    updatedCount++;
                 } else {
                     LOGGER.warning("Không thể cập nhật trạng thái gói tập ID " + memberPackage.getId());
                 }
             }
 
+            String message = "Đã cập nhật " + updatedCount + "/" + expiredActivePackages.size()
+                    + " gói tập ACTIVE thành EXPIRED";
             LOGGER.info("Hoàn thành kiểm tra và cập nhật các gói tập ACTIVE đã hết hạn");
+            JobLogger.logJobSuccess(jobName, startTime, message);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Lỗi khi xử lý các gói tập ACTIVE đã hết hạn", e);
+            JobLogger.logJobFailure(jobName, startTime, e);
             throw new JobExecutionException(e);
         }
     }
