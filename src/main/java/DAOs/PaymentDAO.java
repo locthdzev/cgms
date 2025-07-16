@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class PaymentDAO {
 
@@ -24,8 +25,11 @@ public class PaymentDAO {
             return existingPayments.get(0);
         }
 
-        String sql = "INSERT INTO Payments (MemberPackageId, Amount, PaymentMethod, PaymentDate, Status, CreatedAt) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+        // Tạo một temp transaction ID để tránh lỗi UNIQUE KEY
+        String tempTransactionId = "TEMP-" + UUID.randomUUID().toString();
+
+        String sql = "INSERT INTO Payments (MemberPackageId, Amount, PaymentMethod, PaymentDate, TransactionId, Status, CreatedAt) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -39,8 +43,9 @@ public class PaymentDAO {
             stmt.setBigDecimal(2, amount);
             stmt.setString(3, paymentMethod);
             stmt.setTimestamp(4, Timestamp.from(Instant.now()));
-            stmt.setString(5, "PENDING");
-            stmt.setTimestamp(6, Timestamp.from(Instant.now()));
+            stmt.setString(5, tempTransactionId); // Sử dụng temp transaction ID
+            stmt.setString(6, "PENDING");
+            stmt.setTimestamp(7, Timestamp.from(Instant.now()));
 
             int affectedRows = stmt.executeUpdate();
 
@@ -57,6 +62,7 @@ public class PaymentDAO {
                 payment.setAmount(amount);
                 payment.setPaymentMethod(paymentMethod);
                 payment.setPaymentDate(Instant.now());
+                payment.setTransactionId(tempTransactionId); // Đặt temp transaction ID
                 payment.setStatus("PENDING");
                 payment.setCreatedAt(Instant.now());
                 return payment;
@@ -83,32 +89,45 @@ public class PaymentDAO {
     public boolean updatePaymentStatus(int paymentId, String status, String transactionId) {
         String sql = "UPDATE Payments SET Status = ?, TransactionId = ?, UpdatedAt = ? WHERE PaymentId = ?";
 
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
-        try {
-            conn = DbConnection.getConnection();
-            stmt = conn.prepareStatement(sql);
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, status);
             stmt.setString(2, transactionId);
             stmt.setTimestamp(3, Timestamp.from(Instant.now()));
             stmt.setInt(4, paymentId);
 
-            int affectedRows = stmt.executeUpdate();
-            return affectedRows > 0;
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
-        } finally {
-            try {
-                if (stmt != null)
-                    stmt.close();
-                if (conn != null)
-                    DbConnection.closeConnection(conn);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        }
+    }
+
+    /**
+     * Cập nhật thông tin payment
+     */
+    public boolean updatePayment(Payment payment) {
+        String sql = "UPDATE Payments SET Amount = ?, Status = ?, UpdatedAt = ? WHERE PaymentId = ?";
+
+        System.out.println("Updating payment ID: " + payment.getId() + " with amount: " + payment.getAmount());
+
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setBigDecimal(1, payment.getAmount());
+            stmt.setString(2, payment.getStatus());
+            stmt.setTimestamp(3, Timestamp.from(payment.getUpdatedAt()));
+            stmt.setInt(4, payment.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            System.out.println("Payment update result: " + (rowsAffected > 0 ? "Success" : "Failed"));
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            System.out.println("Error updating payment: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 
