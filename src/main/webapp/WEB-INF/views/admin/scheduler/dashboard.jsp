@@ -24,10 +24,22 @@
             display: flex;
             gap: 10px;
         }
+        .back-button {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body class="bg-light">
     <div class="container py-5">
+        <!-- Back Button -->
+        <div class="row">
+            <div class="col">
+                <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-outline-primary back-button">
+                    <i class="bi bi-arrow-left me-2"></i>Quay về Dashboard
+                </a>
+            </div>
+        </div>
+
         <div class="row mb-4">
             <div class="col">
                 <h1 class="display-5 fw-bold text-primary">

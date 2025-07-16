@@ -73,18 +73,43 @@ public class SchedulerController extends HttpServlet {
         }
 
         try {
+            JobKey jobKey = null;
+            String jobName = null;
+
             if (pathInfo.equals("/trigger/pending")) {
                 // Trigger job ExpirePendingMemberPackagesJob
-                JobKey jobKey = new JobKey("expirePendingMemberPackagesJob", "memberPackages");
-                scheduler.triggerJob(jobKey);
-                response.sendRedirect(request.getContextPath() + "/admin/scheduler/");
+                jobKey = new JobKey("expirePendingMemberPackagesJob", "memberPackages");
+                jobName = "ExpirePendingMemberPackagesJob";
             } else if (pathInfo.equals("/trigger/active")) {
                 // Trigger job ExpireActiveMemberPackagesJob
-                JobKey jobKey = new JobKey("expireActiveMemberPackagesJob", "memberPackages");
-                scheduler.triggerJob(jobKey);
-                response.sendRedirect(request.getContextPath() + "/admin/scheduler/");
+                jobKey = new JobKey("expireActiveMemberPackagesJob", "memberPackages");
+                jobName = "ExpireActiveMemberPackagesJob";
+            } else if (pathInfo.equals("/trigger/remaining")) {
+                // Trigger job UpdateRemainingSessionsJob
+                jobKey = new JobKey("updateRemainingSessionsJob", "memberPackages");
+                jobName = "UpdateRemainingSessionsJob";
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            if (jobKey != null) {
+                // Kích hoạt job
+                scheduler.triggerJob(jobKey);
+
+                // Thêm log thủ công để đảm bảo UI hiển thị ngay lập tức
+                JobExecutionLog manualLog = new JobExecutionLog();
+                manualLog.setJobName(jobName);
+                manualLog.setExecutionTime(Instant.now());
+                manualLog.setSuccess(true);
+                manualLog.setMessage("Kích hoạt thủ công bởi người dùng");
+                manualLog.setExecutionDuration(0L); // Sửa thành Long
+                manualLog.setCreatedAt(Instant.now());
+
+                // Lưu log vào database
+                jobExecutionLogDAO.createLog(manualLog);
+
+                response.sendRedirect(request.getContextPath() + "/admin/scheduler/");
             }
         } catch (SchedulerException e) {
             throw new ServletException("Lỗi khi thực hiện thao tác với scheduler", e);
@@ -100,57 +125,79 @@ public class SchedulerController extends HttpServlet {
 
             request.setAttribute("schedulerRunning", schedulerRunning);
             request.setAttribute("runningSince", formatDate(metaData.getRunningSince()));
-            request.setAttribute("jobsExecuted", metaData.getNumberOfJobsExecuted());
+
+            // Lấy số lượng jobs đã thực thi từ database thay vì từ scheduler
+            int jobsExecutedCount = jobExecutionLogDAO.getExecutionCount();
+            request.setAttribute("jobsExecuted", jobsExecutedCount);
 
             // Lấy danh sách jobs
             List<Map<String, Object>> jobs = new ArrayList<>();
+            Map<String, Map<String, Object>> uniqueJobs = new HashMap<>();
 
             for (String groupName : scheduler.getJobGroupNames()) {
                 for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
                     String jobName = jobKey.getName();
                     String jobGroup = jobKey.getGroup();
 
+                    // Tạo thông tin job cơ bản
+                    Map<String, Object> jobInfo = new HashMap<>();
+                    jobInfo.put("name", jobName);
+                    jobInfo.put("group", jobGroup);
+                    jobInfo.put("nextFireTime", null);
+                    jobInfo.put("previousFireTime", null);
+                    jobInfo.put("state", "NONE");
+
+                    // Thêm đường dẫn trigger tương ứng
+                    if (jobName.equals("expirePendingMemberPackagesJob")) {
+                        jobInfo.put("triggerPath", "pending");
+                        jobInfo.put("displayName", "Cập nhật gói tập PENDING hết hạn thanh toán");
+                    } else if (jobName.equals("expireActiveMemberPackagesJob")) {
+                        jobInfo.put("triggerPath", "active");
+                        jobInfo.put("displayName", "Cập nhật gói tập ACTIVE hết hạn sử dụng");
+                    } else if (jobName.equals("updateRemainingSessionsJob")) {
+                        jobInfo.put("triggerPath", "remaining");
+                        jobInfo.put("displayName", "Cập nhật số buổi tập còn lại");
+                    } else {
+                        jobInfo.put("displayName", jobName);
+                    }
+
                     // Lấy triggers cho job
                     List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
 
                     if (triggers != null && !triggers.isEmpty()) {
-                        for (Trigger trigger : triggers) {
-                            Trigger.TriggerState triggerState = scheduler.getTriggerState(trigger.getKey());
-                            Date nextFireTime = trigger.getNextFireTime();
-                            Date previousFireTime = trigger.getPreviousFireTime();
+                        // Lấy thông tin từ trigger đầu tiên (chính)
+                        Trigger primaryTrigger = triggers.get(0);
+                        Trigger.TriggerState triggerState = scheduler.getTriggerState(primaryTrigger.getKey());
 
-                            Map<String, Object> jobInfo = new HashMap<>();
-                            jobInfo.put("name", jobName);
-                            jobInfo.put("group", jobGroup);
-                            jobInfo.put("nextFireTime", formatDate(nextFireTime));
-                            jobInfo.put("previousFireTime", formatDate(previousFireTime));
-                            jobInfo.put("state", triggerState.toString());
+                        jobInfo.put("nextFireTime", formatDate(primaryTrigger.getNextFireTime()));
+                        jobInfo.put("previousFireTime", formatDate(primaryTrigger.getPreviousFireTime()));
+                        jobInfo.put("state", triggerState.toString());
 
-                            // Thêm đường dẫn trigger tương ứng
-                            if (jobName.equals("expirePendingMemberPackagesJob")) {
-                                jobInfo.put("triggerPath", "pending");
-                                jobInfo.put("displayName", "Cập nhật gói tập PENDING hết hạn thanh toán");
-                            } else if (jobName.equals("expireActiveMemberPackagesJob")) {
-                                jobInfo.put("triggerPath", "active");
-                                jobInfo.put("displayName", "Cập nhật gói tập ACTIVE hết hạn sử dụng");
-                            } else {
-                                jobInfo.put("displayName", jobName);
+                        // Kiểm tra các trigger khác để lấy thông tin lần chạy gần nhất
+                        if (triggers.size() > 1) {
+                            Date latestPreviousFireTime = primaryTrigger.getPreviousFireTime();
+
+                            for (int i = 1; i < triggers.size(); i++) {
+                                Trigger trigger = triggers.get(i);
+                                Date prevFireTime = trigger.getPreviousFireTime();
+
+                                if (prevFireTime != null && (latestPreviousFireTime == null ||
+                                        prevFireTime.after(latestPreviousFireTime))) {
+                                    latestPreviousFireTime = prevFireTime;
+                                }
                             }
 
-                            jobs.add(jobInfo);
+                            jobInfo.put("previousFireTime", formatDate(latestPreviousFireTime));
                         }
-                    } else {
-                        Map<String, Object> jobInfo = new HashMap<>();
-                        jobInfo.put("name", jobName);
-                        jobInfo.put("group", jobGroup);
-                        jobInfo.put("nextFireTime", null);
-                        jobInfo.put("previousFireTime", null);
-                        jobInfo.put("state", "NONE");
-
-                        jobs.add(jobInfo);
                     }
+
+                    // Lưu job vào danh sách
+                    uniqueJobs.put(jobName, jobInfo);
                 }
             }
+
+            // Chuyển từ Map sang List để hiển thị
+            jobs.addAll(uniqueJobs.values());
 
             request.setAttribute("jobs", jobs);
 
@@ -173,6 +220,8 @@ public class SchedulerController extends HttpServlet {
                     formattedLog.put("jobName", "Cập nhật gói tập PENDING hết hạn thanh toán");
                 } else if (jobName.equals("ExpireActiveMemberPackagesJob")) {
                     formattedLog.put("jobName", "Cập nhật gói tập ACTIVE hết hạn sử dụng");
+                } else if (jobName.equals("UpdateRemainingSessionsJob")) {
+                    formattedLog.put("jobName", "Cập nhật số buổi tập còn lại");
                 } else {
                     formattedLog.put("jobName", jobName);
                 }

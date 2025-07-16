@@ -58,6 +58,9 @@ public class SchedulerManager {
 
         // Đăng ký job kiểm tra và cập nhật các gói tập ACTIVE đã hết hạn
         registerExpireActiveMemberPackagesJob();
+
+        // Đăng ký job cập nhật RemainingSessions của các gói tập ACTIVE
+        registerUpdateRemainingSessionsJob();
     }
 
     /**
@@ -102,6 +105,27 @@ public class SchedulerManager {
         // Đăng ký job và trigger với scheduler
         scheduler.scheduleJob(jobDetail, trigger);
         LOGGER.info("Đã đăng ký job kiểm tra và cập nhật các gói tập ACTIVE đã hết hạn");
+    }
+
+    /**
+     * Đăng ký job cập nhật RemainingSessions của các gói tập ACTIVE
+     */
+    private static void registerUpdateRemainingSessionsJob() throws SchedulerException {
+        // Tạo JobDetail
+        JobDetail jobDetail = JobBuilder.newJob(UpdateRemainingSessionsJob.class)
+                .withIdentity("updateRemainingSessionsJob", "memberPackages")
+                .build();
+
+        // Lập lịch chạy job mỗi ngày vào lúc 00:05
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity("updateRemainingSessionsTrigger", "memberPackages")
+                .startNow()
+                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(0, 5))
+                .build();
+
+        // Đăng ký job và trigger với scheduler
+        scheduler.scheduleJob(jobDetail, trigger);
+        LOGGER.info("Đã đăng ký job cập nhật RemainingSessions của các gói tập ACTIVE");
     }
 
     /**

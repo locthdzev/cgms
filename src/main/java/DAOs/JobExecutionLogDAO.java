@@ -181,4 +181,43 @@ public class JobExecutionLogDAO {
 
         return logs;
     }
+
+    /**
+     * Lấy tổng số lượng job đã thực thi từ database
+     * 
+     * @return Tổng số lượng job đã thực thi
+     */
+    public int getExecutionCount() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        int count = 0;
+
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "SELECT COUNT(*) AS total FROM Job_Execution_Logs";
+
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                count = rs.getInt("total");
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Lỗi khi đếm số lượng job đã thực thi", e);
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    DbConnection.closeConnection(conn);
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Lỗi khi đóng kết nối database", e);
+            }
+        }
+
+        return count;
+    }
 }
