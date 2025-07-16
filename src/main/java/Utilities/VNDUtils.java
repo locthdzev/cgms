@@ -3,9 +3,7 @@ package Utilities;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Locale;
 
 /**
  * Utility class để xử lý định dạng tiền tệ VND
@@ -14,26 +12,27 @@ import java.util.Locale;
  * @author Admin
  */
 public class VNDUtils {
-    
-    // Định dạng VND chuẩn: 1.000.000 (dấu chấm phân cách hàng nghìn, không có số thập phân)
+
+    // Định dạng VND chuẩn: 1.000.000 (dấu chấm phân cách hàng nghìn, không có số
+    // thập phân)
     private static final DecimalFormat VND_FORMAT;
-    
+
     // Giá trị tối thiểu và tối đa cho gói tập gym (VND)
-    public static final BigDecimal MIN_PRICE = new BigDecimal("10000");      // 10.000 VND
-    public static final BigDecimal MAX_PRICE = new BigDecimal("50000000");   // 50.000.000 VND
-    
+    public static final BigDecimal MIN_PRICE = new BigDecimal("10000"); // 10.000 VND
+    public static final BigDecimal MAX_PRICE = new BigDecimal("50000000"); // 50.000.000 VND
+
     static {
         // Tạo DecimalFormatSymbols với dấu chấm làm phân cách hàng nghìn
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator('.');
         symbols.setDecimalSeparator(','); // Không sử dụng nhưng set để tránh lỗi
-        
+
         // Tạo format với pattern không có số thập phân
         VND_FORMAT = new DecimalFormat("#,##0", symbols);
         VND_FORMAT.setGroupingUsed(true);
         VND_FORMAT.setGroupingSize(3);
     }
-    
+
     /**
      * Định dạng số tiền thành chuỗi VND chuẩn
      * Ví dụ: 1000000 -> "1.000.000"
@@ -47,7 +46,7 @@ public class VNDUtils {
         }
         return VND_FORMAT.format(amount);
     }
-    
+
     /**
      * Định dạng số tiền thành chuỗi VND chuẩn với đơn vị
      * Ví dụ: 1000000 -> "1.000.000 VNĐ"
@@ -58,7 +57,7 @@ public class VNDUtils {
     public static String formatVNDWithUnit(BigDecimal amount) {
         return formatVND(amount) + " VNĐ";
     }
-    
+
     /**
      * Parse chuỗi VND thành BigDecimal
      * Hỗ trợ các định dạng: "1.000.000", "1000000", "1.000.000 VNĐ"
@@ -71,29 +70,29 @@ public class VNDUtils {
         if (vndString == null || vndString.trim().isEmpty()) {
             throw new ParseException("Chuỗi VND không được để trống", 0);
         }
-        
+
         // Loại bỏ khoảng trắng và đơn vị VNĐ
         String cleanString = vndString.trim()
                 .replace("VNĐ", "")
                 .replace("VND", "")
                 .replace("đ", "")
                 .trim();
-        
+
         // Nếu chuỗi chỉ chứa số (không có dấu chấm phân cách)
         if (cleanString.matches("\\d+")) {
             return new BigDecimal(cleanString);
         }
-        
+
         // Nếu chuỗi có dấu chấm phân cách
         if (cleanString.matches("[\\d\\.]+")) {
             // Loại bỏ tất cả dấu chấm phân cách
             String numberString = cleanString.replace(".", "");
             return new BigDecimal(numberString);
         }
-        
+
         throw new ParseException("Định dạng VND không hợp lệ: " + vndString, 0);
     }
-    
+
     /**
      * Kiểm tra tính hợp lệ của giá tiền
      * 
@@ -104,10 +103,10 @@ public class VNDUtils {
         if (amount == null) {
             return false;
         }
-        
+
         return amount.compareTo(MIN_PRICE) >= 0 && amount.compareTo(MAX_PRICE) <= 0;
     }
-    
+
     /**
      * Kiểm tra tính hợp lệ của chuỗi VND
      * 
@@ -122,7 +121,7 @@ public class VNDUtils {
             return false;
         }
     }
-    
+
     /**
      * Lấy thông báo lỗi cho giá tiền không hợp lệ
      * 
@@ -133,22 +132,22 @@ public class VNDUtils {
         if (amount == null) {
             return "Giá tiền không được để trống";
         }
-        
+
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             return "Giá tiền phải lớn hơn 0";
         }
-        
+
         if (amount.compareTo(MIN_PRICE) < 0) {
             return "Giá tiền tối thiểu là " + formatVNDWithUnit(MIN_PRICE);
         }
-        
+
         if (amount.compareTo(MAX_PRICE) > 0) {
             return "Giá tiền tối đa là " + formatVNDWithUnit(MAX_PRICE);
         }
-        
+
         return null; // Hợp lệ
     }
-    
+
     /**
      * Lấy thông báo lỗi cho chuỗi VND không hợp lệ
      * 
@@ -159,7 +158,7 @@ public class VNDUtils {
         if (vndString == null || vndString.trim().isEmpty()) {
             return "Giá tiền không được để trống";
         }
-        
+
         try {
             BigDecimal amount = parseVND(vndString);
             return getValidationMessage(amount);
@@ -167,7 +166,7 @@ public class VNDUtils {
             return "Định dạng giá tiền không hợp lệ. Vui lòng nhập số tiền hợp lệ (ví dụ: 1.000.000)";
         }
     }
-    
+
     /**
      * Chuyển đổi số nguyên thành BigDecimal
      * 
@@ -177,7 +176,7 @@ public class VNDUtils {
     public static BigDecimal toBigDecimal(long amount) {
         return new BigDecimal(amount);
     }
-    
+
     /**
      * Chuyển đổi chuỗi số thành BigDecimal với validation
      * 
@@ -189,7 +188,7 @@ public class VNDUtils {
         if (amountString == null || amountString.trim().isEmpty()) {
             throw new NumberFormatException("Chuỗi số không được để trống");
         }
-        
+
         try {
             return new BigDecimal(amountString.trim());
         } catch (NumberFormatException e) {

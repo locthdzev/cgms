@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class PaymentDAO {
 
@@ -24,8 +25,11 @@ public class PaymentDAO {
             return existingPayments.get(0);
         }
 
-        String sql = "INSERT INTO Payments (MemberPackageId, Amount, PaymentMethod, PaymentDate, Status, CreatedAt) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+        // Tạo một temp transaction ID để tránh lỗi UNIQUE KEY
+        String tempTransactionId = "TEMP-" + UUID.randomUUID().toString();
+
+        String sql = "INSERT INTO Payments (MemberPackageId, Amount, PaymentMethod, PaymentDate, TransactionId, Status, CreatedAt) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -39,8 +43,9 @@ public class PaymentDAO {
             stmt.setBigDecimal(2, amount);
             stmt.setString(3, paymentMethod);
             stmt.setTimestamp(4, Timestamp.from(Instant.now()));
-            stmt.setString(5, "PENDING");
-            stmt.setTimestamp(6, Timestamp.from(Instant.now()));
+            stmt.setString(5, tempTransactionId); // Sử dụng temp transaction ID
+            stmt.setString(6, "PENDING");
+            stmt.setTimestamp(7, Timestamp.from(Instant.now()));
 
             int affectedRows = stmt.executeUpdate();
 
@@ -57,6 +62,7 @@ public class PaymentDAO {
                 payment.setAmount(amount);
                 payment.setPaymentMethod(paymentMethod);
                 payment.setPaymentDate(Instant.now());
+                payment.setTransactionId(tempTransactionId); // Đặt temp transaction ID
                 payment.setStatus("PENDING");
                 payment.setCreatedAt(Instant.now());
                 return payment;

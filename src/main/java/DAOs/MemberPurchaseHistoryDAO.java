@@ -6,7 +6,6 @@ import Models.MemberPurchaseHistory;
 import Models.Payment;
 import Models.User;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,8 +16,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MemberPurchaseHistoryDAO {
+    private static final Logger LOGGER = Logger.getLogger(MemberPurchaseHistoryDAO.class.getName());
 
     public boolean createPurchaseHistory(MemberPackage memberPackage, Payment payment) {
         String sql = "INSERT INTO Member_Purchase_History (MemberId, MemberPackageId, PurchaseType, PurchaseAmount, PurchaseDate, Status, CreatedAt) "
@@ -43,7 +45,7 @@ public class MemberPurchaseHistoryDAO {
             int affectedRows = stmt.executeUpdate();
             return affectedRows > 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Lỗi khi tạo lịch sử mua hàng cho MemberPackage ID: " + memberPackage.getId(), e);
             return false;
         } finally {
             try {
@@ -54,7 +56,7 @@ public class MemberPurchaseHistoryDAO {
                 if (conn != null)
                     DbConnection.closeConnection(conn);
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Lỗi khi đóng kết nối", e);
             }
         }
     }
@@ -104,7 +106,7 @@ public class MemberPurchaseHistoryDAO {
 
             return purchaseHistoryList;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Lỗi khi lấy lịch sử mua hàng cho member ID: " + memberId, e);
             return null;
         } finally {
             try {
@@ -115,7 +117,7 @@ public class MemberPurchaseHistoryDAO {
                 if (conn != null)
                     DbConnection.closeConnection(conn);
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Lỗi khi đóng kết nối", e);
             }
         }
     }

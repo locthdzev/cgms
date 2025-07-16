@@ -17,13 +17,16 @@ import java.sql.Timestamp;
 import vn.payos.PayOS;
 import vn.payos.type.*;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PayOSService {
+    private static final Logger LOGGER = Logger.getLogger(PayOSService.class.getName());
+
     private final String clientId;
     private final String apiKey;
     private final String checksumKey;
@@ -137,9 +140,27 @@ public class PayOSService {
             // Chuyển đổi orderCode từ String sang Long
             String numericPart = orderCode.replace("CGMS-", "");
             long orderCodeLong = Long.parseLong(numericPart);
-            return payOS.getPaymentLinkInformation(orderCodeLong);
+
+            // Gọi API PayOS
+            PaymentLinkData paymentLinkData = payOS.getPaymentLinkInformation(orderCodeLong);
+
+            if (paymentLinkData != null) {
+                LOGGER.info("PayOS payment status: " + paymentLinkData.getStatus() +
+                        ", orderCode: " + orderCode);
+
+                // Log thông tin về transactions nếu có
+                if (paymentLinkData.getTransactions() != null &&
+                        !paymentLinkData.getTransactions().isEmpty() &&
+                        "PAID".equals(paymentLinkData.getStatus())) {
+
+                    Transaction transaction = paymentLinkData.getTransactions().get(0);
+                    LOGGER.info("Transaction reference: " + transaction.getReference());
+                }
+            }
+
+            return paymentLinkData;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Lỗi khi lấy thông tin payment link: " + orderCode, e);
             return null;
         }
     }
