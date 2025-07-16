@@ -54,7 +54,7 @@ public class ProfileController extends HttpServlet {
         if (message != null && message.equals("payment_success")) {
             LOGGER.info("Xử lý thanh toán thành công cho user ID: " + loggedInUser.getId());
             // Xử lý cập nhật trạng thái thanh toán
-            handlePaymentSuccess(loggedInUser.getId());
+            handlePaymentSuccess(loggedInUser.getId(), request);
         }
 
         // Lấy thông tin đầy đủ của user từ database
@@ -74,10 +74,20 @@ public class ProfileController extends HttpServlet {
         request.getRequestDispatcher("/profile.jsp").forward(request, response);
     }
 
-    private void handlePaymentSuccess(int memberId) {
+    private void handlePaymentSuccess(int memberId, HttpServletRequest request) {
         try {
             // Lấy danh sách gói tập của thành viên có trạng thái PENDING
             List<MemberPackage> pendingPackages = memberPackageDAO.getPendingMemberPackagesByMemberId(memberId);
+
+            // Lấy thông tin nâng cấp từ session
+            HttpSession session = request.getSession();
+            boolean isUpgrade = session.getAttribute("isUpgradePackage") != null
+                    && (boolean) session.getAttribute("isUpgradePackage");
+            Integer newMemberPackageId = (Integer) session.getAttribute("newMemberPackageId");
+
+            // Xóa thông tin nâng cấp khỏi session sau khi đã sử dụng
+            session.removeAttribute("isUpgradePackage");
+            session.removeAttribute("newMemberPackageId");
 
             if (pendingPackages == null || pendingPackages.isEmpty()) {
                 LOGGER.info("Không tìm thấy gói tập nào ở trạng thái PENDING cho member ID: " + memberId);
@@ -101,6 +111,13 @@ public class ProfileController extends HttpServlet {
                     boolean updated = memberPackageDAO.updateMemberPackageStatus(memberPackage.getId(), "ACTIVE");
 
                     if (updated) {
+                        // Luôn vô hiệu hóa các gói tập ACTIVE khác (trừ gói hiện tại)
+                        boolean deactivated = memberPackageDAO.deactivateActiveMemberPackages(memberId,
+                                memberPackage.getId());
+                        if (deactivated) {
+                            LOGGER.info("Đã vô hiệu hóa các gói tập khác của thành viên: " + memberId);
+                        }
+
                         // Lưu lịch sử mua hàng
                         memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
                         LOGGER.info("Cập nhật gói tập và lưu lịch sử thành công");
@@ -141,6 +158,16 @@ public class ProfileController extends HttpServlet {
                                                 .updateMemberPackageStatus(memberPackage.getId(), "ACTIVE");
 
                                         if (packageUpdated) {
+                                            // Luôn vô hiệu hóa các gói tập ACTIVE khác (trừ gói hiện tại)
+                                            boolean deactivated = memberPackageDAO
+                                                    .deactivateActiveMemberPackages(memberId,
+                                                            memberPackage.getId());
+                                            if (deactivated) {
+                                                LOGGER.info(
+                                                        "Đã vô hiệu hóa các gói tập khác của thành viên: "
+                                                                + memberId);
+                                            }
+
                                             // Lưu lịch sử mua hàng
                                             memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
                                             LOGGER.info("Cập nhật trạng thái và lưu lịch sử thành công");
@@ -164,6 +191,16 @@ public class ProfileController extends HttpServlet {
                                                 .updateMemberPackageStatus(memberPackage.getId(), "ACTIVE");
 
                                         if (packageUpdated) {
+                                            // Luôn vô hiệu hóa các gói tập ACTIVE khác (trừ gói hiện tại)
+                                            boolean deactivated = memberPackageDAO
+                                                    .deactivateActiveMemberPackages(memberId,
+                                                            memberPackage.getId());
+                                            if (deactivated) {
+                                                LOGGER.info(
+                                                        "Đã vô hiệu hóa các gói tập khác của thành viên: "
+                                                                + memberId);
+                                            }
+
                                             // Lưu lịch sử mua hàng
                                             memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
                                             LOGGER.info("Cập nhật trạng thái và lưu lịch sử thành công (manual)");
@@ -189,6 +226,13 @@ public class ProfileController extends HttpServlet {
                                     "ACTIVE");
 
                             if (packageUpdated) {
+                                // Luôn vô hiệu hóa các gói tập ACTIVE khác (trừ gói hiện tại)
+                                boolean deactivated = memberPackageDAO.deactivateActiveMemberPackages(memberId,
+                                        memberPackage.getId());
+                                if (deactivated) {
+                                    LOGGER.info("Đã vô hiệu hóa các gói tập cũ của thành viên: " + memberId);
+                                }
+
                                 // Lưu lịch sử mua hàng
                                 memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
                                 LOGGER.info("Cập nhật trạng thái và lưu lịch sử thành công (direct)");

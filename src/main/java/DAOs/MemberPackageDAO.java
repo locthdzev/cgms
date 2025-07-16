@@ -216,6 +216,51 @@ public class MemberPackageDAO {
         }
     }
 
+    /**
+     * Vô hiệu hóa tất cả các gói tập đang hoạt động của thành viên
+     * 
+     * @param memberId         ID của thành viên
+     * @param excludePackageId ID của gói tập không cần vô hiệu hóa (nếu có)
+     * @return true nếu thành công, false nếu thất bại
+     */
+    public boolean deactivateActiveMemberPackages(int memberId, Integer excludePackageId) {
+        String sql = "UPDATE Member_Packages SET Status = 'INACTIVE', UpdatedAt = ? WHERE MemberId = ? AND Status = 'ACTIVE'";
+
+        if (excludePackageId != null) {
+            sql += " AND MemberPackageId != ?";
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+
+        try {
+            conn = DbConnection.getConnection();
+            stmt = conn.prepareStatement(sql);
+
+            stmt.setTimestamp(1, Timestamp.from(Instant.now()));
+            stmt.setInt(2, memberId);
+
+            if (excludePackageId != null) {
+                stmt.setInt(3, excludePackageId);
+            }
+
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows >= 0; // Có thể không có gói tập nào cần vô hiệu hóa
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    DbConnection.closeConnection(conn);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public int createMemberPackage(MemberPackage memberPackage) {
         String sql = "INSERT INTO Member_Packages (MemberId, PackageId, VoucherId, TotalPrice, StartDate, EndDate, "
                 + "RemainingSessions, CreatedAt, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";

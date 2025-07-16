@@ -237,6 +237,9 @@
                                                 <div class="modal-body">
                                                     <input type="hidden" name="action" value="register">
                                                     <input type="hidden" name="packageId" value="<%= pkg.getId() %>">
+                                                    <% if (isUpgrade.test(pkg, activeOrPendingPackages)) { %>
+                                                    <input type="hidden" name="isUpgrade" value="true">
+                                                    <% } %>
                                                     
                                                     <div class="text-center mb-4">
                                                         <h3 class="font-weight-bolder text-primary"><%= currencyFormat.format(pkg.getPrice()) %></h3>
@@ -247,6 +250,9 @@
                                                         <% if (isUpgrade.test(pkg, activeOrPendingPackages)) { %>
                                                             <div class="alert alert-info" role="alert">
                                                                 <i class="fas fa-info-circle me-2"></i> Bạn đang nâng cấp lên gói tập cao cấp hơn.
+                                                            </div>
+                                                            <div class="alert alert-warning" role="alert">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i> <strong>Lưu ý:</strong> Gói tập hiện tại của bạn sẽ bị vô hiệu hóa khi bạn nâng cấp lên gói tập mới này.
                                                             </div>
                                                         <% } %>
                                                         

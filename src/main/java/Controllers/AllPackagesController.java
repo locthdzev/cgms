@@ -41,7 +41,7 @@ public class AllPackagesController extends HttpServlet {
 
         // Lấy danh sách gói tập đang hoạt động hoặc đang chờ thanh toán
         List<MemberPackage> activeOrPendingPackages = memberPackages.stream()
-                .filter(p -> "ACTIVE".equals(p.getStatus()) || "PENDING".equals(p.getStatus()))
+                .filter(p -> "ACTIVE".equals(p.getStatus()))
                 .collect(Collectors.toList());
 
         request.setAttribute("activeOrPendingPackages", activeOrPendingPackages);

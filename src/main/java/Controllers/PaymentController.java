@@ -144,6 +144,7 @@ public class PaymentController extends HttpServlet {
         try {
             // Lấy thông tin từ URL
             String paymentLinkId = request.getParameter("paymentLinkId");
+            boolean isUpgrade = "true".equals(request.getParameter("isUpgrade"));
 
             if (paymentLinkId != null && !paymentLinkId.isEmpty()) {
                 // Tìm payment link từ paymentLinkId
@@ -181,6 +182,17 @@ public class PaymentController extends HttpServlet {
                                                 .updateMemberPackageStatus(memberPackage.getId(), "ACTIVE");
 
                                         if (packageUpdated) {
+                                            // Nếu là nâng cấp, vô hiệu hóa các gói tập cũ
+                                            if (isUpgrade) {
+                                                boolean deactivated = memberPackageDAO.deactivateActiveMemberPackages(
+                                                        memberPackage.getMember().getId(), memberPackage.getId());
+                                                if (deactivated) {
+                                                    System.out
+                                                            .println("Đã vô hiệu hóa các gói tập cũ của thành viên: " +
+                                                                    memberPackage.getMember().getId());
+                                                }
+                                            }
+
                                             // Lưu lịch sử mua hàng
                                             memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
                                         }
