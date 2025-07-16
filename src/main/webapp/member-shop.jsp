@@ -29,26 +29,94 @@
         <link rel="stylesheet" href="assets/css/argon-dashboard.css?v=2.1.0">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
         <style>
-            .product-img {
-                height: 180px;
-                object-fit: cover;
-                border-radius: 0.375rem;
-                width: 100%;
-            }
-            .card-body p, .card-body h5 {
-                margin-bottom: 0.5rem;
-            }
-            .card {
-                border: 1px solid #e9ecef;
-                transition: transform 0.2s ease-in-out;
-            }
-            .card:hover {
-                transform: scale(1.01);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            }
             main.main-content {
                 margin-left: 250px;
                 padding: 2rem 1rem;
+            }
+            .card {
+                border: none;
+                border-radius: 1rem;
+                box-shadow: 0 8px 24px 0 rgba(0,0,0,0.07);
+                overflow: hidden;
+                background: #fff;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                transition: box-shadow 0.18s;
+            }
+            .card:hover {
+                box-shadow: 0 12px 38px 0 rgba(0,0,0,0.16);
+                transform: scale(1.01);
+            }
+            .product-img-wrap {
+                background: #f7fafc;
+                border-bottom: 1px solid #e9ecef;
+                padding: 18px 12px 14px 12px;
+                text-align: center;
+                min-height: 160px;
+                max-height: 160px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: none;
+            }
+            .product-img {
+                width: 120px;
+                height: 120px;
+                object-fit: contain;
+                border-radius: 18px;
+                background: #fff;
+                box-shadow: 0 1px 6px 0 rgba(60,60,60,0.07);
+                display: block;
+                margin: 0 auto;
+                border: 1px solid #f1f3f4;
+            }
+            /* Label và value style */
+            .info-label {
+                font-weight: bold;
+                text-transform: uppercase;
+                color: #495057;
+                letter-spacing: 0.5px;
+                margin-right: 5px;
+                font-size: 0.97rem;
+            }
+            .product-title {
+                font-size: 1.09rem;
+                font-weight: bold;
+                color: #23272b;
+                letter-spacing: 1px;
+                margin-bottom: 2px;
+                text-transform: none;
+                display: inline;
+            }
+            .product-desc {
+                font-size: 0.97rem;
+                color: #7b8a99;
+                font-weight: 500;
+                display: inline;
+            }
+            .product-price {
+                font-weight: bold;
+                color: #dc3545;
+                font-size: 1.08rem;
+                display: inline;
+            }
+            .card-body {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                flex: 1;
+            }
+            .card-action-group {
+                margin-top: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            @media (max-width: 991.98px) {
+                main.main-content {
+                    margin-left: 0;
+                }
             }
         </style>
     </head>
@@ -92,16 +160,32 @@
                     <% for (Product p : products) { %>
                     <div class="col">
                         <div class="card h-100">
-                            <img src="<%= p.getImageUrl() != null ? p.getImageUrl() : "assets/img/no-image.png" %>" class="product-img" alt="Product">
-                            <div class="card-body d-flex flex-column justify-content-between">
+                            <div class="product-img-wrap">
+                                <img src="<%= p.getImageUrl() != null ? p.getImageUrl() : "assets/img/no-image.png" %>" class="product-img" alt="Product">
+                            </div>
+                            <div class="card-body">
                                 <div>
-                                    <h5 class="card-title"><%= p.getName() %></h5>
-                                    <p class="text-muted text-truncate"><%= p.getDescription() %></p>
-                                    <p class="fw-bold text-dark mb-2">Giá: <%= p.getPrice() %> VNĐ</p>
+                                    <div class="mb-1">
+                                        <span class="info-label">TÊN SẢN PHẨM:</span>
+                                        <span class="product-title"><%= p.getName() %></span>
+                                    </div>
+                                    <div class="mb-1">
+                                        <span class="info-label">MÔ TẢ:</span>
+                                        <span class="product-desc"><%= p.getDescription() %></span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <span class="info-label">GIÁ:</span>
+                                        <span class="product-price"><%= String.format("%,d", p.getPrice().longValue()) %> VNĐ</span>
+                                    </div>
                                 </div>
-                                <button class="btn btn-sm btn-outline-primary mt-auto" data-bs-toggle="modal" data-bs-target="#productModal<%= p.getId() %>">
-                                    <i class="fas fa-eye me-1"></i>Xem chi tiết
-                                </button>
+                                <div class="card-action-group">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#productModal<%= p.getId() %>">
+                                        <i class="fas fa-eye me-1"></i>Xem chi tiết
+                                    </button>
+                                    <a href="member-cart?action=add&id=<%= p.getId() %>" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -119,17 +203,15 @@
                                         <img src="<%= p.getImageUrl() != null ? p.getImageUrl() : "assets/img/no-image.png" %>" class="img-fluid rounded shadow-sm" />
                                     </div>
                                     <div class="col-md-6">
-                                        <p><strong>Tên sản phẩm:</strong> <%= p.getName() %></p>
-                                        <p><strong>Mô tả:</strong> <%= p.getDescription() %></p>
-                                        <p><strong>Giá:</strong> <%= p.getPrice() %> VNĐ</p>
+                                        <p><span class="info-label">TÊN SẢN PHẨM:</span> <span class="product-title"><%= p.getName() %></span></p>
+                                        <p><span class="info-label">MÔ TẢ:</span> <span class="product-desc"><%= p.getDescription() %></span></p>
+                                        <p><span class="info-label">GIÁ:</span> <span class="product-price"><%= String.format("%,d", p.getPrice().longValue()) %> VNĐ</span></p>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                                     <a href="member-cart?action=add&id=<%= p.getId() %>" class="btn btn-primary">
                                         <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
-                                    </a>
-
                                     </a>
                                 </div>
                             </div>

@@ -13,12 +13,11 @@ public class CartDAO {
 
     public List<Cart> getCartByMemberId(int memberId) {
         List<Cart> cartItems = new ArrayList<>();
-        String sql = "SELECT c.*, p.* FROM Cart c " +
-                     "JOIN Products p ON c.ProductId = p.ProductId " +
-                     "WHERE c.MemberId = ? AND c.Status = 'Active'";
+        String sql = "SELECT c.*, p.* FROM Cart c "
+                + "JOIN Products p ON c.ProductId = p.ProductId "
+                + "WHERE c.MemberId = ? AND c.Status = 'Active'";
 
-        try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DbConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, memberId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -50,8 +49,7 @@ public class CartDAO {
 
     public void addToCart(int memberId, int productId) {
         String checkSql = "SELECT * FROM Cart WHERE MemberId = ? AND ProductId = ?";
-        try (Connection conn = DbConnection.getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+        try (Connection conn = DbConnection.getConnection(); PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
 
             checkStmt.setInt(1, memberId);
             checkStmt.setInt(2, productId);
@@ -88,12 +86,25 @@ public class CartDAO {
 
     public void removeItem(int cartId) {
         String sql = "DELETE FROM Cart WHERE CartId = ?";
-        try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DbConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, cartId);
             stmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    public void changeQuantity(int cartId, int diff) {
+        // Không giảm nhỏ hơn 1
+        String sql = "UPDATE Cart SET Quantity = Quantity + ? WHERE CartId = ? AND Quantity + ? > 0";
+        try (Connection conn = DbConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, diff);
+            stmt.setInt(2, cartId);
+            stmt.setInt(3, diff);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
