@@ -20,10 +20,6 @@
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
-    <servlet-mapping>
-        <servlet-name>OrderController</servlet-name>
-        <url-pattern>/OrderController</url-pattern>
-    </servlet-mapping>
     <session-config>
         <session-timeout>30</session-timeout>
     </session-config>
@@ -35,10 +31,6 @@
     <servlet>
         <servlet-name>login</servlet-name>
         <servlet-class>Controllers.LoginController</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>OrderController</servlet-name>
-        <servlet-class>Controllers.OrderController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>login</servlet-name>
@@ -197,6 +189,15 @@
     <servlet-mapping>
         <servlet-name>member-feedback</servlet-name>
         <url-pattern>/member-feedback</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>OrderController</servlet-name>
+        <servlet-class>Controllers.OrderController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OrderController</servlet-name>
+        <url-pattern>/OrderController</url-pattern>
     </servlet-mapping>
 
     <!-- Authentication Filter -->
