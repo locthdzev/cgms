@@ -22,10 +22,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import Models.User;
 
 @WebServlet(name = "PaymentController", urlPatterns = { "/payment/*" })
 public class PaymentController extends HttpServlet {
@@ -70,18 +71,16 @@ public class PaymentController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String pathInfo = request.getPathInfo();
-
         if (pathInfo == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            pathInfo = "";
         }
 
         switch (pathInfo) {
-            case "/create":
-                createPayment(request, response);
-                break;
             case "/webhook":
                 processWebhook(request, response);
+                break;
+            case "/process-payment":
+                processPayment(request, response);
                 break;
             default:
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -101,50 +100,12 @@ public class PaymentController extends HttpServlet {
                 return;
             }
 
-            // Kiểm tra xem đã có payment cho memberPackage này chưa
-            Payment payment = null;
-            PaymentLink paymentLink = null;
+            // Lưu memberPackageId vào session để sử dụng sau khi chọn voucher
+            HttpSession session = request.getSession();
+            session.setAttribute("checkoutMemberPackageId", memberPackageId);
 
-            // Tìm payment đã tồn tại
-            List<Payment> payments = paymentDAO.getPaymentsByMemberPackageId(memberPackageId);
-            if (payments != null && !payments.isEmpty()) {
-                // Lấy payment gần nhất
-                payment = payments.get(0);
-
-                // Kiểm tra xem có payment link active không
-                List<PaymentLink> paymentLinks = paymentLinkDAO.getPaymentLinksByPaymentId(payment.getId());
-                if (paymentLinks != null && !paymentLinks.isEmpty()) {
-                    for (PaymentLink pl : paymentLinks) {
-                        if ("ACTIVE".equals(pl.getStatus())) {
-                            paymentLink = pl;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // Nếu chưa có payment hoặc payment link, tạo mới
-            if (payment == null) {
-                payment = paymentDAO.createPayment(memberPackage, memberPackage.getTotalPrice(), "PAYOS");
-                if (payment == null) {
-                    response.sendRedirect(
-                            request.getContextPath() + "/member-packages-controller?error=payment_creation_failed");
-                    return;
-                }
-            }
-
-            // Nếu chưa có payment link active, tạo mới
-            if (paymentLink == null || !"ACTIVE".equals(paymentLink.getStatus())) {
-                paymentLink = payOSService.createPaymentLink(payment, memberPackage, memberPackage.getVoucher());
-                if (paymentLink == null) {
-                    response.sendRedirect(request.getContextPath()
-                            + "/member-packages-controller?error=payment_link_creation_failed");
-                    return;
-                }
-            }
-
-            // Chuyển hướng trực tiếp đến URL thanh toán của PayOS
-            response.sendRedirect(paymentLink.getPaymentLinkUrl());
+            // Chuyển hướng đến trang chọn voucher
+            response.sendRedirect(request.getContextPath() + "/select-voucher.jsp");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=checkout_error");
@@ -405,6 +366,162 @@ public class PaymentController extends HttpServlet {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("Error processing webhook: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Xử lý thanh toán sau khi người dùng đã chọn voucher
+     */
+    private void processPayment(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            HttpSession session = request.getSession();
+
+            // Lấy memberPackageId từ form thay vì từ session
+            String memberPackageIdStr = request.getParameter("memberPackageId");
+            System.out.println("memberPackageId from form: " + memberPackageIdStr);
+
+            if (memberPackageIdStr == null || memberPackageIdStr.isEmpty()) {
+                // Thử lấy từ session nếu không có trong form
+                Integer sessionMemberPackageId = (Integer) session.getAttribute("checkoutMemberPackageId");
+                System.out.println("memberPackageId from session: " + sessionMemberPackageId);
+
+                if (sessionMemberPackageId != null) {
+                    memberPackageIdStr = sessionMemberPackageId.toString();
+                } else {
+                    System.out.println("memberPackageId not found in form or session");
+                    response.sendRedirect(
+                            request.getContextPath() + "/member-packages-controller?error=invalid_request");
+                    return;
+                }
+            }
+
+            Integer memberPackageId = Integer.parseInt(memberPackageIdStr);
+
+            // Xóa dữ liệu session nếu có
+            session.removeAttribute("checkoutMemberPackageId");
+
+            // Lấy thông tin gói tập
+            MemberPackage memberPackage = memberPackageDAO.getMemberPackageById(memberPackageId);
+            if (memberPackage == null) {
+                response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=package_not_found");
+                return;
+            }
+
+            // Lấy mã voucher từ form (nếu có)
+            String voucherCode = request.getParameter("voucherCode");
+            Voucher voucher = null;
+
+            // Áp dụng voucher nếu có
+            if (voucherCode != null && !voucherCode.isEmpty()) {
+                voucher = voucherDAO.getVoucherByCode(voucherCode);
+
+                // Kiểm tra voucher có hợp lệ không
+                if (voucher == null) {
+                    response.sendRedirect(request.getContextPath() + "/select-voucher.jsp?error=invalid_voucher");
+                    return;
+                }
+
+                // Kiểm tra trạng thái voucher (Active thay vì ACTIVE)
+                if (!"Active".equals(voucher.getStatus())
+                        || voucher.getExpiryDate().isBefore(java.time.LocalDate.now())) {
+                    response.sendRedirect(request.getContextPath() + "/select-voucher.jsp?error=expired_voucher");
+                    return;
+                }
+
+                // Kiểm tra voucher có phải của member này hoặc là voucher dùng chung không
+                User member = (User) session.getAttribute("loggedInUser");
+                if (voucher.getMember() != null && !voucher.getMember().getId().equals(member.getId())) {
+                    response.sendRedirect(request.getContextPath() + "/select-voucher.jsp?error=unauthorized_voucher");
+                    return;
+                }
+
+                // Kiểm tra điều kiện giá trị tối thiểu
+                if (voucher.getMinPurchase() != null
+                        && memberPackage.getTotalPrice().compareTo(voucher.getMinPurchase()) < 0) {
+                    response.sendRedirect(request.getContextPath()
+                            + "/select-voucher.jsp?error=min_purchase_not_met&min=" + voucher.getMinPurchase());
+                    return;
+                }
+            }
+
+            // Tính toán giá sau khi áp dụng voucher
+            BigDecimal finalPrice = memberPackage.getTotalPrice();
+            if (voucher != null) {
+                System.out.println("Applying voucher: " + voucher.getCode());
+                System.out.println("Original price: " + finalPrice);
+                System.out.println("Discount type: " + voucher.getDiscountType() + " (class: "
+                        + voucher.getDiscountType().getClass().getName() + ")");
+                System.out.println("Discount value: " + voucher.getDiscountValue());
+
+                String discountType = voucher.getDiscountType().trim().toUpperCase();
+                System.out.println("Normalized discount type: " + discountType);
+
+                if (discountType.contains("PERCENT")) {
+                    BigDecimal discountAmount = finalPrice.multiply(voucher.getDiscountValue())
+                            .divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+                    System.out.println("Discount amount (percent): " + discountAmount);
+                    finalPrice = finalPrice.subtract(discountAmount);
+                } else {
+                    // Xử lý tất cả các loại giảm giá khác như giảm trực tiếp
+                    System.out.println("Discount amount (fixed): " + voucher.getDiscountValue());
+                    finalPrice = finalPrice.subtract(voucher.getDiscountValue());
+                    if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
+                        finalPrice = BigDecimal.ZERO;
+                    }
+                }
+
+                System.out.println("Final price after discount: " + finalPrice);
+            }
+
+            // Kiểm tra xem đã có payment cho memberPackage này chưa
+            Payment payment = null;
+            PaymentLink paymentLink = null;
+
+            // Tìm payment đã tồn tại
+            List<Payment> payments = paymentDAO.getPaymentsByMemberPackageId(memberPackageId);
+            if (payments != null && !payments.isEmpty()) {
+                // Lấy payment gần nhất
+                payment = payments.get(0);
+
+                // Cập nhật lại số tiền nếu có voucher
+                payment.setAmount(finalPrice);
+                payment.setUpdatedAt(Instant.now());
+                System.out.println("Updating existing payment with amount: " + finalPrice);
+                paymentDAO.updatePayment(payment);
+            } else {
+                // Tạo mới payment
+                System.out.println("Creating new payment with amount: " + finalPrice);
+                payment = paymentDAO.createPayment(memberPackage, finalPrice, "PAYOS");
+                if (payment == null) {
+                    response.sendRedirect(
+                            request.getContextPath() + "/member-packages-controller?error=payment_creation_failed");
+                    return;
+                }
+            }
+
+            // Kiểm tra lại giá trị payment sau khi tạo/cập nhật
+            System.out.println("Payment amount before creating link: " + payment.getAmount());
+
+            // Tạo payment link
+            System.out.println("Creating payment link with final price: " + finalPrice);
+            paymentLink = payOSService.createPaymentLink(payment, memberPackage, voucher);
+            if (paymentLink == null) {
+                System.out.println("Failed to create payment link");
+                response.sendRedirect(request.getContextPath()
+                        + "/member-packages-controller?error=payment_link_creation_failed");
+                return;
+            }
+
+            // Log thông tin payment link
+            System.out.println("Payment link created successfully");
+            System.out.println("Payment link URL: " + paymentLink.getPaymentLinkUrl());
+
+            // Chuyển hướng đến URL thanh toán của PayOS
+            response.sendRedirect(paymentLink.getPaymentLinkUrl());
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=payment_process_error");
         }
     }
 }

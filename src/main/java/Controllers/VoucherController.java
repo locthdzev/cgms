@@ -94,7 +94,7 @@ public class VoucherController extends HttpServlet {
             // Validate voucher data
             List<String> validationErrors = service.validateVoucher(v);
             if (!validationErrors.isEmpty()) {
-                StringBuilder errorMessage = new StringBuilder("Lỗi validation:<ul>");
+                StringBuilder errorMessage = new StringBuilder("Tạo Voucher không thành công!");
                 for (String error : validationErrors) {
                     errorMessage.append("<li>").append(error).append("</li>");
                 }

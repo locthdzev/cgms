@@ -12,8 +12,10 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class PaymentLinkDAO {
+    private static final Logger LOGGER = Logger.getLogger(PaymentLinkDAO.class.getName());
 
     public PaymentLink createPaymentLink(Payment payment, String orderCode, String paymentLinkUrl, Instant expireTime) {
         String sql = "INSERT INTO Payment_Links (PaymentId, OrderCode, PaymentLinkUrl, ExpireTime, CreatedAt, Status) "
@@ -259,10 +261,11 @@ public class PaymentLinkDAO {
         paymentLink.setOrderCode(rs.getString("OrderCode"));
         paymentLink.setPaymentLinkUrl(rs.getString("PaymentLinkUrl"));
 
-        String qrCode = rs.getString("QrCode");
-        if (qrCode != null) {
-            paymentLink.setQrCode(qrCode);
-        }
+        // Xóa tham chiếu đến cột QrCode không tồn tại
+        // String qrCode = rs.getString("QrCode");
+        // if (qrCode != null) {
+        // paymentLink.setQrCode(qrCode);
+        // }
 
         Timestamp expireTime = rs.getTimestamp("ExpireTime");
         if (expireTime != null) {

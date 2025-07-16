@@ -1,7 +1,6 @@
 package Controllers;
 
 import Models.User;
-import Models.MemberLevel;
 import Services.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

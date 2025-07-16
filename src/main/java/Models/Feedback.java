@@ -9,7 +9,6 @@ import java.time.Instant;
 @Table(name = "Feedbacks")
 public class Feedback {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "FeedbackId", nullable = false)
     private Integer id;
 
@@ -34,14 +33,9 @@ public class Feedback {
 
     @Column(name = "RespondedAt")
     private Instant respondedAt;
-    
-     @Column(name = "UserId", insertable = false, updatable = false)
-    private Integer userId;
 
     @Nationalized
     @Column(name = "Status", nullable = false, length = 20)
-    
-    
     private String status;
 
     public Integer getId() {
@@ -106,55 +100,5 @@ public class Feedback {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-     public Integer getUserId() { 
-         return userId; }
-    public void setUserId(Integer userId) {
-        this.userId = userId; }
-
-    @Column(name = "Rating")
-    private Integer rating; // 1-5 stars
-
-    @Nationalized
-    @Column(name = "FeedbackType", length = 20)
-    private String feedbackType; // "PT" hoặc "PACKAGE"
-
-    @Column(name = "TargetId")
-    private Integer targetId; // ID của PT hoặc Package
-
-    @Nationalized
-    @Column(name = "TargetName", length = 100)
-    private String targetName; // Tên PT hoặc tên gói tập
-
-    public Integer getRating() {
-        return rating;
-    }
-
-    public void setRating(Integer rating) {
-        this.rating = rating;
-    }
-
-    public String getFeedbackType() {
-        return feedbackType;
-    }
-
-    public void setFeedbackType(String feedbackType) {
-        this.feedbackType = feedbackType;
-    }
-
-    public Integer getTargetId() {
-        return targetId;
-    }
-
-    public void setTargetId(Integer targetId) {
-        this.targetId = targetId;
-    }
-
-    public String getTargetName() {
-        return targetName;
-    }
-
-    public void setTargetName(String targetName) {
-        this.targetName = targetName;
     }
 }

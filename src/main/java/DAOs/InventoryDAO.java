@@ -5,7 +5,6 @@ import Models.Product;
 import DbConnection.DbConnection;
 
 import java.sql.*;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,8 +16,8 @@ public class InventoryDAO {
                 "JOIN Products p ON i.ProductId = p.ProductId ORDER BY i.InventoryId";
 
         try (Connection conn = DbConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 inventoryList.add(mapResultSetToInventory(rs));
@@ -34,7 +33,7 @@ public class InventoryDAO {
                 "JOIN Products p ON i.ProductId = p.ProductId WHERE i.ProductId = ?";
 
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, productId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -52,7 +51,7 @@ public class InventoryDAO {
         String sql = "INSERT INTO Inventory (ProductId, Quantity, LastUpdated, Status) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, inventory.getProduct().getId());
             stmt.setInt(2, inventory.getQuantity());
@@ -70,7 +69,7 @@ public class InventoryDAO {
         String sql = "UPDATE Inventory SET Quantity = ?, LastUpdated = ?, Status = ? WHERE InventoryId = ?";
 
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, inventory.getQuantity());
             stmt.setTimestamp(2, Timestamp.from(inventory.getLastUpdated()));
@@ -87,16 +86,16 @@ public class InventoryDAO {
     private Inventory mapResultSetToInventory(ResultSet rs) throws SQLException {
         Inventory inventory = new Inventory();
         inventory.setId(rs.getInt("InventoryId"));
-        
+
         Product product = new Product();
         product.setId(rs.getInt("ProductId"));
         product.setName(rs.getString("ProductName"));
-        
+
         inventory.setProduct(product);
         inventory.setQuantity(rs.getInt("Quantity"));
         inventory.setLastUpdated(rs.getTimestamp("LastUpdated").toInstant());
         inventory.setStatus(rs.getString("Status"));
-        
+
         return inventory;
     }
 }
