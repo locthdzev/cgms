@@ -19,4 +19,8 @@ public class CartService {
     public void removeItem(int cartId) {
         cartDAO.removeItem(cartId);
     }
+    public void changeQuantity(int cartId, int diff) {
+    cartDAO.changeQuantity(cartId, diff);
+}
+
 }
