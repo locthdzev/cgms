@@ -159,6 +159,40 @@ public class VoucherDAO {
         }
     }
 
+    /**
+     * Lấy danh sách voucher hợp lệ cho member hoặc voucher dùng chung (MemberId =
+     * null)
+     * Chỉ lấy những voucher còn hạn sử dụng và có trạng thái "ACTIVE"
+     */
+    public List<Voucher> getValidVouchersForMember(Integer memberId) {
+        List<Voucher> vouchers = new ArrayList<>();
+        String sql = "SELECT v.*, u.UserId, u.UserName, u.Email FROM Vouchers v " +
+                "LEFT JOIN Users u ON v.MemberId = u.UserId " +
+                "WHERE (v.MemberId = ? OR v.MemberId IS NULL) " +
+                "AND v.ExpiryDate >= CAST(GETDATE() AS DATE) " +
+                "AND v.Status = 'Active' " + // Chú ý: 'Active' không phải 'ACTIVE'
+                "ORDER BY v.ExpiryDate";
+
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, memberId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Voucher voucher = mapResultSetToVoucher(rs);
+                    System.out.println("Found valid voucher: " + voucher.getCode() +
+                            ", Type: " + voucher.getDiscountType() +
+                            ", Value: " + voucher.getDiscountValue() +
+                            ", MinPurchase: " + voucher.getMinPurchase());
+                    vouchers.add(voucher);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return vouchers;
+    }
+
     // Helper method to map ResultSet to Voucher object
     private Voucher mapResultSetToVoucher(ResultSet rs) throws SQLException {
         Voucher voucher = new Voucher();
