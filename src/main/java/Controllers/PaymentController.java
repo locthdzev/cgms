@@ -1,0 +1,408 @@
+package Controllers;
+
+import DAOs.MemberPackageDAO;
+import DAOs.PaymentDAO;
+import DAOs.PaymentLinkDAO;
+import DAOs.VoucherDAO;
+import DAOs.MemberPurchaseHistoryDAO;
+import Models.MemberPackage;
+import Models.Payment;
+import Models.PaymentLink;
+import Models.Voucher;
+import Services.PayOSService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet(name = "PaymentController", urlPatterns = { "/payment/*" })
+public class PaymentController extends HttpServlet {
+    private final PaymentDAO paymentDAO = new PaymentDAO();
+    private final PaymentLinkDAO paymentLinkDAO = new PaymentLinkDAO();
+    private final MemberPackageDAO memberPackageDAO = new MemberPackageDAO();
+    private final VoucherDAO voucherDAO = new VoucherDAO();
+    private final MemberPurchaseHistoryDAO memberPurchaseHistoryDAO = new MemberPurchaseHistoryDAO();
+    private final PayOSService payOSService = new PayOSService();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String pathInfo = request.getPathInfo();
+
+        if (pathInfo == null) {
+            response.sendRedirect(request.getContextPath() + "/member-packages-controller");
+            return;
+        }
+
+        switch (pathInfo) {
+            case "/checkout":
+                processCheckout(request, response);
+                break;
+            case "/success":
+                processSuccess(request, response);
+                break;
+            case "/cancel":
+                processCancel(request, response);
+                break;
+            case "/check-status":
+                checkPaymentStatus(request, response);
+                break;
+            default:
+                response.sendRedirect(request.getContextPath() + "/member-packages-controller");
+                break;
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String pathInfo = request.getPathInfo();
+
+        if (pathInfo == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        switch (pathInfo) {
+            case "/create":
+                createPayment(request, response);
+                break;
+            case "/webhook":
+                processWebhook(request, response);
+                break;
+            default:
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                break;
+        }
+    }
+
+    private void processCheckout(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            // Lấy memberPackageId từ request
+            int memberPackageId = Integer.parseInt(request.getParameter("memberPackageId"));
+            MemberPackage memberPackage = memberPackageDAO.getMemberPackageById(memberPackageId);
+
+            if (memberPackage == null) {
+                response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=package_not_found");
+                return;
+            }
+
+            // Kiểm tra xem đã có payment cho memberPackage này chưa
+            Payment payment = null;
+            PaymentLink paymentLink = null;
+
+            // Tìm payment đã tồn tại
+            List<Payment> payments = paymentDAO.getPaymentsByMemberPackageId(memberPackageId);
+            if (payments != null && !payments.isEmpty()) {
+                // Lấy payment gần nhất
+                payment = payments.get(0);
+
+                // Kiểm tra xem có payment link active không
+                List<PaymentLink> paymentLinks = paymentLinkDAO.getPaymentLinksByPaymentId(payment.getId());
+                if (paymentLinks != null && !paymentLinks.isEmpty()) {
+                    for (PaymentLink pl : paymentLinks) {
+                        if ("ACTIVE".equals(pl.getStatus())) {
+                            paymentLink = pl;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Nếu chưa có payment hoặc payment link, tạo mới
+            if (payment == null) {
+                payment = paymentDAO.createPayment(memberPackage, memberPackage.getTotalPrice(), "PAYOS");
+                if (payment == null) {
+                    response.sendRedirect(
+                            request.getContextPath() + "/member-packages-controller?error=payment_creation_failed");
+                    return;
+                }
+            }
+
+            // Nếu chưa có payment link active, tạo mới
+            if (paymentLink == null || !"ACTIVE".equals(paymentLink.getStatus())) {
+                paymentLink = payOSService.createPaymentLink(payment, memberPackage, memberPackage.getVoucher());
+                if (paymentLink == null) {
+                    response.sendRedirect(request.getContextPath()
+                            + "/member-packages-controller?error=payment_link_creation_failed");
+                    return;
+                }
+            }
+
+            // Chuyển hướng trực tiếp đến URL thanh toán của PayOS
+            response.sendRedirect(paymentLink.getPaymentLinkUrl());
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=checkout_error");
+        }
+    }
+
+    private void checkPaymentStatus(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            int memberPackageId = Integer.parseInt(request.getParameter("memberPackageId"));
+
+            // Lấy payment mới nhất của memberPackage
+            List<Payment> payments = paymentDAO.getPaymentsByMemberPackageId(memberPackageId);
+            Map<String, Object> result = new HashMap<>();
+
+            if (payments != null && !payments.isEmpty()) {
+                Payment payment = payments.get(0);
+                result.put("status", payment.getStatus());
+            } else {
+                result.put("status", "PENDING");
+            }
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            objectMapper.writeValue(response.getOutputStream(), result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Lỗi khi kiểm tra trạng thái thanh toán");
+            objectMapper.writeValue(response.getOutputStream(), error);
+        }
+    }
+
+    private void processSuccess(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            // Lấy thông tin từ URL
+            String paymentLinkId = request.getParameter("paymentLinkId");
+
+            if (paymentLinkId != null && !paymentLinkId.isEmpty()) {
+                // Tìm payment link từ paymentLinkId
+                int paymentLinkIdInt = Integer.parseInt(paymentLinkId);
+                PaymentLink paymentLink = paymentLinkDAO.getPaymentLinkById(paymentLinkIdInt);
+
+                if (paymentLink != null) {
+                    // Kiểm tra trạng thái thanh toán với PayOS
+                    vn.payos.type.PaymentLinkData paymentLinkData = payOSService
+                            .getPaymentLinkInfo(paymentLink.getOrderCode());
+
+                    if (paymentLinkData != null && "PAID".equals(paymentLinkData.getStatus())) {
+                        // Lấy payment từ payment link
+                        Payment payment = paymentLink.getPayment();
+
+                        if (payment != null) {
+                            // Cập nhật trạng thái thanh toán
+                            String transactionId = paymentLinkData.getTransactions().get(0).getReference();
+                            boolean updated = paymentDAO.updatePaymentStatus(payment.getId(), "COMPLETED",
+                                    transactionId);
+
+                            if (updated) {
+                                // Cập nhật trạng thái PaymentLink
+                                paymentLinkDAO.updatePaymentLinkStatus(paymentLink.getId(), "COMPLETED");
+
+                                // Cập nhật trạng thái MemberPackage
+                                MemberPackage memberPackage = payment.getMemberPackage();
+                                if (memberPackage != null) {
+                                    // Lấy thông tin đầy đủ của memberPackage
+                                    memberPackage = memberPackageDAO.getMemberPackageById(memberPackage.getId());
+
+                                    if (memberPackage != null) {
+                                        // Cập nhật trạng thái gói thành ACTIVE
+                                        boolean packageUpdated = memberPackageDAO
+                                                .updateMemberPackageStatus(memberPackage.getId(), "ACTIVE");
+
+                                        if (packageUpdated) {
+                                            // Lưu lịch sử mua hàng
+                                            memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Xử lý khi thanh toán thành công
+            HttpSession session = request.getSession();
+            session.setAttribute("paymentStatus", "success");
+            response.sendRedirect(request.getContextPath() + "/member-packages-controller?message=payment_success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=payment_process_error");
+        }
+    }
+
+    private void processCancel(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Xử lý khi thanh toán bị hủy
+        HttpSession session = request.getSession();
+        session.setAttribute("paymentStatus", "cancelled");
+        response.sendRedirect(request.getContextPath() + "/member-packages-controller?message=payment_cancelled");
+    }
+
+    private void createPayment(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            // Lấy thông tin từ request
+            int memberPackageId = Integer.parseInt(request.getParameter("memberPackageId"));
+            String voucherCode = request.getParameter("voucherCode");
+
+            // Lấy thông tin gói tập
+            MemberPackage memberPackage = memberPackageDAO.getMemberPackageById(memberPackageId);
+
+            if (memberPackage == null) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid member package");
+                return;
+            }
+
+            // Tính toán số tiền thanh toán
+            BigDecimal amount = memberPackage.getTotalPrice();
+            Voucher voucher = null;
+
+            // Áp dụng voucher nếu có
+            if (voucherCode != null && !voucherCode.isEmpty()) {
+                voucher = voucherDAO.getVoucherByCode(voucherCode);
+
+                if (voucher != null) {
+                    // Kiểm tra voucher có hợp lệ không
+                    if (voucher.getExpiryDate().isBefore(java.time.LocalDate.now())) {
+                        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Voucher has expired");
+                        return;
+                    }
+
+                    // Áp dụng giảm giá
+                    if ("PERCENTAGE".equals(voucher.getDiscountType())) {
+                        BigDecimal discountPercentage = voucher.getDiscountValue().divide(new BigDecimal(100));
+                        BigDecimal discountAmount = amount.multiply(discountPercentage);
+                        amount = amount.subtract(discountAmount);
+                    } else if ("FIXED".equals(voucher.getDiscountType())) {
+                        amount = amount.subtract(voucher.getDiscountValue());
+                        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+                            amount = BigDecimal.ZERO;
+                        }
+                    }
+
+                    // Cập nhật voucher vào gói tập
+                    memberPackage.setVoucher(voucher);
+                    memberPackage.setTotalPrice(amount);
+                    memberPackageDAO.updateMemberPackage(memberPackage);
+                }
+            }
+
+            // Tạo payment
+            Payment payment = paymentDAO.createPayment(memberPackage, amount, "PAYOS");
+
+            if (payment == null) {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to create payment");
+                return;
+            }
+
+            // Tạo payment link qua PayOS
+            PaymentLink paymentLink = payOSService.createPaymentLink(payment, memberPackage, voucher);
+
+            if (paymentLink == null) {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to create payment link");
+                return;
+            }
+
+            // Trả về URL thanh toán
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"paymentUrl\": \"" + paymentLink.getPaymentLinkUrl() + "\"}");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error");
+        }
+    }
+
+    private void processWebhook(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // Đọc dữ liệu webhook từ PayOS
+        StringBuilder buffer = new StringBuilder();
+        BufferedReader reader = request.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            buffer.append(line);
+        }
+
+        String webhookData = buffer.toString();
+
+        try {
+            // Xác thực và xử lý dữ liệu webhook
+            @SuppressWarnings("unchecked")
+            Map<String, Object> webhookMap = objectMapper.readValue(webhookData, Map.class);
+
+            // Kiểm tra dữ liệu webhook
+            if (!webhookMap.containsKey("data") || !webhookMap.containsKey("signature")) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("Invalid webhook data format");
+                return;
+            }
+
+            // Lấy thông tin từ webhook
+            @SuppressWarnings("unchecked")
+            Map<String, Object> data = (Map<String, Object>) webhookMap.get("data");
+            String orderCode = "CGMS-" + data.get("orderCode").toString();
+
+            // Tìm payment link từ orderCode
+            PaymentLink paymentLink = paymentLinkDAO.getPaymentLinkByOrderCode(orderCode);
+
+            if (paymentLink == null) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("Payment link not found");
+                return;
+            }
+
+            // Lấy payment từ payment link
+            Payment payment = paymentLink.getPayment();
+
+            if (payment == null) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("Payment not found");
+                return;
+            }
+
+            // Cập nhật trạng thái thanh toán
+            String transactionId = data.get("reference").toString();
+            boolean updated = paymentDAO.updatePaymentStatus(payment.getId(), "COMPLETED", transactionId);
+
+            if (updated) {
+                // Cập nhật trạng thái PaymentLink
+                paymentLinkDAO.updatePaymentLinkStatus(paymentLink.getId(), "COMPLETED");
+
+                // Cập nhật trạng thái MemberPackage
+                MemberPackage memberPackage = payment.getMemberPackage();
+                if (memberPackage != null) {
+                    // Lấy thông tin đầy đủ của memberPackage
+                    memberPackage = memberPackageDAO.getMemberPackageById(memberPackage.getId());
+
+                    if (memberPackage != null) {
+                        // Cập nhật trạng thái gói thành ACTIVE
+                        boolean packageUpdated = memberPackageDAO.updateMemberPackageStatus(memberPackage.getId(),
+                                "ACTIVE");
+
+                        if (packageUpdated) {
+                            // Lưu lịch sử mua hàng
+                            memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
+                        }
+                    }
+                }
+
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write("Webhook processed successfully");
+            } else {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("Failed to update payment status");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Error processing webhook: " + e.getMessage());
+        }
+    }
+}
