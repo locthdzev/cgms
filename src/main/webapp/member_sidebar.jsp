@@ -45,11 +45,11 @@
                 </a>
             </li> -->
             <li class="nav-item">
-                <a class="nav-link <%= "member-schedule.jsp".equals(pageName) ? "active" : "" %>" href="member-schedule.jsp">
+                <a class="nav-link <%= "member-schedule.jsp".equals(pageName) ? "active" : "" %>" href="member-training-schedule">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-calendar-alt text-warning text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Lịch tập luyện</span>
+                    <span class="nav-link-text ms-1">Lịch tập & Tiến độ</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -66,6 +66,14 @@
                         <i class="fas fa-shopping-cart text-info text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Giỏ hàng</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= "payment-history.jsp".equals(pageName) ? "active" : "" %>" href="payment-history">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-history text-primary text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Lịch sử thanh toán</span>
                 </a>
             </li>
             <li class="nav-item">
