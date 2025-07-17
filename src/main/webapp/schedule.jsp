@@ -421,10 +421,7 @@
                                 <i class="fas fa-arrow-left me-2"></i>Quay lại
                             </a>
                             <a href="${pageContext.request.contextPath}/addSchedule" class="btn btn-primary btn-sm me-2">
-                                <i class="fas fa-plus me-2"></i>Thêm lịch tập
-                            </a>
-                            <a href="checkinHistory" class="btn btn-info btn-sm">
-                                <i class="fas fa-history me-2"></i>Lịch sử Check-In
+                                <i class="fas fa-plus me-2"></i>Thêm lịch tập cho member
                             </a>
                         </div>
                     </div>
@@ -534,101 +531,156 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         <% } %>
-                        <form method="post">
+                        <form method="post" id="multiScheduleForm">
                             <input type="hidden" name="formAction" value="<%= formAction %>"/>
-                            <% if (schedule != null && schedule.getId() != null) { %>
+                            <% if ("edit".equals(formAction) && schedule != null) { %>
                                 <input type="hidden" name="id" value="<%= schedule.getId() %>"/>
                             <% } %>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Trainer *</label>
-                                    <% if ("view".equals(formAction)) { %>
-                                        <input type="text" class="form-control" value="<%= schedule != null && schedule.getTrainer() != null ? (schedule.getTrainer().getFullName() != null ? schedule.getTrainer().getFullName() : schedule.getTrainer().getUserName()) : "" %>" readonly/>
-                                    <% } else { %>
-                                        <select name="trainerId" class="form-control" required>
-                                            <option value="">Chọn Trainer</option>
-                                            <% if (trainers != null) {
-                                                for (User trainer : trainers) { %>
-                                                    <option value="<%= trainer.getId() %>" <%= schedule != null && schedule.getTrainer() != null && schedule.getTrainer().getId().equals(trainer.getId()) ? "selected" : "" %>>
-                                                        <%= trainer.getFullName() != null ? trainer.getFullName() : trainer.getUserName() %>
-                                                    </option>
-                                            <% } } %>
-                                        </select>
-                                    <% } %>
+                                    <select name="trainerId" class="form-control" required>
+                                        <option value="">Chọn Trainer</option>
+                                        <% if (trainers != null) {
+                                            for (User trainer : trainers) { %>
+                                                <option value="<%= trainer.getId() %>" 
+                                                    <% if ("edit".equals(formAction) && schedule != null && schedule.getTrainer() != null && schedule.getTrainer().getId() != null && schedule.getTrainer().getId().equals(trainer.getId())) { %>selected<% } %>>
+                                                    <%= trainer.getFullName() != null ? trainer.getFullName() : trainer.getUserName() %>
+                                                </option>
+                                        <% } } %>
+                                    </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Member *</label>
-                                    <% if ("view".equals(formAction)) { %>
-                                        <input type="text" class="form-control" value="<%= schedule != null && schedule.getMember() != null ? (schedule.getMember().getFullName() != null ? schedule.getMember().getFullName() : schedule.getMember().getUserName()) : "" %>" readonly/>
-                                    <% } else { %>
-                                        <select name="memberId" class="form-control" required>
-                                            <option value="">Chọn Member</option>
-                                            <% if (members != null) {
-                                                for (User member : members) { %>
-                                                    <option value="<%= member.getId() %>" <%= schedule != null && schedule.getMember() != null && schedule.getMember().getId().equals(member.getId()) ? "selected" : "" %>>
-                                                        <%= member.getFullName() != null ? member.getFullName() : member.getUserName() %>
-                                                    </option>
-                                            <% } } %>
-                                        </select>
-                                    <% } %>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Ngày tập *</label>
-                                    <input type="date" name="scheduleDate" class="form-control"
-                                           value="<%= schedule != null && schedule.getScheduleDate() != null ? schedule.getScheduleDate().toString() : "" %>"
-                                           <%= "view".equals(formAction) ? "readonly" : "" %> required/>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Giờ tập *</label>
-                                    <input type="time" name="scheduleTime" class="form-control"
-                                           value="<%= schedule != null && schedule.getScheduleTime() != null ? schedule.getScheduleTime().toString() : "" %>"
-                                           <%= "view".equals(formAction) ? "readonly" : "" %> required/>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Thời lượng (giờ) *</label>
-                                    <% if ("view".equals(formAction)) { %>
-                                        <input type="text" class="form-control" value="<%= schedule != null && schedule.getDurationHours() != null ? schedule.getDurationHours() + " giờ" : "" %>" readonly/>
-                                    <% } else { %>
-                                        <select name="durationHours" class="form-control" required>
-                                            <% for (double i = 0.5; i <= 3.0; i += 0.5) { 
-                                                int hours = (int) i;
-                                                int minutes = (int) ((i - hours) * 60);
-                                                String label = "";
-                                                if (hours > 0 && minutes > 0) {
-                                                    label = hours + " giờ " + minutes + " phút";
-                                                } else if (hours > 0) {
-                                                    label = hours + " giờ";
-                                                } else {
-                                                    label = minutes + " phút";
-                                                }
-                                            %>
-                                                <option value="<%= i %>" <%= schedule != null && schedule.getDurationHours() != null && schedule.getDurationHours().doubleValue() == i ? "selected" : "" %>><%= label %></option>
-                                            <% } %>
-                                        </select>
-                                    <% } %>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Trạng thái *</label>
-                                    <% if ("view".equals(formAction)) { %>
-                                        <input type="text" class="form-control" value="<%= schedule != null && schedule.getStatus() != null ? schedule.getStatus() : "" %>" readonly/>
-                                    <% } else { %>
-                                        <select name="status" class="form-control" required>
-                                            <option value="Pending" <%= schedule != null && "Pending".equals(schedule.getStatus()) ? "selected" : "" %>>Chờ xác nhận</option>
-                                            <option value="Confirmed" <%= schedule != null && "Confirmed".equals(schedule.getStatus()) ? "selected" : "" %>>Đã xác nhận</option>
-                                            <option value="Completed" <%= schedule != null && "Completed".equals(schedule.getStatus()) ? "selected" : "" %>>Hoàn thành</option>
-                                            <option value="Cancelled" <%= schedule != null && "Cancelled".equals(schedule.getStatus()) ? "selected" : "" %>>Đã hủy</option>
-                                        </select>
-                                    <% } %>
+                                    <select name="memberId" class="form-control" required>
+                                        <option value="">Chọn Member</option>
+                                        <% if (members != null) {
+                                            for (User member : members) { %>
+                                                <option value="<%= member.getId() %>"
+                                                    <% if ("edit".equals(formAction) && schedule != null && schedule.getMember() != null && schedule.getMember().getId() != null && schedule.getMember().getId().equals(member.getId())) { %>selected<% } %>>
+                                                    <%= member.getFullName() != null ? member.getFullName() : member.getUserName() %>
+                                                </option>
+                                        <% } } %>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end mt-4">
-                                <% if (!"view".equals(formAction)) { %>
-                                <button type="reset" class="btn btn-light me-2">Làm mới</button>
-                                <button class="btn btn-primary" type="submit">Lưu</button>
+                            <div id="scheduleRows">
+                                <% if ("edit".equals(formAction) && schedule != null) { %>
+                                    <!-- Form chỉnh sửa - chỉ hiển thị 1 dòng -->
+                                    <div class="row schedule-row mb-2">
+                                        <div class="col-md-3 mb-2">
+                                            <input type="date" name="scheduleDate" class="form-control" required 
+                                                value="<%= schedule.getScheduleDate() != null ? schedule.getScheduleDate().toString() : "" %>" />
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <input type="time" name="scheduleTime" class="form-control" required 
+                                                value="<%= schedule.getScheduleTime() != null ? schedule.getScheduleTime().toString() : "" %>" />
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <select name="durationHours" class="form-control" required>
+                                                <% for (double i = 0.5; i <= 3.0; i += 0.5) { 
+                                                    int hours = (int) i;
+                                                    int minutes = (int) ((i - hours) * 60);
+                                                    String label = "";
+                                                    if (hours > 0 && minutes > 0) {
+                                                        label = hours + " giờ " + minutes + " phút";
+                                                    } else if (hours > 0) {
+                                                        label = hours + " giờ";
+                                                    } else {
+                                                        label = minutes + " phút";
+                                                    }
+                                                    boolean selected = schedule.getDurationHours() != null && schedule.getDurationHours().doubleValue() == i;
+                                                %>
+                                                    <option value="<%= i %>" <% if (selected) { %>selected<% } %>><%= label %></option>
+                                                <% } %>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 mb-2">
+                                            <select name="status" class="form-control" required>
+                                                <option value="Pending" <% if ("Pending".equals(schedule.getStatus())) { %>selected<% } %>>Chờ xác nhận</option>
+                                                <option value="Confirmed" <% if ("Confirmed".equals(schedule.getStatus())) { %>selected<% } %>>Đã xác nhận</option>
+                                                <option value="Completed" <% if ("Completed".equals(schedule.getStatus())) { %>selected<% } %>>Hoàn thành</option>
+                                                <option value="Cancelled" <% if ("Cancelled".equals(schedule.getStatus())) { %>selected<% } %>>Đã hủy</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-1 mb-2 d-flex align-items-center">
+                                            <!-- Không có nút xóa cho form chỉnh sửa -->
+                                        </div>
+                                    </div>
+                                <% } else { %>
+                                    <!-- Form tạo mới - có thể thêm nhiều dòng -->
+                                    <div class="row schedule-row mb-2">
+                                        <div class="col-md-3 mb-2">
+                                            <input type="date" name="scheduleDate" class="form-control" required />
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <input type="time" name="scheduleTime" class="form-control" required />
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <select name="durationHours" class="form-control" required>
+                                                <% for (double i = 0.5; i <= 3.0; i += 0.5) { 
+                                                    int hours = (int) i;
+                                                    int minutes = (int) ((i - hours) * 60);
+                                                    String label = "";
+                                                    if (hours > 0 && minutes > 0) {
+                                                        label = hours + " giờ " + minutes + " phút";
+                                                    } else if (hours > 0) {
+                                                        label = hours + " giờ";
+                                                    } else {
+                                                        label = minutes + " phút";
+                                                    }
+                                                %>
+                                                    <option value="<%= i %>"><%= label %></option>
+                                                <% } %>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 mb-2">
+                                            <select name="status" class="form-control" required>
+                                                <option value="Pending">Chờ xác nhận</option>
+                                                <option value="Confirmed">Đã xác nhận</option>
+                                                <option value="Completed">Hoàn thành</option>
+                                                <option value="Cancelled">Đã hủy</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-1 mb-2 d-flex align-items-center">
+                                            <button type="button" class="btn btn-danger btn-sm remove-row" onclick="removeScheduleRow(this)" style="display:none;">&times;</button>
+                                        </div>
+                                    </div>
                                 <% } %>
-                                <a href="${pageContext.request.contextPath}/schedule" class="btn btn-secondary ms-2">Quay lại</a>
+                            </div>
+                            <% if (!"edit".equals(formAction)) { %>
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="addScheduleRow()"><i class="fas fa-plus me-1"></i>Thêm dòng</button>
+                            </div>
+                            <% } %>
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="reset" class="btn btn-light me-2">Làm mới</button>
+                                <button class="btn btn-primary" type="submit">
+                                    <% if ("edit".equals(formAction)) { %>
+                                        Cập nhật lịch tập
+                                    <% } else { %>
+                                        Lưu tất cả
+                                    <% } %>
+                                </button>
                             </div>
                         </form>
+                        <script>
+                        function addScheduleRow() {
+                            var row = document.querySelector('.schedule-row');
+                            var clone = row.cloneNode(true);
+                            // Reset input values
+                            clone.querySelectorAll('input, select').forEach(function(input) {
+                                if (input.type === 'date' || input.type === 'time') input.value = '';
+                                else if (input.tagName === 'SELECT') input.selectedIndex = 0;
+                            });
+                            clone.querySelector('.remove-row').style.display = 'inline-block';
+                            document.getElementById('scheduleRows').appendChild(clone);
+                        }
+                        function removeScheduleRow(btn) {
+                            var row = btn.closest('.schedule-row');
+                            row.parentNode.removeChild(row);
+                        }
+                        </script>
                     </div>
                 </div>
                 <% } %>
@@ -787,14 +839,28 @@
         window.location.href = newUrl.toString();
     }
 
+    // --- Thêm biến toàn cục để lưu trạng thái modal chi tiết ---
+    var lastViewedSchedule = null;
+
     // Function to view schedule details
     function viewSchedule(id, trainer, member, date, time, duration, status, createdAt) {
+        lastViewedSchedule = {
+            id, trainer, member, date, time, duration, status, createdAt
+        };
         document.getElementById('scheduleTitle').textContent = trainer + ' - ' + member;
         document.getElementById('scheduleTrainer').textContent = trainer;
         document.getElementById('scheduleMember').textContent = member;
         document.getElementById('scheduleDate').textContent = date;
         document.getElementById('scheduleTime').textContent = time;
-        document.getElementById('scheduleDuration').textContent = duration + ' giờ';
+        // Hiển thị thời lượng đúng định dạng
+        var dur = parseFloat(duration);
+        var hours = Math.floor(dur);
+        var minutes = Math.round((dur - hours) * 60);
+        var durationText = '';
+        if (hours > 0) durationText += hours + ' giờ';
+        if (minutes > 0) durationText += (hours > 0 ? ' ' : '') + minutes + ' phút';
+        if (durationText === '') durationText = '0 phút';
+        document.getElementById('scheduleDuration').textContent = durationText;
         document.getElementById('scheduleCreatedAt').textContent = createdAt || 'Không có thông tin';
 
         // Cập nhật trạng thái với badge
@@ -830,11 +896,35 @@
 
     // Function to show delete confirmation
     function showDeleteConfirm(id, scheduleInfo) {
+        // Đóng modal chi tiết nếu đang mở
+        var viewModalEl = document.getElementById('viewScheduleModal');
+        if (viewModalEl) {
+            var viewModal = bootstrap.Modal.getInstance(viewModalEl);
+            if (viewModal) viewModal.hide();
+        }
         document.getElementById('scheduleInfoToDelete').textContent = scheduleInfo;
         document.getElementById('confirmDeleteBtn').href = '${pageContext.request.contextPath}/schedule?action=delete&id=' + id;
-        
-        var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        var deleteModalEl = document.getElementById('deleteConfirmModal');
+        var deleteModal = new bootstrap.Modal(deleteModalEl);
         deleteModal.show();
+
+        // Khi modal xác nhận xóa bị đóng, mở lại modal chi tiết nếu có
+        deleteModalEl.addEventListener('hidden.bs.modal', function handler() {
+            if (lastViewedSchedule) {
+                viewSchedule(
+                    lastViewedSchedule.id,
+                    lastViewedSchedule.trainer,
+                    lastViewedSchedule.member,
+                    lastViewedSchedule.date,
+                    lastViewedSchedule.time,
+                    lastViewedSchedule.duration,
+                    lastViewedSchedule.status,
+                    lastViewedSchedule.createdAt
+                );
+            }
+            // Xóa event handler sau khi chạy để tránh lặp
+            deleteModalEl.removeEventListener('hidden.bs.modal', handler);
+        });
     }
 
     // Function to view day schedules
