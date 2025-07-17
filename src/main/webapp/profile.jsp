@@ -616,6 +616,11 @@
             <div class="card mt-4">
               <div class="card-header pb-0">
                 <h6>Gói tập hiện tại của bạn</h6>
+                <div class="d-flex justify-content-end">
+                  <a href="<%= request.getContextPath() %>/package-history" class="btn btn-sm btn-outline-info">
+                    <i class="fas fa-history me-1"></i>Xem lịch sử gói tập
+                  </a>
+                </div>
               </div>
               <div class="card-body pt-0">
                 <h5 class="mb-3">Gói tập hiện tại</h5>
