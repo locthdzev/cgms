@@ -203,14 +203,7 @@
     
     <!-- Removing member-cart servlet and servlet-mapping to resolve conflict with CartController -->
     
-    <servlet>
-        <servlet-name>member-feedback</servlet-name>
-        <jsp-file>/member-feedback.jsp</jsp-file>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>member-feedback</servlet-name>
-        <url-pattern>/member-feedback</url-pattern>
-    </servlet-mapping>
+    <!-- Removing member-feedback servlet and servlet-mapping to resolve conflict with MemberFeedbackController -->
 
     <!-- Authentication Filter -->
     <filter>

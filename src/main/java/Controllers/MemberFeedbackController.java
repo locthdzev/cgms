@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/member/feedback")
+@WebServlet("/member-feedback")
 public class MemberFeedbackController extends HttpServlet {
 
     private FeedbackService feedbackService = new FeedbackService();
@@ -63,7 +63,7 @@ public class MemberFeedbackController extends HttpServlet {
             }
 
             // Redirect back to the feedback page
-            resp.sendRedirect(req.getContextPath() + "/member/feedback");
+            resp.sendRedirect(req.getContextPath() + "/member-feedback");
         }
     }
 }
