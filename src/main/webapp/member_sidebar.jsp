@@ -69,7 +69,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <%= "member-feedback.jsp".equals(pageName) ? "active" : "" %>" href="member-feedback.jsp">
+                <a class="nav-link <%= "member-feedback.jsp".equals(pageName) ? "active" : "" %>" href="member/feedback">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-comment-alt text-primary text-sm opacity-10"></i>
                     </div>
