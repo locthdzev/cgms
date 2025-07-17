@@ -29,11 +29,11 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <%= "pt_schedule.jsp".equals(pageName) ? "active" : "" %>" href="pt_schedule.jsp">
+                <a class="nav-link <%= "pt_schedule_management.jsp".equals(pageName) ? "active" : "" %>" href="${pageContext.request.contextPath}/pt_schedule">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fas fa-calendar-alt text-warning text-sm opacity-10"></i>
+                        <i class="fas fa-calendar-check text-info text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Lịch làm việc</span>
+                    <span class="nav-link-text ms-1">Quản lý lịch tập</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -44,6 +44,7 @@
                     <span class="nav-link-text ms-1">Khách hàng</span>
                 </a>
             </li>
+            
             <li class="nav-item mt-3">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Tài khoản</h6>
             </li>

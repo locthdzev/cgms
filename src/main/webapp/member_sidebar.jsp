@@ -36,20 +36,20 @@
                     <span class="nav-link-text ms-1">Gói tập</span>
                 </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link <%= "member-packages.jsp".equals(pageName) ? "active" : "" %>" href="member-packages-controller">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-dumbbell text-danger text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Gói tập của tôi</span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
-                <a class="nav-link <%= "member-schedule.jsp".equals(pageName) ? "active" : "" %>" href="member-schedule.jsp">
+                <a class="nav-link <%= "member-schedule.jsp".equals(pageName) ? "active" : "" %>" href="member-training-schedule">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-calendar-alt text-warning text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Lịch tập luyện</span>
+                    <span class="nav-link-text ms-1">Lịch tập & Tiến độ</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -61,7 +61,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <%= "member-cart.jsp".equals(pageName) ? "active" : "" %>" href="member-cart.jsp">
+                <a class="nav-link <%= "member-cart.jsp".equals(pageName) ? "active" : "" %>" href="member-cart">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-shopping-cart text-info text-sm opacity-10"></i>
                     </div>
@@ -69,7 +69,15 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <%= "member-feedback.jsp".equals(pageName) ? "active" : "" %>" href="member-feedback.jsp">
+                <a class="nav-link <%= "payment-history.jsp".equals(pageName) ? "active" : "" %>" href="payment-history">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-history text-primary text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Lịch sử thanh toán</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= "member-feedback.jsp".equals(pageName) ? "active" : "" %>" href="member-feedback">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-comment-alt text-primary text-sm opacity-10"></i>
                     </div>
