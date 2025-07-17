@@ -10,6 +10,7 @@ import Models.Order;
 import Models.User;
 import Models.Voucher;
 import Services.OrderService;
+import Services.ProductService;
 import Services.UserService;
 import Services.VoucherService;
 import jakarta.servlet.ServletException;
@@ -19,192 +20,149 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 public class OrderController extends HttpServlet {
+
     private final OrderService orderService = new OrderService();
     private final UserService userService = new UserService();
     private final VoucherService voucherService = new VoucherService();
+    private final ProductService productService = new ProductService();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("action");
-        if (action == null)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        if (action == null) {
             action = "list";
+        }
 
         switch (action) {
             case "create":
-                // Prepare data for form
-                req.setAttribute("order", new Order());
-                req.setAttribute("userList", userService.getAllUsers());
-                req.setAttribute("voucherList", voucherService.getAllVouchers());
-                req.getRequestDispatcher("/createOrder.jsp").forward(req, resp);
+                prepareCreateForm(request, response);
                 break;
-                
             case "edit":
-                int id = Integer.parseInt(req.getParameter("id"));
-                Order order = orderService.getOrderById(id);
-                req.setAttribute("order", order);
-                req.setAttribute("userList", userService.getAllUsers());
-                req.setAttribute("voucherList", voucherService.getAllVouchers());
-                req.getRequestDispatcher("/editOrder.jsp").forward(req, resp);
+                prepareEditForm(request, response);
                 break;
-                
             case "delete":
-                try {
-                    orderService.deleteOrder(Integer.parseInt(req.getParameter("id")));
-                    HttpSession session = req.getSession();
-                    session.setAttribute("successMessage", "Xóa đơn hàng thành công!");
-                } catch (Exception e) {
-                    HttpSession session = req.getSession();
-                    session.setAttribute("errorMessage", "Lỗi khi xóa đơn hàng: " + e.getMessage());
-                }
-                resp.sendRedirect(req.getContextPath() + "/order?action=list");
+                deleteOrder(request, response);
                 break;
-                
             case "view":
-                int viewId = Integer.parseInt(req.getParameter("id"));
-                Order viewOrder = orderService.getOrderById(viewId);
-                req.setAttribute("order", viewOrder);
-                req.getRequestDispatcher("/order-detail.jsp").forward(req, resp);
+                viewOrderDetail(request, response);
                 break;
-                
-            case "filterByStatus":
-                String status = req.getParameter("status");
-                List<Order> filteredOrders;
-                
-                if (status == null || status.trim().isEmpty()) {
-                    filteredOrders = orderService.getAllOrders();
-                } else {
-                    filteredOrders = orderService.getOrdersByStatus(status);
-                }
-                
-                req.setAttribute("orderList", filteredOrders);
-                req.setAttribute("userList", userService.getAllUsers()); // Thêm để hiển thị filter
-                req.setAttribute("selectedStatus", status);
-                req.getRequestDispatcher("/order.jsp").forward(req, resp); // Sửa tên file
-                break;
-                
-            case "filterByMember":
-                String memberIdStr = req.getParameter("memberId");
-                List<Order> memberOrders;
-                
-                if (memberIdStr == null || memberIdStr.trim().isEmpty()) {
-                    memberOrders = orderService.getAllOrders();
-                } else {
-                    int memberId = Integer.parseInt(memberIdStr);
-                    memberOrders = orderService.getOrdersByMemberId(memberId);
-                    req.setAttribute("selectedMemberId", memberId);
-                }
-                
-                req.setAttribute("orderList", memberOrders);
-                req.setAttribute("userList", userService.getAllUsers()); // Thêm để hiển thị filter
-                req.getRequestDispatcher("/order.jsp").forward(req, resp); // Sửa tên file
-                break;
-                
-            default: // case "list"
-                List<Order> list = orderService.getAllOrders();
-                req.setAttribute("orderList", list);
-                req.setAttribute("userList", userService.getAllUsers()); // Thêm để hiển thị filter
-                req.getRequestDispatcher("/order.jsp").forward(req, resp); // Sửa tên file
-                break;
+            default:
+                listOrders(request, response);
         }
     }
 
+    private void prepareCreateForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("voucherList", voucherService.getAllVouchers());
+        request.setAttribute("userList", userService.getAllUsers());
+        request.setAttribute("products", productService.getAllProducts());
+        request.getRequestDispatcher("order-create.jsp").forward(request, response);
+    }
+
+    private void prepareEditForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        Order order = orderService.getOrderById(id);
+        request.setAttribute("order", order);
+        request.setAttribute("voucherList", voucherService.getAllVouchers());
+        request.setAttribute("userList", userService.getAllUsers());
+        request.setAttribute("products", productService.getAllProducts()); // THÊM DÒNG NÀY
+        request.setAttribute("action", "edit");
+        request.getRequestDispatcher("order-create.jsp").forward(request, response);
+    }
+
+    private void deleteOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        orderService.deleteOrder(id);
+        response.sendRedirect(request.getContextPath() + "/order?action=list");
+    }
+
+    private void viewOrderDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        Order order = orderService.getOrderById(id);
+        request.setAttribute("order", order);
+        request.getRequestDispatcher("order-detail.jsp").forward(request, response);
+    }
+
+    private void listOrders(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String status = request.getParameter("status");
+        String memberIdStr = request.getParameter("memberId");
+
+        List<Order> orders;
+        if (status != null && !status.isEmpty()) {
+            orders = orderService.getOrdersByStatus(status);
+        } else if (memberIdStr != null && !memberIdStr.isEmpty()) {
+            int memberId = Integer.parseInt(memberIdStr);
+            orders = orderService.getOrdersByMemberId(memberId);
+        } else {
+            orders = orderService.getAllOrders();
+        }
+
+        request.setAttribute("orderList", orders);
+        request.setAttribute("userList", userService.getAllUsers());
+        request.getRequestDispatcher("order.jsp").forward(request, response);
+    }
+
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        String idStr = req.getParameter("id");
-        HttpSession session = req.getSession();
-        Order order = new Order();
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        if ("create".equals(action) || "update".equals(action)) {
+            saveOrder(request, response);
+        }
+    }
 
+    private void saveOrder(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         try {
-            if (idStr != null && !idStr.trim().isEmpty()) {
-                // Update
-                order = orderService.getOrderById(Integer.parseInt(idStr));
-                order.setUpdatedAt(Instant.now());
-            } else {
-                // Create
-                order.setCreatedAt(Instant.now());
+            Order order = new Order();
+
+            String idStr = request.getParameter("id");
+            if (idStr != null && !idStr.isEmpty()) {
+                order.setId(Integer.parseInt(idStr));
             }
 
-            // Set member
-            String memberIdStr = req.getParameter("memberId");
-            if (memberIdStr != null && !memberIdStr.trim().isEmpty()) {
-                User member = userService.getUserById(Integer.parseInt(memberIdStr));
-                order.setMember(member);
-            }
+            int memberId = Integer.parseInt(request.getParameter("memberId"));
+            User user = new User();
+            user.setId(memberId);
+            order.setMember(user);
 
-            // Set voucher (optional)
-            String voucherIdStr = req.getParameter("voucherId");
-            if (voucherIdStr != null && !voucherIdStr.trim().isEmpty()) {
+            order.setOrderDate(LocalDate.parse(request.getParameter("orderDate")));
+            order.setStatus(request.getParameter("status"));
+
+            String voucherIdStr = request.getParameter("voucherId");
+            if (voucherIdStr != null && !voucherIdStr.isEmpty()) {
                 Voucher voucher = voucherService.getVoucherById(Integer.parseInt(voucherIdStr));
                 order.setVoucher(voucher);
-            } else {
-                order.setVoucher(null);
             }
 
-            // Set total amount
-            String totalAmountStr = req.getParameter("totalAmount");
-            if (totalAmountStr != null && !totalAmountStr.trim().isEmpty()) {
+            String totalAmountStr = request.getParameter("totalAmount");
+            if (totalAmountStr != null && !totalAmountStr.isEmpty()) {
                 order.setTotalAmount(new BigDecimal(totalAmountStr));
             }
 
-            // Set order date
-            String orderDateStr = req.getParameter("orderDate");
-            if (orderDateStr != null && !orderDateStr.trim().isEmpty()) {
-                order.setOrderDate(LocalDate.parse(orderDateStr));
-            }
-
-            // Set status
-            order.setStatus(req.getParameter("status"));
-
-            // Validate order data
             List<String> validationErrors = orderService.validateOrder(order);
             if (!validationErrors.isEmpty()) {
-                StringBuilder errorMessage = new StringBuilder("Lỗi validation:<ul>");
-                for (String error : validationErrors) {
-                    errorMessage.append("<li>").append(error).append("</li>");
-                }
-                errorMessage.append("</ul>");
-                req.setAttribute("errorMessage", errorMessage.toString());
-                req.setAttribute("order", order);
-                req.setAttribute("userList", userService.getAllUsers());
-                req.setAttribute("voucherList", voucherService.getAllVouchers());
-                
-                // Chuyển đến trang form tương ứng
-                String targetPage = (idStr != null && !idStr.trim().isEmpty()) ? "/editOrder.jsp" : "/createOrder.jsp";
-                req.getRequestDispatcher(targetPage).forward(req, resp);
+                request.setAttribute("errorMessage", String.join("<br>", validationErrors));
+                request.setAttribute("order", order);
+                request.setAttribute("voucherList", voucherService.getAllVouchers());
+                request.setAttribute("userList", userService.getAllUsers());
+                request.setAttribute("products", productService.getAllProducts());
+                request.getRequestDispatcher("order-create.jsp").forward(request, response);
                 return;
             }
 
-            if (idStr != null && !idStr.trim().isEmpty()) {
-                orderService.updateOrder(order);
-                session.setAttribute("successMessage", "Cập nhật đơn hàng thành công!");
+            if (order.getId() == null || order.getId() == 0) {
+                orderService.createOrder(order);
+                request.getSession().setAttribute("successMessage", "Tạo đơn hàng thành công!");
             } else {
-                orderService.saveOrder(order);
-                session.setAttribute("successMessage", "Tạo đơn hàng mới thành công!");
+                orderService.updateOrder(order);
+                request.getSession().setAttribute("successMessage", "Cập nhật đơn hàng thành công!");
             }
 
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            session.setAttribute("errorMessage", "Lỗi: Dữ liệu số không hợp lệ - " + e.getMessage());
-            req.setAttribute("order", order);
-            req.setAttribute("userList", userService.getAllUsers());
-            req.setAttribute("voucherList", voucherService.getAllVouchers());
-            
-            String targetPage = (idStr != null && !idStr.trim().isEmpty()) ? "/editOrder.jsp" : "/createOrder.jsp";
-            req.getRequestDispatcher(targetPage).forward(req, resp);
-            return;
+            response.sendRedirect(request.getContextPath() + "/order?action=list");
         } catch (Exception e) {
             e.printStackTrace();
-            session.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
-            req.setAttribute("order", order);
-            req.setAttribute("userList", userService.getAllUsers());
-            req.setAttribute("voucherList", voucherService.getAllVouchers());
-            
-            String targetPage = (idStr != null && !idStr.trim().isEmpty()) ? "/editOrder.jsp" : "/createOrder.jsp";
-            req.getRequestDispatcher(targetPage).forward(req, resp);
-            return;
+            request.setAttribute("errorMessage", "Đã xảy ra lỗi khi xử lý đơn hàng: " + e.getMessage());
+            request.getRequestDispatcher("order-create.jsp").forward(request, response);
         }
-
-        resp.sendRedirect(req.getContextPath() + "/order?action=list");
     }
 }

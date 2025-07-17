@@ -241,9 +241,10 @@
                             <a href="dashboard.jsp" class="btn btn-outline-secondary btn-sm me-2">
                                 <i class="fas fa-arrow-left me-2"></i>Quay lại
                             </a>
-                            <a href="createOrder.jsp" class="btn btn-primary btn-sm">
+                            <a href="${pageContext.request.contextPath}/order?action=create" class="btn btn-primary btn-sm">
                                 <i class="fas fa-plus me-2"></i>Tạo đơn hàng mới
                             </a>
+
                         </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
@@ -415,196 +416,196 @@
         <script src="${pageContext.request.contextPath}/assets/js/plugins/smooth-scrollbar.min.js"></script>
         <script src="${pageContext.request.contextPath}/assets/js/argon-dashboard.min.js?v=2.1.0"></script>
         <script>
-                              document.addEventListener('DOMContentLoaded', function () {
-                                  // Hiển thị toast thông báo nếu có
-                                  if (document.getElementById('successToast')) {
-                                      var successToast = new bootstrap.Toast(document.getElementById('successToast'), {
-                                          delay: 5000,
-                                          animation: true
-                                      });
-                                      successToast.show();
-                                  }
+                                                document.addEventListener('DOMContentLoaded', function () {
+                                                    // Hiển thị toast thông báo nếu có
+                                                    if (document.getElementById('successToast')) {
+                                                        var successToast = new bootstrap.Toast(document.getElementById('successToast'), {
+                                                            delay: 5000,
+                                                            animation: true
+                                                        });
+                                                        successToast.show();
+                                                    }
 
-                                  if (document.getElementById('errorToast')) {
-                                      var errorToast = new bootstrap.Toast(document.getElementById('errorToast'), {
-                                          delay: 5000,
-                                          animation: true
-                                      });
-                                      errorToast.show();
-                                  }
+                                                    if (document.getElementById('errorToast')) {
+                                                        var errorToast = new bootstrap.Toast(document.getElementById('errorToast'), {
+                                                            delay: 5000,
+                                                            animation: true
+                                                        });
+                                                        errorToast.show();
+                                                    }
 
-                                  // Hàm định dạng số
-                                  function formatNumber(num) {
-                                      if (!num)
-                                          return '0';
-                                      return parseFloat(num).toString().replace(/\.0+$/, '');
-                                  }
+                                                    // Hàm định dạng số
+                                                    function formatNumber(num) {
+                                                        if (!num)
+                                                            return '0';
+                                                        return parseFloat(num).toString().replace(/\.0+$/, '');
+                                                    }
 
-                                  // Hàm định dạng ngày tháng
-                                  function formatDate(dateStr) {
-                                      if (!dateStr)
-                                          return 'N/A';
-                                      try {
-                                          if (dateStr.includes('T') && dateStr.includes('Z')) {
-                                              const date = new Date(dateStr);
-                                              if (!isNaN(date.getTime())) {
-                                                  return date.getDate().toString().padStart(2, '0') + '/' +
-                                                          (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
-                                                          date.getFullYear();
-                                              }
-                                          }
+                                                    // Hàm định dạng ngày tháng
+                                                    function formatDate(dateStr) {
+                                                        if (!dateStr)
+                                                            return 'N/A';
+                                                        try {
+                                                            if (dateStr.includes('T') && dateStr.includes('Z')) {
+                                                                const date = new Date(dateStr);
+                                                                if (!isNaN(date.getTime())) {
+                                                                    return date.getDate().toString().padStart(2, '0') + '/' +
+                                                                            (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                                                                            date.getFullYear();
+                                                                }
+                                                            }
 
-                                          if (dateStr.includes('/')) {
-                                              const parts = dateStr.split('/');
-                                              if (parts.length >= 3) {
-                                                  const day = parts[0].split('T')[0];
-                                                  const month = parts[1];
-                                                  const year = parts[2];
-                                                  return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year;
-                                              }
-                                          }
+                                                            if (dateStr.includes('/')) {
+                                                                const parts = dateStr.split('/');
+                                                                if (parts.length >= 3) {
+                                                                    const day = parts[0].split('T')[0];
+                                                                    const month = parts[1];
+                                                                    const year = parts[2];
+                                                                    return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year;
+                                                                }
+                                                            }
 
-                                          const parts = dateStr.split('-');
-                                          if (parts.length === 3) {
-                                              return parts[2] + '/' + parts[1] + '/' + parts[0];
-                                          }
+                                                            const parts = dateStr.split('-');
+                                                            if (parts.length === 3) {
+                                                                return parts[2] + '/' + parts[1] + '/' + parts[0];
+                                                            }
 
-                                          return dateStr;
-                                      } catch (e) {
-                                          return dateStr;
-                                      }
-                                  }
+                                                            return dateStr;
+                                                        } catch (e) {
+                                                            return dateStr;
+                                                        }
+                                                    }
 
-                                  // Hàm định dạng ngày tháng kèm giờ phút giây
-                                  function formatDateWithTime(dateStr) {
-                                      if (!dateStr)
-                                          return 'N/A';
-                                      try {
-                                          if (dateStr.includes('T') && dateStr.includes('Z')) {
-                                              const date = new Date(dateStr);
-                                              if (!isNaN(date.getTime())) {
-                                                  return date.getDate().toString().padStart(2, '0') + '/' +
-                                                          (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
-                                                          date.getFullYear() + ' ' +
-                                                          date.getHours().toString().padStart(2, '0') + ':' +
-                                                          date.getMinutes().toString().padStart(2, '0') + ':' +
-                                                          date.getSeconds().toString().padStart(2, '0');
-                                              }
-                                          }
+                                                    // Hàm định dạng ngày tháng kèm giờ phút giây
+                                                    function formatDateWithTime(dateStr) {
+                                                        if (!dateStr)
+                                                            return 'N/A';
+                                                        try {
+                                                            if (dateStr.includes('T') && dateStr.includes('Z')) {
+                                                                const date = new Date(dateStr);
+                                                                if (!isNaN(date.getTime())) {
+                                                                    return date.getDate().toString().padStart(2, '0') + '/' +
+                                                                            (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                                                                            date.getFullYear() + ' ' +
+                                                                            date.getHours().toString().padStart(2, '0') + ':' +
+                                                                            date.getMinutes().toString().padStart(2, '0') + ':' +
+                                                                            date.getSeconds().toString().padStart(2, '0');
+                                                                }
+                                                            }
 
-                                          if (dateStr.includes('/')) {
-                                              const parts = dateStr.split('/');
-                                              if (parts.length >= 3) {
-                                                  const dayPart = parts[0].split('T');
-                                                  const day = dayPart[0];
-                                                  const month = parts[1];
-                                                  const year = parts[2];
+                                                            if (dateStr.includes('/')) {
+                                                                const parts = dateStr.split('/');
+                                                                if (parts.length >= 3) {
+                                                                    const dayPart = parts[0].split('T');
+                                                                    const day = dayPart[0];
+                                                                    const month = parts[1];
+                                                                    const year = parts[2];
 
-                                                  if (dayPart.length > 1) {
-                                                      const timePart = dayPart[1].split(':');
-                                                      if (timePart.length >= 3) {
-                                                          const hour = timePart[0];
-                                                          const minute = timePart[1];
-                                                          const second = timePart[2].split('.')[0];
-                                                          return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year + ' ' +
-                                                                  hour.padStart(2, '0') + ':' + minute.padStart(2, '0') + ':' + second.padStart(2, '0');
-                                                      }
-                                                  }
+                                                                    if (dayPart.length > 1) {
+                                                                        const timePart = dayPart[1].split(':');
+                                                                        if (timePart.length >= 3) {
+                                                                            const hour = timePart[0];
+                                                                            const minute = timePart[1];
+                                                                            const second = timePart[2].split('.')[0];
+                                                                            return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year + ' ' +
+                                                                                    hour.padStart(2, '0') + ':' + minute.padStart(2, '0') + ':' + second.padStart(2, '0');
+                                                                        }
+                                                                    }
 
-                                                  return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year;
-                                              }
-                                          }
+                                                                    return day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year;
+                                                                }
+                                                            }
 
-                                          const parts = dateStr.split('-');
-                                          if (parts.length === 3) {
-                                              return parts[2] + '/' + parts[1] + '/' + parts[0];
-                                          }
+                                                            const parts = dateStr.split('-');
+                                                            if (parts.length === 3) {
+                                                                return parts[2] + '/' + parts[1] + '/' + parts[0];
+                                                            }
 
-                                          return dateStr;
-                                      } catch (e) {
-                                          return dateStr;
-                                      }
-                                  }
+                                                            return dateStr;
+                                                        } catch (e) {
+                                                            return dateStr;
+                                                        }
+                                                    }
 
-                                  // Hàm lấy tên trạng thái tiếng Việt
-                                  function getStatusText(status) {
-                                      switch (status) {
-                                          case 'Pending':
-                                              return 'Chờ xử lý';
-                                          case 'Confirmed':
-                                              return 'Đã xác nhận';
-                                          case 'Processing':
-                                              return 'Đang xử lý';
-                                          case 'Shipped':
-                                              return 'Đã giao';
-                                          case 'Delivered':
-                                              return 'Đã nhận';
-                                          case 'Cancelled':
-                                              return 'Đã hủy';
-                                          default:
-                                              return status;
-                                      }
-                                  }
+                                                    // Hàm lấy tên trạng thái tiếng Việt
+                                                    function getStatusText(status) {
+                                                        switch (status) {
+                                                            case 'Pending':
+                                                                return 'Chờ xử lý';
+                                                            case 'Confirmed':
+                                                                return 'Đã xác nhận';
+                                                            case 'Processing':
+                                                                return 'Đang xử lý';
+                                                            case 'Shipped':
+                                                                return 'Đã giao';
+                                                            case 'Delivered':
+                                                                return 'Đã nhận';
+                                                            case 'Cancelled':
+                                                                return 'Đã hủy';
+                                                            default:
+                                                                return status;
+                                                        }
+                                                    }
 
-                                  // Hàm lấy class CSS cho trạng thái
-                                  function getStatusBadgeClass(status) {
-                                      switch (status) {
-                                          case 'Pending':
-                                              return 'badge status-pending';
-                                          case 'Confirmed':
-                                              return 'badge status-confirmed';
-                                          case 'Processing':
-                                              return 'badge status-processing';
-                                          case 'Shipped':
-                                              return 'badge status-shipped';
-                                          case 'Delivered':
-                                              return 'badge status-delivered';
-                                          case 'Cancelled':
-                                              return 'badge status-cancelled';
-                                          default:
-                                              return 'badge bg-gradient-secondary';
-                                      }
-                                  }
+                                                    // Hàm lấy class CSS cho trạng thái
+                                                    function getStatusBadgeClass(status) {
+                                                        switch (status) {
+                                                            case 'Pending':
+                                                                return 'badge status-pending';
+                                                            case 'Confirmed':
+                                                                return 'badge status-confirmed';
+                                                            case 'Processing':
+                                                                return 'badge status-processing';
+                                                            case 'Shipped':
+                                                                return 'badge status-shipped';
+                                                            case 'Delivered':
+                                                                return 'badge status-delivered';
+                                                            case 'Cancelled':
+                                                                return 'badge status-cancelled';
+                                                            default:
+                                                                return 'badge bg-gradient-secondary';
+                                                        }
+                                                    }
 
-                                  // Xử lý sự kiện click nút xem thông tin nhanh đơn hàng
-                                  document.querySelectorAll('.view-order-btn').forEach(function (button) {
-                                      button.addEventListener('click', function (e) {
-                                          e.preventDefault();
-                                          const id = this.getAttribute('data-id');
-                                          const memberName = this.getAttribute('data-member-name');
-                                          const memberEmail = this.getAttribute('data-member-email');
-                                          const orderDate = this.getAttribute('data-order-date');
-                                          const totalAmount = this.getAttribute('data-total-amount');
-                                          const voucherCode = this.getAttribute('data-voucher-code');
-                                          const status = this.getAttribute('data-status');
-                                          const created = this.getAttribute('data-created');
-                                          const updated = this.getAttribute('data-updated');
+                                                    // Xử lý sự kiện click nút xem thông tin nhanh đơn hàng
+                                                    document.querySelectorAll('.view-order-btn').forEach(function (button) {
+                                                        button.addEventListener('click', function (e) {
+                                                            e.preventDefault();
+                                                            const id = this.getAttribute('data-id');
+                                                            const memberName = this.getAttribute('data-member-name');
+                                                            const memberEmail = this.getAttribute('data-member-email');
+                                                            const orderDate = this.getAttribute('data-order-date');
+                                                            const totalAmount = this.getAttribute('data-total-amount');
+                                                            const voucherCode = this.getAttribute('data-voucher-code');
+                                                            const status = this.getAttribute('data-status');
+                                                            const created = this.getAttribute('data-created');
+                                                            const updated = this.getAttribute('data-updated');
 
-                                          // Cập nhật nội dung modal
-                                          document.getElementById('orderDetailId').textContent = 'Đơn hàng #' + id;
-                                          document.getElementById('orderDetailMemberName').textContent = memberName;
-                                          document.getElementById('orderDetailMemberEmail').textContent = memberEmail;
-                                          document.getElementById('orderDetailOrderDate').textContent = formatDate(orderDate);
-                                          document.getElementById('orderDetailTotalAmount').textContent = new Intl.NumberFormat('vi-VN').format(formatNumber(totalAmount));
-                                          document.getElementById('orderDetailVoucherCode').textContent = voucherCode || 'Không có';
-                                          document.getElementById('orderDetailCreated').textContent = formatDateWithTime(created) || 'N/A';
-                                          document.getElementById('orderDetailUpdated').textContent = formatDateWithTime(updated) || 'N/A';
+                                                            // Cập nhật nội dung modal
+                                                            document.getElementById('orderDetailId').textContent = 'Đơn hàng #' + id;
+                                                            document.getElementById('orderDetailMemberName').textContent = memberName;
+                                                            document.getElementById('orderDetailMemberEmail').textContent = memberEmail;
+                                                            document.getElementById('orderDetailOrderDate').textContent = formatDate(orderDate);
+                                                            document.getElementById('orderDetailTotalAmount').textContent = new Intl.NumberFormat('vi-VN').format(formatNumber(totalAmount));
+                                                            document.getElementById('orderDetailVoucherCode').textContent = voucherCode || 'Không có';
+                                                            document.getElementById('orderDetailCreated').textContent = formatDateWithTime(created) || 'N/A';
+                                                            document.getElementById('orderDetailUpdated').textContent = formatDateWithTime(updated) || 'N/A';
 
-                                          // Cập nhật trạng thái
-                                          const statusBadge = document.getElementById('orderDetailStatus');
-                                          statusBadge.className = getStatusBadgeClass(status);
-                                          statusBadge.textContent = getStatusText(status);
+                                                            // Cập nhật trạng thái
+                                                            const statusBadge = document.getElementById('orderDetailStatus');
+                                                            statusBadge.className = getStatusBadgeClass(status);
+                                                            statusBadge.textContent = getStatusText(status);
 
-                                          // Cập nhật links
-                                          document.getElementById('viewOrderBtn').href = '${pageContext.request.contextPath}/order?action=view&id=' + id;
-                                          document.getElementById('editOrderBtn').href = '${pageContext.request.contextPath}/order?action=edit&id=' + id;
+                                                            // Cập nhật links
+                                                            document.getElementById('viewOrderBtn').href = '${pageContext.request.contextPath}/order?action=view&id=' + id;
+                                                            document.getElementById('editOrderBtn').href = '${pageContext.request.contextPath}/order?action=edit&id=' + id;
 
-                                          // Hiển thị modal
-                                          var quickViewModal = new bootstrap.Modal(document.getElementById('orderQuickViewModal'));
-                                          quickViewModal.show();
-                                      });
-                                  });
-                              });
+                                                            // Hiển thị modal
+                                                            var quickViewModal = new bootstrap.Modal(document.getElementById('orderQuickViewModal'));
+                                                            quickViewModal.show();
+                                                        });
+                                                    });
+                                                });
         </script>
     </body>
 </html>
