@@ -80,10 +80,13 @@ public class PayOSService {
                 description = description.substring(0, 22) + "...";
             }
 
+            long expiredAt = Instant.now().plus(5, ChronoUnit.MINUTES).getEpochSecond();
+
             // Tạo dữ liệu thanh toán
             PaymentData paymentData = PaymentData.builder()
                     .orderCode(orderCodeLong)
                     .amount(finalAmount)
+                    .expiredAt(expiredAt) // Không đặt thời gian hết hạn
                     .description(description)
                     .returnUrl(baseUrl + "/payment/success")
                     .cancelUrl(baseUrl + "/payment/cancel")

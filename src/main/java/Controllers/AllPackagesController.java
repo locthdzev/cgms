@@ -2,7 +2,9 @@ package Controllers;
 
 import Models.Package;
 import Models.User;
+import Models.MemberPackage;
 import DAOs.PackageDAO;
+import DAOs.MemberPackageDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,10 +13,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet("/all-packages")
 public class AllPackagesController extends HttpServlet {
     private PackageDAO packageDAO = new PackageDAO();
+    private MemberPackageDAO memberPackageDAO = new MemberPackageDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -30,6 +34,22 @@ public class AllPackagesController extends HttpServlet {
         // Lấy danh sách tất cả các gói tập có trạng thái Active
         List<Package> activePackages = packageDAO.getAllActivePackages();
         request.setAttribute("packages", activePackages);
+
+        // Lấy thông tin gói tập hiện tại của thành viên
+        List<MemberPackage> memberPackages = memberPackageDAO.getMemberPackagesByMemberId(loggedInUser.getId());
+        request.setAttribute("memberPackages", memberPackages);
+
+        // Lấy danh sách gói tập đang hoạt động hoặc đang chờ thanh toán
+        List<MemberPackage> activeOrPendingPackages = memberPackages.stream()
+                .filter(p -> "ACTIVE".equals(p.getStatus()))
+                .collect(Collectors.toList());
+
+        request.setAttribute("activeOrPendingPackages", activeOrPendingPackages);
+
+        // Kiểm tra xem có gói tập nào đang hoạt động không
+        boolean hasActivePackage = memberPackages.stream()
+                .anyMatch(p -> "ACTIVE".equals(p.getStatus()));
+        request.setAttribute("hasActivePackage", hasActivePackage);
 
         // Xử lý thông báo thành công và lỗi
         String message = request.getParameter("message");

@@ -1,5 +1,11 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="Models.User"%>
+<%@page import="Models.MemberPackage"%>
+<%@page import="java.util.List"%>
+<%@page import="java.time.format.DateTimeFormatter"%>
+<%@page import="java.math.BigDecimal"%>
+<%@page import="DAOs.PackageDAO"%>
+<%@page import="Models.Package"%>
 <%
     // Lấy thông tin người dùng đăng nhập từ session
     User loggedInUser = (User) session.getAttribute("loggedInUser");
@@ -9,6 +15,10 @@
     if (profileUser == null) {
         profileUser = loggedInUser;
     }
+    
+    // Lấy danh sách gói tập của thành viên
+    List<MemberPackage> memberPackages = (List<MemberPackage>) request.getAttribute("memberPackages");
+    boolean hasMemberPackages = memberPackages != null && !memberPackages.isEmpty();
     
     // Lấy thông báo từ request hoặc session
     String successMessage = (String) request.getAttribute("successMessage");
@@ -29,6 +39,43 @@
     
     boolean hasSuccessMessage = successMessage != null;
     boolean hasErrorMessage = errorMessage != null;
+    
+    // Định dạng ngày tháng
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    
+    // Kiểm tra xem gói tập hiện tại có phải là gói cao nhất không
+    boolean isHighestTierPackage = false;
+    if (hasMemberPackages) {
+        // Lấy tất cả các gói tập đang hoạt động từ database
+        PackageDAO packageDAO = new PackageDAO();
+        List<Package> allActivePackages = packageDAO.getActivePackages();
+        
+        // Tìm gói tập có giá cao nhất và thời hạn dài nhất
+        BigDecimal highestPrice = BigDecimal.ZERO;
+        int longestDuration = 0;
+        
+        if (allActivePackages != null) {
+            for (Package pkg : allActivePackages) {
+                if (pkg.getPrice().compareTo(highestPrice) > 0) {
+                    highestPrice = pkg.getPrice();
+                }
+                if (pkg.getDuration() > longestDuration) {
+                    longestDuration = pkg.getDuration();
+                }
+            }
+        }
+        
+        // Kiểm tra xem gói tập hiện tại có phải là gói cao nhất không
+        for (MemberPackage memberPackage : memberPackages) {
+            if ("ACTIVE".equals(memberPackage.getStatus())) {
+                if (memberPackage.getPackageField().getPrice().compareTo(highestPrice) >= 0 || 
+                    memberPackage.getPackageField().getDuration() >= longestDuration) {
+                    isHighestTierPackage = true;
+                    break;
+                }
+            }
+        }
+    }
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -563,6 +610,70 @@
                 </div>
               </div>
             </div>
+            
+            <% if (!("Personal Trainer".equals(profileUser.getRole())) && hasMemberPackages) { %>
+            <!-- Thông tin gói tập -->
+            <div class="card mt-4">
+              <div class="card-header pb-0">
+                <h6>Gói tập hiện tại của bạn</h6>
+                <div class="d-flex justify-content-end">
+                  <a href="<%= request.getContextPath() %>/package-history" class="btn btn-sm btn-outline-info">
+                    <i class="fas fa-history me-1"></i>Xem lịch sử gói tập
+                  </a>
+                </div>
+              </div>
+              <div class="card-body pt-0">
+                <h5 class="mb-3">Gói tập hiện tại</h5>
+                <% for (MemberPackage memberPackage : memberPackages) { %>
+                <% if ("ACTIVE".equals(memberPackage.getStatus())) { %>
+                <div class="package-item mb-3 p-3 border rounded">
+                  <h5 class="text-gradient text-primary mb-2"><%= memberPackage.getPackageField().getName() %></h5>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Trạng thái:</span>
+                    <span class="badge bg-gradient-success">Đang hoạt động</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Ngày bắt đầu:</span>
+                    <span class="text-sm font-weight-bold"><%= memberPackage.getStartDate().format(dateFormatter) %></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Ngày kết thúc:</span>
+                    <span class="text-sm font-weight-bold"><%= memberPackage.getEndDate().format(dateFormatter) %></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Số buổi tập còn lại:</span>
+                    <span class="text-sm font-weight-bold"><%= memberPackage.getRemainingSessions() %> buổi</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm">Giá gói tập:</span>
+                    <span class="text-sm font-weight-bold"><%= String.format("%,.0f", memberPackage.getTotalPrice()) %> VNĐ</span>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <% if (!isHighestTierPackage) { %>
+                    <a href="<%= request.getContextPath() %>/all-packages" class="btn btn-sm btn-outline-primary">Nâng cấp gói tập</a>
+                    <% } else { %>
+                    <span class="text-sm text-success"><i class="fas fa-crown me-1"></i> Gói cao cấp nhất</span>
+                    <% } %>
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#cancelPackageModal"
+                            data-package-id="<%= memberPackage.getId() %>"
+                            data-package-name="<%= memberPackage.getPackageField().getName() %>">
+                        Hủy gói tập
+                    </button>
+                </div>
+                <% } %>
+                <% } %>
+                
+                <% if (memberPackages.stream().noneMatch(p -> "ACTIVE".equals(p.getStatus()))) { %>
+                <div class="text-center py-3">
+                  <p class="text-sm mb-3">Bạn chưa có gói tập nào đang hoạt động</p>
+                  <a href="<%= request.getContextPath() %>/all-packages" class="btn btn-sm btn-primary">Đăng ký gói tập ngay</a>
+                </div>
+                <% } %>
+              </div>
+            </div>
+            <% } %>
           </div>
         </div>
         <footer class="footer pt-3">
@@ -584,6 +695,30 @@
         </footer>
       </div>
     </main>
+    
+    <!-- Modal xác nhận hủy gói tập -->
+    <div class="modal fade" id="cancelPackageModal" tabindex="-1" aria-labelledby="cancelPackageModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cancelPackageModalLabel">Xác nhận hủy gói tập</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Bạn có chắc chắn muốn hủy gói tập <strong id="packageNameToCancel"></strong>?</p>
+            <p class="text-danger">Lưu ý: Sau khi hủy gói tập, bạn sẽ không thể sử dụng các dịch vụ của gói tập này nữa.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <form action="<%= request.getContextPath() %>/cancel-member-package" method="post">
+              <input type="hidden" id="memberPackageIdToCancel" name="memberPackageId" value="">
+              <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="fixed-plugin">
       <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
         <i class="fa fa-cog py-2"> </i>
@@ -762,6 +897,19 @@
             }
           );
           errorToast.show();
+        }
+        
+        // Xử lý modal hủy gói tập
+        var cancelPackageModal = document.getElementById('cancelPackageModal');
+        if (cancelPackageModal) {
+          cancelPackageModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var packageId = button.getAttribute('data-package-id');
+            var packageName = button.getAttribute('data-package-name');
+            
+            document.getElementById('memberPackageIdToCancel').value = packageId;
+            document.getElementById('packageNameToCancel').textContent = packageName;
+          });
         }
       });
       
