@@ -10,6 +10,7 @@ import java.io.IOException;
 
 @WebServlet("/member-cart")
 public class CartController extends HttpServlet {
+
     private final CartService cartService = new CartService();
 
     @Override
@@ -31,7 +32,15 @@ public class CartController extends HttpServlet {
             int cartId = Integer.parseInt(req.getParameter("id"));
             cartService.removeItem(cartId);
             req.getSession().setAttribute("successMessage", "Đã xóa sản phẩm khỏi giỏ!");
-            resp.sendRedirect("member-cart.jsp");
+            resp.sendRedirect("member-cart");
+        } else if ("increase".equals(action)) {
+            int cartId = Integer.parseInt(req.getParameter("id"));
+            cartService.changeQuantity(cartId, 1); // tăng
+            resp.sendRedirect("member-cart");
+        } else if ("decrease".equals(action)) {
+            int cartId = Integer.parseInt(req.getParameter("id"));
+            cartService.changeQuantity(cartId, -1); // giảm
+            resp.sendRedirect("member-cart");
         } else {
             req.setAttribute("cartItems", cartService.getCartByMemberId(user.getId()));
             req.getRequestDispatcher("member-cart.jsp").forward(req, resp);

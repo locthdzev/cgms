@@ -1,152 +1,122 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@page import="Models.Inventory"%>
-<%@page import="java.util.List"%>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page import="Models.Inventory" %>
+<%@ page import="Models.Product" %>
+<%@ page import="java.util.List" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png"/>
-        <link rel="icon" type="image/png" href="assets/img/weightlifting.png"/>
-        <title>CoreFit Gym Management System</title>
-        <!-- Fonts and icons -->
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet"/>
-        <!-- Nucleo Icons -->
-        <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet"/>
-        <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet"/>
-        <!-- Font Awesome Icons -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
-        <!-- CSS Files -->
-        <link id="pagestyle" href="./assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet"/>    <style>
-            /* Toast styles */
-            .toast-container {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-            }
-        </style>
-    </head>
-    <body class="g-sidenav-show bg-gray-100">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
+    <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
+    <title>Quản lý kho hàng - CoreFit Gym</title>
+    <!-- Fonts and icons -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <!-- CSS Files -->
+    <link id="pagestyle" href="./assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
         <div class="min-height-300 bg-dark position-absolute w-100"></div>
+    
+    <!-- Sidebar -->
+    <%@ include file="sidebar.jsp" %>
+    
+    <!-- Main content -->
+    <main class="main-content position-relative border-radius-lg">
+        <!-- Include Navbar Component -->
+        <jsp:include page="navbar.jsp">
+            <jsp:param name="pageTitle" value="Quản lý kho hàng" />
+            <jsp:param name="parentPage" value="Dashboard" />
+            <jsp:param name="parentPageUrl" value="dashboard" />
+            <jsp:param name="currentPage" value="Quản lý kho hàng" />
+        </jsp:include>
 
-        <!-- Toast Container -->
-        <div class="toast-container">
-            <c:if test="${not empty sessionScope.successMessage}">
-                <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            <i class="fas fa-check-circle me-2"></i> ${sessionScope.successMessage}
+        <div class="container-fluid py-4">
+            <!-- Header Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="text-white mb-0">Danh sách Kho hàng</h4>
                         </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>
-                <% session.removeAttribute("successMessage"); %>
-            </c:if>
-            <c:if test="${not empty sessionScope.errorMessage}">
-                <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" id="errorToast">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            <i class="fas fa-exclamation-circle me-2"></i> ${sessionScope.errorMessage}
+                        <div class="d-flex gap-2">
+                            <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-outline-white btn-sm">
+                                <i class="fas fa-arrow-left me-2"></i>Quay lại
+                            </a>
+                            <a href="${pageContext.request.contextPath}/inventory?action=add" class="btn btn-white btn-sm">
+                                <i class="fas fa-plus me-2"></i>Nhập hàng mới
+                            </a>
                         </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>
-                <% session.removeAttribute("errorMessage"); %>
-            </c:if>
-        </div>
-
-        <!-- Include Sidebar Component -->
-        <%@ include file="sidebar.jsp" %>
-
-        <!-- MAIN CONTENT -->
-        <main class="main-content position-relative border-radius-lg">
-            <div class="container-fluid py-4">
-                <h1 class="mb-4">Quản lý kho hàng</h1>
-                <a href="${pageContext.request.contextPath}/inventory?action=add" class="btn btn-success mb-3">+ Nhập hàng mới</a>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Danh sách sản phẩm trong kho</h5>
-                    </div>
-                    <div class="card-body">
-                        <table class="table align-items-center mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sản phẩm</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Số lượng tồn kho</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Cập nhật lần cuối</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach items="${inventoryList}" var="item">
-                                    <tr>
-                                        <td class="text-center"><h6 class="mb-0 text-sm">${item.id}</h6></td>
-                                        <td class="text-center"><h6 class="mb-0 text-sm">${item.product.name}</h6></td>
-                                        <td class="text-center"><h6 class="mb-0 text-sm">${item.quantity}</h6></td>
-                                        <td class="text-center">
-                                            <h6 class="mb-0 text-sm">
-                                                <c:if test="${not empty item.lastUpdated}">
-                                                    <jsp:useBean id="lastUpdatedDate" class="java.util.Date"/>
-                                                    <jsp:setProperty name="lastUpdatedDate" property="time" value="${item.lastUpdated.toEpochMilli()}"/>
-                                                    <fmt:formatDate value="${lastUpdatedDate}" pattern="dd/MM/yyyy HH:mm:ss" />
-                                                </c:if>
-                                            </h6>
-                                        </td>
-                                        <td class="text-center">
-                                            <h6 class="mb-0 text-sm">${item.status}</h6>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-icon-only text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="fas fa-ellipsis-v"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li>
-                                                        <a class="dropdown-item" href="${pageContext.request.contextPath}/inventory?action=edit&productId=${item.product.id}">
-                                                            <i class="fas fa-edit me-2"></i>Cập nhật số lượng
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-
                     </div>
                 </div>
             </div>
-        </main>
 
-        <!-- Core JS Files -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Hiển thị toast thông báo nếu có
-                if (document.getElementById('successToast')) {
-                    var successToast = new bootstrap.Toast(document.getElementById('successToast'), {
-                        delay: 5000,
-                        animation: true
-                    });
-                    successToast.show();
-                }
+            <!-- Table Section -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-lg">
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">SẢN PHẨM</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">SỐ LƯỢNG</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">TRẠNG THÁI</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">THAO TÁC</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="inventory" items="${inventoryList}">
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <p class="text-xs font-weight-bold mb-0">${inventory.id}</p>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">${inventory.product.name}</p>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">${inventory.quantity}</p>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-sm ${inventory.quantity > 0 ? 'bg-gradient-success' : 'bg-gradient-danger'}">
+                                                        ${inventory.quantity > 0 ? 'Còn hàng' : 'Hết hàng'}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a href="${pageContext.request.contextPath}/inventory?action=edit&productId=${inventory.product.id}" 
+                                                       class="btn btn-link text-dark px-3 mb-0">
+                                                        <i class="fas fa-pencil-alt text-dark me-2"></i>Sửa
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-                if (document.getElementById('errorToast')) {
-                    var errorToast = new bootstrap.Toast(document.getElementById('errorToast'), {
-                        delay: 5000,
-                        animation: true
-                    });
-                    errorToast.show();
-                }
-            });
-        </script>
-    </body>
+    <!-- Core JS Files -->
+    <script src="assets/js/core/popper.min.js" type="text/javascript"></script>
+    <script src="assets/js/core/bootstrap.min.js" type="text/javascript"></script>
+    <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
+    <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+</body>
 </html>
+
+
