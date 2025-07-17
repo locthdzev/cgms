@@ -12,6 +12,8 @@ import java.util.List;
 import DAOs.UserDAO;
 import java.time.LocalDate;
 import Services.ScheduleService;
+import Models.User;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet({ "/checkinHistory", "/checkin" })
 public class CheckinController extends HttpServlet {

@@ -7,6 +7,9 @@ import DbConnection.DbConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Instant;
 
 public class CheckinDAO {
     public List<Checkin> getCheckinHistoryByMemberId(int memberId) {
