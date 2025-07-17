@@ -71,41 +71,59 @@ public class ScheduleService {
         if (current == null) {
             throw new IllegalArgumentException("Không tìm thấy lịch tập để cập nhật");
         }
+
         String currentStatus = current.getStatus();
         String newStatus = schedule.getStatus();
-        java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        java.time.LocalDateTime scheduleEnd = java.time.LocalDateTime.of(
-                current.getScheduleDate(),
-                current.getScheduleTime())
-                .plusHours(current.getDurationHours().intValue())
-                .plusMinutes((int) ((current.getDurationHours().doubleValue() % 1) * 60));
-        // Nếu lịch đã hết hạn thì không cho cập nhật trạng thái
-        if (scheduleEnd.isBefore(now) && !"Completed".equals(currentStatus) && !"Cancelled".equals(currentStatus)) {
-            throw new IllegalArgumentException("Không thể cập nhật vì lịch tập đã hết hạn.");
-        }
+
         // Không cho phép chỉnh sửa nếu lịch đã hoàn thành hoặc đã hủy
         if ("Completed".equals(currentStatus) || "Cancelled".equals(currentStatus)) {
             throw new IllegalArgumentException("Không thể chỉnh sửa lịch đã hoàn thành hoặc đã hủy.");
         }
-        // Chỉ cho phép chuyển trạng thái theo logic thực tế:
-        // Pending -> Confirmed hoặc Cancelled
-        // Confirmed -> Completed hoặc Cancelled
-        // Không cho phép chuyển từ Completed/Cancelled sang trạng thái khác
-        // Nếu không đổi trạng thái thì cho phép cập nhật thông tin khác
-        boolean valid = false;
-        if ("Pending".equals(currentStatus)) {
-            if ("Confirmed".equals(newStatus) || "Cancelled".equals(newStatus))
-                valid = true;
-        } else if ("Confirmed".equals(currentStatus)) {
-            if ("Completed".equals(newStatus) || "Cancelled".equals(newStatus))
-                valid = true;
-        } else if (currentStatus.equals(newStatus)) {
-            valid = true; // Cho phép cập nhật thông tin khác nếu không đổi trạng thái
+
+        // Kiểm tra logic chuyển trạng thái chỉ khi có thay đổi trạng thái
+        if (!currentStatus.equals(newStatus)) {
+            // Chỉ cho phép chuyển trạng thái theo logic thực tế:
+            // Pending -> Confirmed hoặc Cancelled
+            // Confirmed -> Completed hoặc Cancelled
+            boolean valid = false;
+            if ("Pending".equals(currentStatus)) {
+                if ("Confirmed".equals(newStatus) || "Cancelled".equals(newStatus))
+                    valid = true;
+            } else if ("Confirmed".equals(currentStatus)) {
+                if ("Completed".equals(newStatus) || "Cancelled".equals(newStatus))
+                    valid = true;
+            }
+
+            if (!valid) {
+                throw new IllegalArgumentException(
+                        "Không thể chuyển trạng thái từ " + currentStatus + " sang " + newStatus
+                                + ". Vui lòng thực hiện đúng quy trình.");
+            }
         }
-        if (!valid) {
-            throw new IllegalArgumentException("Không thể chuyển trạng thái từ " + currentStatus + " sang " + newStatus
-                    + ". Vui lòng thực hiện đúng quy trình.");
+
+        // Kiểm tra thời gian chỉ khi thay đổi ngày/giờ
+        if (!current.getScheduleDate().equals(schedule.getScheduleDate()) ||
+                !current.getScheduleTime().equals(schedule.getScheduleTime()) ||
+                !current.getDurationHours().equals(schedule.getDurationHours())) {
+
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            java.time.LocalDateTime scheduleDateTime = java.time.LocalDateTime.of(
+                    schedule.getScheduleDate(),
+                    schedule.getScheduleTime());
+
+            // Kiểm tra lịch không được đặt trong quá khứ
+            if (scheduleDateTime.isBefore(now)) {
+                throw new IllegalArgumentException("Không thể đặt lịch trong quá khứ");
+            }
+
+            // Kiểm tra lịch phải được tạo trước ít nhất 3 tiếng
+            java.time.Duration durationToSchedule = java.time.Duration.between(now, scheduleDateTime);
+            if (durationToSchedule.toHours() < 3) {
+                throw new IllegalArgumentException(
+                        "Lịch tập phải được tạo trước ít nhất 3 tiếng so với thời gian bắt đầu");
+            }
         }
+
         validateSchedule(schedule, schedule.getId());
         scheduleDAO.updateSchedule(schedule);
     }
@@ -226,7 +244,9 @@ public class ScheduleService {
         if (schedule.getTrainer() == null || schedule.getTrainer().getId() == null) {
             throw new IllegalArgumentException("Vui lòng chọn huấn luyện viên (Trainer)");
         }
-        if (schedule.getMember() == null || schedule.getMember().getId() == null) {
+        // Cho phép tạo lịch chỉ cho PT (không có member)
+        // Nếu có member thì mới kiểm tra
+        if (schedule.getMember() != null && schedule.getMember().getId() == null) {
             throw new IllegalArgumentException("Vui lòng chọn hội viên (Member)");
         }
         if (schedule.getScheduleDate() == null) {
@@ -255,20 +275,24 @@ public class ScheduleService {
             throw new IllegalArgumentException("Vui lòng chọn trạng thái");
         }
 
-        // Kiểm tra ngày đặt lịch không được ở quá khứ
-        LocalDate today = LocalDate.now();
-        if (schedule.getScheduleDate().isBefore(today)) {
-            throw new IllegalArgumentException("Không thể đặt lịch trong quá khứ");
-        }
-        java.time.LocalDateTime nowDateTime = java.time.LocalDateTime.now();
-        java.time.LocalDateTime scheduleDateTime = java.time.LocalDateTime.of(schedule.getScheduleDate(),
-                schedule.getScheduleTime());
-        java.time.Duration durationToSchedule = java.time.Duration.between(nowDateTime, scheduleDateTime);
-        if (durationToSchedule.toHours() < 3) {
-            throw new IllegalArgumentException("Lịch tập phải được tạo trước ít nhất 3 tiếng so với thời gian bắt đầu");
+        // Chỉ kiểm tra thời gian khi tạo mới (không phải chỉnh sửa)
+        if (excludeScheduleId == null) {
+            // Kiểm tra ngày đặt lịch không được ở quá khứ
+            LocalDate today = LocalDate.now();
+            if (schedule.getScheduleDate().isBefore(today)) {
+                throw new IllegalArgumentException("Không thể đặt lịch trong quá khứ");
+            }
+            java.time.LocalDateTime nowDateTime = java.time.LocalDateTime.now();
+            java.time.LocalDateTime scheduleDateTime = java.time.LocalDateTime.of(schedule.getScheduleDate(),
+                    schedule.getScheduleTime());
+            java.time.Duration durationToSchedule = java.time.Duration.between(nowDateTime, scheduleDateTime);
+            if (durationToSchedule.toHours() < 3) {
+                throw new IllegalArgumentException(
+                        "Lịch tập phải được tạo trước ít nhất 3 tiếng so với thời gian bắt đầu");
+            }
         }
 
-        // Kiểm tra huấn luyện viên và hội viên có bị trùng lịch không
+        // Kiểm tra huấn luyện viên có bị trùng lịch không
         LocalTime endTime = schedule.getScheduleTime()
                 .plusHours(schedule.getDurationHours().intValue())
                 .plusMinutes((int) ((schedule.getDurationHours().doubleValue() % 1) * 60));
@@ -279,10 +303,13 @@ public class ScheduleService {
             throw new IllegalArgumentException("Huấn luyện viên đã có lịch vào thời gian này");
         }
 
-        if (!isMemberAvailable(schedule.getMember().getId(),
-                schedule.getScheduleDate(),
-                schedule.getScheduleTime(), endTime, excludeScheduleId)) {
-            throw new IllegalArgumentException("Hội viên đã có lịch vào thời gian này");
+        // Nếu có member thì mới kiểm tra trùng lịch member
+        if (schedule.getMember() != null && schedule.getMember().getId() != null) {
+            if (!isMemberAvailable(schedule.getMember().getId(),
+                    schedule.getScheduleDate(),
+                    schedule.getScheduleTime(), endTime, excludeScheduleId)) {
+                throw new IllegalArgumentException("Hội viên đã có lịch vào thời gian này");
+            }
         }
     }
 }
