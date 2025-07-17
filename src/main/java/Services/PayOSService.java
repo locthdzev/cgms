@@ -51,16 +51,25 @@ public class PayOSService {
 
     public PaymentLink createPaymentLink(Payment payment, MemberPackage memberPackage, Voucher voucher) {
         try {
+            System.out.println("Creating payment link for payment ID: " + payment.getId());
+            System.out.println("Payment amount: " + payment.getAmount());
+
             // Tạo mã đơn hàng duy nhất
             long orderCodeLong = System.currentTimeMillis();
             String orderCode = "CGMS-" + orderCodeLong;
+            System.out.println("Generated order code: " + orderCode);
 
             // Tạo thông tin sản phẩm
+            int finalAmount = payment.getAmount().intValue();
+            System.out.println("Creating payment link with final amount: " + finalAmount);
+
             ItemData itemData = ItemData.builder()
                     .name(memberPackage.getPackageField().getName())
                     .quantity(1)
-                    .price(payment.getAmount().intValue())
+                    .price(finalAmount)
                     .build();
+
+            System.out.println("Creating payment link with item price: " + finalAmount);
 
             List<ItemData> items = new ArrayList<>();
             items.add(itemData);
@@ -71,23 +80,42 @@ public class PayOSService {
                 description = description.substring(0, 22) + "...";
             }
 
+            long expiredAt = Instant.now().plus(5, ChronoUnit.MINUTES).getEpochSecond();
+
             // Tạo dữ liệu thanh toán
             PaymentData paymentData = PaymentData.builder()
                     .orderCode(orderCodeLong)
-                    .amount(payment.getAmount().intValue())
+                    .amount(finalAmount)
+                    .expiredAt(expiredAt) // Không đặt thời gian hết hạn
                     .description(description)
                     .returnUrl(baseUrl + "/payment/success")
                     .cancelUrl(baseUrl + "/payment/cancel")
                     .items(items)
                     .build();
 
-            // Gọi API tạo link thanh toán
-            CheckoutResponseData responseData = payOS.createPaymentLink(paymentData);
+            System.out.println("PayOS payment data amount: " + payment.getAmount().intValue());
+            System.out.println("PayOS payment data: " + objectMapper.writeValueAsString(paymentData));
 
-            // Lưu thông tin phản hồi từ PayOS
-            payment.setPaymentData(objectMapper.writeValueAsString(responseData));
-            payment.setStatus("PENDING");
-            payment.setUpdatedAt(Instant.now());
+            // Gọi API tạo link thanh toán
+            CheckoutResponseData responseData = null;
+            try {
+                responseData = payOS.createPaymentLink(paymentData);
+                System.out.println("PayOS response: " + objectMapper.writeValueAsString(responseData));
+
+                if (responseData == null) {
+                    System.out.println("PayOS returned null response");
+                    return null;
+                }
+
+                // Lưu thông tin phản hồi từ PayOS
+                payment.setPaymentData(objectMapper.writeValueAsString(responseData));
+                payment.setStatus("PENDING");
+                payment.setUpdatedAt(Instant.now());
+            } catch (Exception e) {
+                System.out.println("Error calling PayOS API: " + e.getMessage());
+                e.printStackTrace();
+                return null;
+            }
 
             // Cập nhật payment
             Connection conn = null;
