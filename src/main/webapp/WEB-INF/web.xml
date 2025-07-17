@@ -1,8 +1,5 @@
-<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
-    version="5.0">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="5.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd">
     <!-- UTF-8 Encoding Filter -->
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
@@ -20,20 +17,16 @@
         <filter-name>CharacterEncodingFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
-
     <session-config>
         <session-timeout>30</session-timeout>
     </session-config>
-
     <error-page>
         <error-code>404</error-code>
         <location>/error404.jsp</location>
     </error-page>
-
     <!-- LoginController -->
     <servlet>
         <servlet-name>login</servlet-name>
@@ -43,7 +36,6 @@
         <servlet-name>login</servlet-name>
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>forgot-password</servlet-name>
         <servlet-class>Controllers.ForgotPasswordController</servlet-class>
@@ -52,7 +44,6 @@
         <servlet-name>forgot-password</servlet-name>
         <url-pattern>/forgot-password</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>reset-password</servlet-name>
         <servlet-class>Controllers.ResetPasswordController</servlet-class>
@@ -61,7 +52,6 @@
         <servlet-name>reset-password</servlet-name>
         <url-pattern>/reset-password</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>profile</servlet-name>
         <servlet-class>Controllers.ProfileController</servlet-class>
@@ -70,7 +60,6 @@
         <servlet-name>profile</servlet-name>
         <url-pattern>/profile</url-pattern>
     </servlet-mapping>
-
     <!-- register.jsp -->
     <servlet>
         <servlet-name>register</servlet-name>
@@ -80,7 +69,6 @@
         <servlet-name>register</servlet-name>
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>verify-email</servlet-name>
         <jsp-file>/verify-email.jsp</jsp-file>
@@ -89,7 +77,6 @@
         <servlet-name>verify-email</servlet-name>
         <url-pattern>/verify-email</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>VerifyEmail</servlet-name>
         <servlet-class>Controllers.VerifyEmail</servlet-class>
@@ -98,7 +85,6 @@
         <servlet-name>VerifyEmail</servlet-name>
         <url-pattern>/VerifyEmail</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>dashboard</servlet-name>
         <jsp-file>/dashboard.jsp</jsp-file>
@@ -107,7 +93,6 @@
         <servlet-name>dashboard</servlet-name>
         <url-pattern>/dashboard</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>member-dashboard</servlet-name>
         <jsp-file>/member-dashboard.jsp</jsp-file>
@@ -116,7 +101,6 @@
         <servlet-name>member-dashboard</servlet-name>
         <url-pattern>/member-dashboard</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>AddPackageServlet</servlet-name>
         <servlet-class>Controllers.AddPackageServlet</servlet-class>
@@ -125,7 +109,6 @@
         <servlet-name>AddPackageServlet</servlet-name>
         <url-pattern>/addPackage</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>ListPackageServlet</servlet-name>
         <servlet-class>Controllers.ListPackageServlet</servlet-class>
@@ -134,7 +117,6 @@
         <servlet-name>ListPackageServlet</servlet-name>
         <url-pattern>/listPackage</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>EditPackageServlet</servlet-name>
         <servlet-class>Controllers.EditPackageServlet</servlet-class>
@@ -143,7 +125,6 @@
         <servlet-name>EditPackageServlet</servlet-name>
         <url-pattern>/editPackage</url-pattern>
     </servlet-mapping>
-
     <!-- Servlet cập nhật trạng thái gói tập -->
     <servlet>
         <servlet-name>UpdatePackageStatusServlet</servlet-name>
@@ -153,7 +134,6 @@
         <servlet-name>UpdatePackageStatusServlet</servlet-name>
         <url-pattern>/updatePackageStatus</url-pattern>
     </servlet-mapping>
-
     <!-- VoucherController mapped to /voucher -->
     <servlet>
         <servlet-name>VoucherController</servlet-name>
@@ -205,6 +185,15 @@
 
     <!-- Removing member-feedback servlet and servlet-mapping to resolve conflict with
     MemberFeedbackController -->
+
+    <servlet>
+        <servlet-name>OrderController</servlet-name>
+        <servlet-class>Controllers.OrderController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OrderController</servlet-name>
+        <url-pattern>/OrderController</url-pattern>
+    </servlet-mapping>
 
     <!-- Authentication Filter -->
     <filter>
