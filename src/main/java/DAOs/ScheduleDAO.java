@@ -122,7 +122,11 @@ public class ScheduleDAO {
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, schedule.getTrainer().getId());
-            stmt.setInt(2, schedule.getMember().getId());
+            if (schedule.getMember() != null && schedule.getMember().getId() != null) {
+                stmt.setInt(2, schedule.getMember().getId());
+            } else {
+                stmt.setNull(2, Types.INTEGER);
+            }
 
             if (schedule.getAvailability() != null) {
                 stmt.setInt(3, schedule.getAvailability().getId());
@@ -156,7 +160,11 @@ public class ScheduleDAO {
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, schedule.getTrainer().getId());
-            stmt.setInt(2, schedule.getMember().getId());
+            if (schedule.getMember() != null && schedule.getMember().getId() != null) {
+                stmt.setInt(2, schedule.getMember().getId());
+            } else {
+                stmt.setNull(2, Types.INTEGER);
+            }
 
             if (schedule.getAvailability() != null) {
                 stmt.setInt(3, schedule.getAvailability().getId());
@@ -207,11 +215,16 @@ public class ScheduleDAO {
         schedule.setTrainer(trainer);
 
         // Map member
-        User member = new User();
-        member.setId(rs.getInt("MemberId"));
-        member.setUserName(rs.getString("MemberUsername"));
-        member.setFullName(rs.getString("MemberFullName"));
-        schedule.setMember(member);
+        int memberId = rs.getInt("MemberId");
+        if (rs.wasNull()) {
+            schedule.setMember(null);
+        } else {
+            User member = new User();
+            member.setId(memberId);
+            member.setUserName(rs.getString("MemberUsername"));
+            member.setFullName(rs.getString("MemberFullName"));
+            schedule.setMember(member);
+        }
 
         schedule.setScheduleDate(rs.getDate("ScheduleDate").toLocalDate());
         schedule.setScheduleTime(rs.getTime("ScheduleTime").toLocalTime());

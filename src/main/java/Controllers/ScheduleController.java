@@ -25,6 +25,9 @@ public class ScheduleController extends HttpServlet {
 
         if ("/addSchedule".equals(servletPath)) {
             // Hiển thị form thêm lịch tập
+            String type = req.getParameter("type");
+            boolean isPTMode = "pt".equalsIgnoreCase(type);
+            req.setAttribute("isPTMode", isPTMode);
             req.setAttribute("schedule", new Schedule());
             req.setAttribute("formAction", "create");
             req.setAttribute("trainers", service.getAllTrainers());
@@ -51,49 +54,46 @@ public class ScheduleController extends HttpServlet {
                 resp.sendRedirect(req.getContextPath() + "/schedule");
             }
         } else if ("/schedule".equals(servletPath)) {
-            if (action == null) {
-                // Hiển thị danh sách lịch tập
-                List<Schedule> list = service.getAllSchedules();
-                req.setAttribute("scheduleList", list);
-                req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
-            } else if ("delete".equals(action)) {
-                // Xóa lịch tập
-                try {
-                    service.deleteSchedule(Integer.parseInt(req.getParameter("id")));
+            // Xử lý action delete
+            if ("delete".equals(action)) {
+                String idStr = req.getParameter("id");
+                if (idStr != null && !idStr.trim().isEmpty()) {
+                    try {
+                        int id = Integer.parseInt(idStr);
+                        service.deleteSchedule(id);
+                        HttpSession session = req.getSession();
+                        session.setAttribute("successMessage", "Xóa lịch tập thành công!");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        HttpSession session = req.getSession();
+                        session.setAttribute("errorMessage", "Lỗi khi xóa lịch tập: " + e.getMessage());
+                    }
+                } else {
                     HttpSession session = req.getSession();
-                    session.setAttribute("successMessage", "Xóa lịch tập thành công!");
-                } catch (Exception e) {
-                    HttpSession session = req.getSession();
-                    session.setAttribute("errorMessage", "Lỗi khi xóa lịch tập: " + e.getMessage());
+                    session.setAttribute("errorMessage", "Không tìm thấy ID lịch tập để xóa!");
                 }
                 resp.sendRedirect(req.getContextPath() + "/schedule");
-            } else if ("view".equals(action)) {
-                // Xem chi tiết lịch tập
-                int id = Integer.parseInt(req.getParameter("id"));
-                Schedule schedule = service.getScheduleById(id);
-                req.setAttribute("schedule", schedule);
-                req.setAttribute("formAction", "view");
-                req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
-            } else if ("updateStatus".equals(action)) {
-                // Cập nhật trạng thái lịch tập
-                try {
-                    int id = Integer.parseInt(req.getParameter("id"));
-                    String status = req.getParameter("status");
-                    service.updateScheduleStatus(id, status);
-                    HttpSession session = req.getSession();
-                    session.setAttribute("successMessage", "Cập nhật trạng thái thành công!");
-                } catch (Exception e) {
-                    HttpSession session = req.getSession();
-                    session.setAttribute("errorMessage", "Lỗi khi cập nhật trạng thái: " + e.getMessage());
-                }
-                resp.sendRedirect(req.getContextPath() + "/schedule");
-
-            } else {
-                // Mặc định hiển thị danh sách
-                List<Schedule> list = service.getAllSchedules();
-                req.setAttribute("scheduleList", list);
-                req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                return;
             }
+
+            // Xử lý hiển thị danh sách lịch tập
+            String trainerIdStr = req.getParameter("trainerId");
+            String memberIdStr = req.getParameter("memberId");
+            List<Schedule> list;
+            if (trainerIdStr != null && !trainerIdStr.isEmpty()) {
+                list = service.getSchedulesByTrainerId(Integer.parseInt(trainerIdStr));
+            } else if (memberIdStr != null && !memberIdStr.isEmpty()) {
+                list = service.getSchedulesByMemberId(Integer.parseInt(memberIdStr));
+            } else {
+                list = service.getAllSchedules();
+            }
+            // Luôn truyền đầy đủ danh sách trainer và member
+            req.setAttribute("scheduleList", list);
+            req.setAttribute("formAction", "list");
+            req.setAttribute("trainers", service.getAllTrainers());
+            req.setAttribute("members", service.getAllMembers());
+            req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+            return;
         }
     }
 
@@ -103,97 +103,234 @@ public class ScheduleController extends HttpServlet {
         String formAction = req.getParameter("formAction");
         String idStr = req.getParameter("id");
         HttpSession session = req.getSession();
-        Schedule schedule = new Schedule();
 
         try {
-            if (idStr != null && !idStr.trim().isEmpty()) {
-                // Update
-                schedule = service.getScheduleById(Integer.parseInt(idStr));
+            if ("create".equals(formAction)) {
+                // Xử lý tạo lịch tập mới (có thể nhiều lịch)
+                String trainerIdStr = req.getParameter("trainerId");
+                String memberIdStr = req.getParameter("memberId");
+                // Lấy các trường có thể là mảng
+                String[] scheduleDates = req.getParameterValues("scheduleDate");
+                String[] scheduleTimes = req.getParameterValues("scheduleTime");
+                String[] durationHoursArr = req.getParameterValues("durationHours");
+                String[] statusArr = req.getParameterValues("status");
+
+                int count = scheduleDates != null ? scheduleDates.length : 0;
+                int successCount = 0;
+                for (int i = 0; i < count; i++) {
+                    Schedule sch = new Schedule();
+                    sch.setCreatedAt(Instant.now());
+                    // Trainer
+                    if (trainerIdStr != null && !trainerIdStr.trim().isEmpty()) {
+                        User trainer = new User();
+                        trainer.setId(Integer.parseInt(trainerIdStr));
+                        sch.setTrainer(trainer);
+                    }
+                    // Member
+                    if (memberIdStr != null && !memberIdStr.trim().isEmpty()) {
+                        User member = new User();
+                        member.setId(Integer.parseInt(memberIdStr));
+                        sch.setMember(member);
+                    }
+                    // Date
+                    if (scheduleDates[i] != null && !scheduleDates[i].trim().isEmpty()) {
+                        sch.setScheduleDate(LocalDate.parse(scheduleDates[i]));
+                    }
+                    // Time
+                    if (scheduleTimes[i] != null && !scheduleTimes[i].trim().isEmpty()) {
+                        sch.setScheduleTime(LocalTime.parse(scheduleTimes[i]));
+                    }
+                    // Duration
+                    if (durationHoursArr[i] != null && !durationHoursArr[i].trim().isEmpty()) {
+                        sch.setDurationHours(new BigDecimal(durationHoursArr[i]));
+                    }
+                    // Status
+                    if (statusArr[i] != null && !statusArr[i].trim().isEmpty()) {
+                        sch.setStatus(statusArr[i]);
+                    } else {
+                        sch.setStatus("Pending");
+                    }
+                    // Lưu từng lịch
+                    try {
+                        service.saveSchedule(sch);
+                        successCount++;
+                    } catch (Exception ex) {
+                        // Có thể log lỗi từng dòng nếu muốn
+                    }
+                }
+                session.setAttribute("successMessage",
+                        "Đã tạo thành công " + successCount + "/" + count + " lịch tập!");
+                resp.sendRedirect(req.getContextPath() + "/schedule");
+                return;
+            } else if ("edit".equals(formAction)) {
+                // Xử lý chỉnh sửa lịch tập
+                if (idStr == null || idStr.trim().isEmpty()) {
+                    throw new IllegalArgumentException("Không tìm thấy ID lịch tập để cập nhật");
+                }
+
+                Schedule schedule = service.getScheduleById(Integer.parseInt(idStr));
                 if (schedule == null) {
                     throw new IllegalArgumentException("Không tìm thấy lịch tập để cập nhật");
                 }
+
                 schedule.setUpdatedAt(Instant.now());
-            } else {
-                // Create
-                schedule.setCreatedAt(Instant.now());
-            }
 
-            // Set trainer
-            String trainerIdStr = req.getParameter("trainerId");
-            if (trainerIdStr != null && !trainerIdStr.trim().isEmpty()) {
-                User trainer = new User();
-                trainer.setId(Integer.parseInt(trainerIdStr));
-                schedule.setTrainer(trainer);
-            } else {
-                schedule.setTrainer(null);
-            }
+                // Set trainer
+                String trainerIdStr = req.getParameter("trainerId");
+                if (trainerIdStr != null && !trainerIdStr.trim().isEmpty()) {
+                    User trainer = new User();
+                    trainer.setId(Integer.parseInt(trainerIdStr));
+                    schedule.setTrainer(trainer);
+                }
 
-            // Set member
-            String memberIdStr = req.getParameter("memberId");
-            if (memberIdStr != null && !memberIdStr.trim().isEmpty()) {
-                User member = new User();
-                member.setId(Integer.parseInt(memberIdStr));
-                schedule.setMember(member);
-            } else {
-                schedule.setMember(null);
-            }
+                // Set member
+                String memberIdStr = req.getParameter("memberId");
+                if (memberIdStr != null && !memberIdStr.trim().isEmpty()) {
+                    User member = new User();
+                    member.setId(Integer.parseInt(memberIdStr));
+                    schedule.setMember(member);
+                }
 
-            // Set schedule date
-            String scheduleDateStr = req.getParameter("scheduleDate");
-            if (scheduleDateStr != null && !scheduleDateStr.trim().isEmpty()) {
-                schedule.setScheduleDate(LocalDate.parse(scheduleDateStr));
-            } else {
-                schedule.setScheduleDate(null);
-            }
+                // Set schedule date
+                String scheduleDateStr = req.getParameter("scheduleDate");
+                if (scheduleDateStr != null && !scheduleDateStr.trim().isEmpty()) {
+                    schedule.setScheduleDate(LocalDate.parse(scheduleDateStr));
+                }
 
-            // Set schedule time
-            String scheduleTimeStr = req.getParameter("scheduleTime");
-            if (scheduleTimeStr != null && !scheduleTimeStr.trim().isEmpty()) {
-                schedule.setScheduleTime(LocalTime.parse(scheduleTimeStr));
-            } else {
-                schedule.setScheduleTime(null);
-            }
+                // Set schedule time
+                String scheduleTimeStr = req.getParameter("scheduleTime");
+                if (scheduleTimeStr != null && !scheduleTimeStr.trim().isEmpty()) {
+                    schedule.setScheduleTime(LocalTime.parse(scheduleTimeStr));
+                }
 
-            // Set duration
-            String durationStr = req.getParameter("durationHours");
-            if (durationStr != null && !durationStr.trim().isEmpty()) {
-                schedule.setDurationHours(new BigDecimal(durationStr));
-            } else {
-                schedule.setDurationHours(null);
-            }
+                // Set duration
+                String durationStr = req.getParameter("durationHours");
+                if (durationStr != null && !durationStr.trim().isEmpty()) {
+                    schedule.setDurationHours(new BigDecimal(durationStr));
+                }
 
-            // Set status
-            String status = req.getParameter("status");
-            if (status != null && !status.trim().isEmpty()) {
-                schedule.setStatus(status);
-            } else {
-                schedule.setStatus("Pending"); // Default status
-            }
+                // Set status
+                String status = req.getParameter("status");
+                if (status != null && !status.trim().isEmpty()) {
+                    schedule.setStatus(status);
+                }
 
-            if (idStr != null && !idStr.trim().isEmpty()) {
                 service.updateSchedule(schedule);
                 session.setAttribute("successMessage", "Cập nhật lịch tập thành công!");
+                resp.sendRedirect(req.getContextPath() + "/schedule");
+                return;
             } else {
-                service.saveSchedule(schedule);
-                session.setAttribute("successMessage", "Tạo lịch tập mới thành công!");
-            }
+                // Xử lý tạo lịch tập đơn lẻ (fallback)
+                Schedule schedule = new Schedule();
 
-            resp.sendRedirect(req.getContextPath() + "/schedule");
+                if (idStr != null && !idStr.trim().isEmpty()) {
+                    // Update
+                    schedule = service.getScheduleById(Integer.parseInt(idStr));
+                    if (schedule == null) {
+                        throw new IllegalArgumentException("Không tìm thấy lịch tập để cập nhật");
+                    }
+                    schedule.setUpdatedAt(Instant.now());
+                } else {
+                    // Create
+                    schedule.setCreatedAt(Instant.now());
+                }
+
+                // Set trainer
+                String trainerIdStr = req.getParameter("trainerId");
+                if (trainerIdStr != null && !trainerIdStr.trim().isEmpty()) {
+                    User trainer = new User();
+                    trainer.setId(Integer.parseInt(trainerIdStr));
+                    schedule.setTrainer(trainer);
+                } else {
+                    schedule.setTrainer(null);
+                }
+
+                // Set member
+                String memberIdStr = req.getParameter("memberId");
+                if (memberIdStr != null && !memberIdStr.trim().isEmpty()) {
+                    User member = new User();
+                    member.setId(Integer.parseInt(memberIdStr));
+                    schedule.setMember(member);
+                } else {
+                    schedule.setMember(null);
+                }
+
+                // Set schedule date
+                String scheduleDateStr = req.getParameter("scheduleDate");
+                if (scheduleDateStr != null && !scheduleDateStr.trim().isEmpty()) {
+                    schedule.setScheduleDate(LocalDate.parse(scheduleDateStr));
+                } else {
+                    schedule.setScheduleDate(null);
+                }
+
+                // Set schedule time
+                String scheduleTimeStr = req.getParameter("scheduleTime");
+                if (scheduleTimeStr != null && !scheduleTimeStr.trim().isEmpty()) {
+                    schedule.setScheduleTime(LocalTime.parse(scheduleTimeStr));
+                } else {
+                    schedule.setScheduleTime(null);
+                }
+
+                // Set duration
+                String durationStr = req.getParameter("durationHours");
+                if (durationStr != null && !durationStr.trim().isEmpty()) {
+                    schedule.setDurationHours(new BigDecimal(durationStr));
+                } else {
+                    schedule.setDurationHours(null);
+                }
+
+                // Set status
+                String status = req.getParameter("status");
+                if (status != null && !status.trim().isEmpty()) {
+                    schedule.setStatus(status);
+                } else {
+                    schedule.setStatus("Pending"); // Default status
+                }
+
+                if (idStr != null && !idStr.trim().isEmpty()) {
+                    service.updateSchedule(schedule);
+                    session.setAttribute("successMessage", "Cập nhật lịch tập thành công!");
+                } else {
+                    service.saveSchedule(schedule);
+                    session.setAttribute("successMessage", "Tạo lịch tập mới thành công!");
+                }
+
+                resp.sendRedirect(req.getContextPath() + "/schedule");
+            }
 
         } catch (IllegalArgumentException e) {
             req.setAttribute("errorMessage", e.getMessage());
-            req.setAttribute("schedule", schedule);
+            if ("edit".equals(formAction) && idStr != null) {
+                // Lấy lại thông tin lịch tập để hiển thị lại form
+                try {
+                    Schedule schedule = service.getScheduleById(Integer.parseInt(idStr));
+                    req.setAttribute("schedule", schedule);
+                } catch (Exception ex) {
+                    // Nếu không lấy được, tạo schedule rỗng
+                    req.setAttribute("schedule", new Schedule());
+                }
+            } else {
+                req.setAttribute("schedule", new Schedule());
+            }
             req.setAttribute("formAction", formAction);
             req.setAttribute("trainers", service.getAllTrainers());
-            req.setAttribute("members", service.getActiveMembersWithPackage());
-            if (((List<?>) req.getAttribute("members")).isEmpty()) {
-                req.setAttribute("errorMessage", "Không có hội viên nào có gói tập còn hiệu lực để tạo lịch!");
-            }
+            req.setAttribute("members", service.getAllMembers());
             req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
         } catch (Exception e) {
             e.printStackTrace();
             req.setAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
-            req.setAttribute("schedule", schedule);
+            if ("edit".equals(formAction) && idStr != null) {
+                // Lấy lại thông tin lịch tập để hiển thị lại form
+                try {
+                    Schedule schedule = service.getScheduleById(Integer.parseInt(idStr));
+                    req.setAttribute("schedule", schedule);
+                } catch (Exception ex) {
+                    // Nếu không lấy được, tạo schedule rỗng
+                    req.setAttribute("schedule", new Schedule());
+                }
+            } else {
+                req.setAttribute("schedule", new Schedule());
+            }
             req.setAttribute("formAction", formAction);
             req.setAttribute("trainers", service.getAllTrainers());
             req.setAttribute("members", service.getAllMembers());

@@ -200,9 +200,7 @@
         <servlet-name>member-shop</servlet-name>
         <url-pattern>/member-shop</url-pattern>
     </servlet-mapping>
-    
-    <!-- Removing member-cart servlet and servlet-mapping to resolve conflict with CartController -->
-    
+
     <servlet>
         <servlet-name>member-feedback</servlet-name>
         <jsp-file>/member-feedback.jsp</jsp-file>

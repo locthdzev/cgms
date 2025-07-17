@@ -7,6 +7,9 @@ import DbConnection.DbConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Instant;
 
 public class CheckinDAO {
     public List<Checkin> getCheckinHistoryByMemberId(int memberId) {
@@ -60,5 +63,20 @@ public class CheckinDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public void createCheckinForUser(int userId) {
+        String sql = "INSERT INTO Checkins (MemberId, CheckinDate, CheckinTime, CreatedAt, Status) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setDate(2, java.sql.Date.valueOf(LocalDate.now()));
+            ps.setTime(3, java.sql.Time.valueOf(LocalTime.now()));
+            ps.setTimestamp(4, Timestamp.from(Instant.now()));
+            ps.setString(5, "Đã check-in");
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
