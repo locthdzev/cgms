@@ -163,7 +163,7 @@
         <servlet-name>VoucherController</servlet-name>
         <url-pattern>/voucher</url-pattern>
     </servlet-mapping>
-    
+
     <!-- Member pages -->
     <servlet>
         <servlet-name>member-packages</servlet-name>
@@ -173,7 +173,7 @@
         <servlet-name>member-packages</servlet-name>
         <url-pattern>/member-packages-view</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>all-packages</servlet-name>
         <jsp-file>/all-packages.jsp</jsp-file>
@@ -182,7 +182,7 @@
         <servlet-name>all-packages</servlet-name>
         <url-pattern>/all-packages-view</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>member-schedule</servlet-name>
         <jsp-file>/member-schedule.jsp</jsp-file>
@@ -191,7 +191,7 @@
         <servlet-name>member-schedule</servlet-name>
         <url-pattern>/member-schedule</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>member-shop</servlet-name>
         <jsp-file>/member-shop.jsp</jsp-file>
@@ -201,14 +201,10 @@
         <url-pattern>/member-shop</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>member-feedback</servlet-name>
-        <jsp-file>/member-feedback.jsp</jsp-file>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>member-feedback</servlet-name>
-        <url-pattern>/member-feedback</url-pattern>
-    </servlet-mapping>
+    <!-- Removing member-cart servlet and servlet-mapping to resolve conflict with CartController -->
+
+    <!-- Removing member-feedback servlet and servlet-mapping to resolve conflict with
+    MemberFeedbackController -->
 
     <!-- Authentication Filter -->
     <filter>

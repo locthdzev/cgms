@@ -4,6 +4,8 @@
 <%@page import="java.util.List"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
 <%@page import="java.math.BigDecimal"%>
+<%@page import="DAOs.PackageDAO"%>
+<%@page import="Models.Package"%>
 <%
     // Lấy thông tin người dùng đăng nhập từ session
     User loggedInUser = (User) session.getAttribute("loggedInUser");
@@ -40,6 +42,40 @@
     
     // Định dạng ngày tháng
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    
+    // Kiểm tra xem gói tập hiện tại có phải là gói cao nhất không
+    boolean isHighestTierPackage = false;
+    if (hasMemberPackages) {
+        // Lấy tất cả các gói tập đang hoạt động từ database
+        PackageDAO packageDAO = new PackageDAO();
+        List<Package> allActivePackages = packageDAO.getActivePackages();
+        
+        // Tìm gói tập có giá cao nhất và thời hạn dài nhất
+        BigDecimal highestPrice = BigDecimal.ZERO;
+        int longestDuration = 0;
+        
+        if (allActivePackages != null) {
+            for (Package pkg : allActivePackages) {
+                if (pkg.getPrice().compareTo(highestPrice) > 0) {
+                    highestPrice = pkg.getPrice();
+                }
+                if (pkg.getDuration() > longestDuration) {
+                    longestDuration = pkg.getDuration();
+                }
+            }
+        }
+        
+        // Kiểm tra xem gói tập hiện tại có phải là gói cao nhất không
+        for (MemberPackage memberPackage : memberPackages) {
+            if ("ACTIVE".equals(memberPackage.getStatus())) {
+                if (memberPackage.getPackageField().getPrice().compareTo(highestPrice) >= 0 || 
+                    memberPackage.getPackageField().getDuration() >= longestDuration) {
+                    isHighestTierPackage = true;
+                    break;
+                }
+            }
+        }
+    }
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -608,9 +644,18 @@
                     <span class="text-sm font-weight-bold"><%= String.format("%,.0f", memberPackage.getTotalPrice()) %> VNĐ</span>
                   </div>
                   <div class="d-flex justify-content-between">
+                    <% if (!isHighestTierPackage) { %>
                     <a href="<%= request.getContextPath() %>/all-packages" class="btn btn-sm btn-outline-primary">Nâng cấp gói tập</a>
-                    <a href="<%= request.getContextPath() %>/member-packages-controller" class="btn btn-sm btn-outline-info">Xem chi tiết</a>
-                  </div>
+                    <% } else { %>
+                    <span class="text-sm text-success"><i class="fas fa-crown me-1"></i> Gói cao cấp nhất</span>
+                    <% } %>
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#cancelPackageModal"
+                            data-package-id="<%= memberPackage.getId() %>"
+                            data-package-name="<%= memberPackage.getPackageField().getName() %>">
+                        Hủy gói tập
+                    </button>
                 </div>
                 <% } %>
                 <% } %>
@@ -645,6 +690,30 @@
         </footer>
       </div>
     </main>
+    
+    <!-- Modal xác nhận hủy gói tập -->
+    <div class="modal fade" id="cancelPackageModal" tabindex="-1" aria-labelledby="cancelPackageModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cancelPackageModalLabel">Xác nhận hủy gói tập</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Bạn có chắc chắn muốn hủy gói tập <strong id="packageNameToCancel"></strong>?</p>
+            <p class="text-danger">Lưu ý: Sau khi hủy gói tập, bạn sẽ không thể sử dụng các dịch vụ của gói tập này nữa.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <form action="<%= request.getContextPath() %>/cancel-member-package" method="post">
+              <input type="hidden" id="memberPackageIdToCancel" name="memberPackageId" value="">
+              <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="fixed-plugin">
       <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
         <i class="fa fa-cog py-2"> </i>
@@ -823,6 +892,19 @@
             }
           );
           errorToast.show();
+        }
+        
+        // Xử lý modal hủy gói tập
+        var cancelPackageModal = document.getElementById('cancelPackageModal');
+        if (cancelPackageModal) {
+          cancelPackageModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var packageId = button.getAttribute('data-package-id');
+            var packageName = button.getAttribute('data-package-name');
+            
+            document.getElementById('memberPackageIdToCancel').value = packageId;
+            document.getElementById('packageNameToCancel').textContent = packageName;
+          });
         }
       });
       
