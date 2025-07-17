@@ -3,7 +3,7 @@
 <%@page import="Services.ProductService" %>
 <%@page import="Models.User" %>
 <%@page import="java.util.List" %>
-<%@ include file="member_sidebar.jsp" %>
+
 <%
     User loggedInUser = (User) session.getAttribute("loggedInUser");
     if (loggedInUser == null || !"Member".equals(loggedInUser.getRole())) {
@@ -29,9 +29,9 @@
         <link rel="stylesheet" href="assets/css/argon-dashboard.css?v=2.1.0">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
         <style>
-            main.main-content {
-                margin-left: 250px;
-                padding: 2rem 1rem;
+            .main-content {
+                margin-left: 260px;
+                transition: margin-left 0.3s;
             }
             .card {
                 border: none;
@@ -43,10 +43,6 @@
                 display: flex;
                 flex-direction: column;
                 transition: box-shadow 0.18s;
-            }
-            .card:hover {
-                box-shadow: 0 12px 38px 0 rgba(0,0,0,0.16);
-                transform: scale(1.01);
             }
             .product-img-wrap {
                 background: #f7fafc;
@@ -71,10 +67,8 @@
                 margin: 0 auto;
                 border: 1px solid #f1f3f4;
             }
-            /* Label và value style */
             .info-label {
                 font-weight: bold;
-                text-transform: uppercase;
                 color: #495057;
                 letter-spacing: 0.5px;
                 margin-right: 5px;
@@ -146,7 +140,7 @@
             </div>
             <% } %>
         </div>
-
+        <%@ include file="member_sidebar.jsp" %>
         <main class="main-content position-relative border-radius-lg">
             <jsp:include page="navbar.jsp">
                 <jsp:param name="pageTitle" value="Cửa hàng"/>
@@ -156,68 +150,75 @@
             </jsp:include>
 
             <div class="container-fluid py-4">
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-                    <% for (Product p : products) { %>
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="product-img-wrap">
-                                <img src="<%= p.getImageUrl() != null ? p.getImageUrl() : "assets/img/no-image.png" %>" class="product-img" alt="Product">
-                            </div>
-                            <div class="card-body">
-                                <div>
-                                    <div class="mb-1">
-                                        <span class="info-label">TÊN SẢN PHẨM:</span>
-                                        <span class="product-title"><%= p.getName() %></span>
-                                    </div>
-                                    <div class="mb-1">
-                                        <span class="info-label">MÔ TẢ:</span>
-                                        <span class="product-desc"><%= p.getDescription() %></span>
-                                    </div>
-                                    <div class="mb-2">
-                                        <span class="info-label">GIÁ:</span>
-                                        <span class="product-price"><%= String.format("%,d", p.getPrice().longValue()) %> VNĐ</span>
-                                    </div>
+                <div class="card mb-4">
+                    <div class="card-header pb-0">
+                        <h6 class="mb-0">
+                            <i class="fas fa-dumbbell me-2"></i>Sản phẩm của phòng Gym
+                        </h6>
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+                        <% for (Product p : products) { %>
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="product-img-wrap">
+                                    <img src="<%= p.getImageUrl() != null ? p.getImageUrl() : "assets/img/no-image.png" %>" class="product-img" alt="Product">
                                 </div>
-                                <div class="card-action-group">
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#productModal<%= p.getId() %>">
-                                        <i class="fas fa-eye me-1"></i>Xem chi tiết
-                                    </button>
-                                    <a href="member-cart?action=add&id=<%= p.getId() %>" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
-                                    </a>
+                                <div class="card-body">
+                                    <div>
+                                        <div class="mb-1">
+                                            <span class="info-label">Tên sản phẩm:</span>
+                                            <span class="product-title"><%= p.getName() %></span>
+                                        </div>
+                                        <div class="mb-1">
+                                            <span class="info-label">Mô tả:</span>
+                                            <span class="product-desc"><%= p.getDescription() %></span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="info-label">Giá:</span>
+                                            <span class="product-price"><%= String.format("%,d", p.getPrice().longValue()) %> VNĐ</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-action-group">
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#productModal<%= p.getId() %>">
+                                            <i class="fas fa-eye me-1"></i>Xem chi tiết
+                                        </button>
+                                        <a href="member-cart?action=add&id=<%= p.getId() %>" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Modal Chi Tiết -->
-                    <div class="modal fade" id="productModal<%= p.getId() %>" tabindex="-1">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title"><%= p.getName() %></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body row">
-                                    <div class="col-md-6">
-                                        <img src="<%= p.getImageUrl() != null ? p.getImageUrl() : "assets/img/no-image.png" %>" class="img-fluid rounded shadow-sm" />
+                        <!-- Modal Chi Tiết -->
+                        <div class="modal fade" id="productModal<%= p.getId() %>" tabindex="-1">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><%= p.getName() %></h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
-                                    <div class="col-md-6">
-                                        <p><span class="info-label">TÊN SẢN PHẨM:</span> <span class="product-title"><%= p.getName() %></span></p>
-                                        <p><span class="info-label">MÔ TẢ:</span> <span class="product-desc"><%= p.getDescription() %></span></p>
-                                        <p><span class="info-label">GIÁ:</span> <span class="product-price"><%= String.format("%,d", p.getPrice().longValue()) %> VNĐ</span></p>
+                                    <div class="modal-body row">
+                                        <div class="col-md-6">
+                                            <img src="<%= p.getImageUrl() != null ? p.getImageUrl() : "assets/img/no-image.png" %>" class="img-fluid rounded shadow-sm" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><span class="info-label">TÊN SẢN PHẨM:</span> <span class="product-title"><%= p.getName() %></span></p>
+                                            <p><span class="info-label">MÔ TẢ:</span> <span class="product-desc"><%= p.getDescription() %></span></p>
+                                            <p><span class="info-label">GIÁ:</span> <span class="product-price"><%= String.format("%,d", p.getPrice().longValue()) %> VNĐ</span></p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                    <a href="member-cart?action=add&id=<%= p.getId() %>" class="btn btn-primary">
-                                        <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
-                                    </a>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                        <a href="member-cart?action=add&id=<%= p.getId() %>" class="btn btn-primary">
+                                            <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <% } %>
                     </div>
-                    <% } %>
                 </div>
             </div>
 

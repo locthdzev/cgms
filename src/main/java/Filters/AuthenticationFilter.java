@@ -15,13 +15,13 @@ public class AuthenticationFilter implements Filter {
 
     // Các URL không cần xác thực
     private static final List<String> PUBLIC_URLS = Arrays.asList(
-            "/login", "/register", "/logout", "/verify-email", "/VerifyEmail",
+            "/login", "/GoogleLoginController", "/register", "/logout", "/verify-email", "/VerifyEmail",
             "/forgot-password", "/reset-password", "/assets/", "/css/", "/js/", "/img/", "/svg/");
 
     // Các URL chỉ dành cho Admin
     private static final List<String> ADMIN_URLS = Arrays.asList(
             "/dashboard", "/user", "/addUser", "/editUser", "/trainer", "/addTrainer", "/editTrainer",
-            "/listPackage", "/addPackage", "/editPackage", "/product", "/voucher", "/inventory", "/feedback");
+            "/listPackage", "/addPackage", "/editPackage", "/product", "/voucher", "/inventory", "/feedback", "/order");
 
     // Các URL chỉ dành cho Personal Trainer
     private static final List<String> PT_URLS = Arrays.asList(
