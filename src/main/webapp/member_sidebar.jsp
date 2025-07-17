@@ -45,11 +45,11 @@
                 </a>
             </li> -->
             <li class="nav-item">
-                <a class="nav-link <%= "member-schedule.jsp".equals(pageName) ? "active" : "" %>" href="member-schedule.jsp">
+                <a class="nav-link <%= "member-schedule.jsp".equals(pageName) ? "active" : "" %>" href="member-training-schedule">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-calendar-alt text-warning text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Lịch tập luyện</span>
+                    <span class="nav-link-text ms-1">Lịch tập & Tiến độ</span>
                 </a>
             </li>
             <li class="nav-item">
