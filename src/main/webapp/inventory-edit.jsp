@@ -15,6 +15,7 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
     <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <!-- CSS Files -->
@@ -22,6 +23,7 @@
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
+        <div class="min-height-300 bg-dark position-absolute w-100"></div>
     <!-- Sidebar -->
     <%@ include file="sidebar.jsp" %>
     
@@ -36,23 +38,26 @@
         </jsp:include>
 
         <div class="container-fluid py-4">
-            <!-- Display error message if exists -->
-            <% if (request.getAttribute("errorMessage") != null) { %>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i> <%= request.getAttribute("errorMessage") %>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            <% } %>
-
-            <div class="row">
+            <!-- Header Section -->
+            <div class="row mb-4">
                 <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                            <h6>Cập nhật số lượng tồn kho</h6>
-                            <a href="inventory" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách kho
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">Cập nhật số lượng tồn kho</h4>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="${pageContext.request.contextPath}/inventory" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-arrow-left me-2"></i>Quay lại
                             </a>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Section -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
                         <div class="card-body">
                             <!-- Form to update inventory -->
                             <form method="post" action="${pageContext.request.contextPath}/inventory">
@@ -94,3 +99,6 @@
     <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 </body>
 </html>
+
+
+

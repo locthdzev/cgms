@@ -439,4 +439,105 @@ public class MemberPackageDAO {
 
         return memberPackage;
     }
+
+    public List<User> getMembersHavingPackages() {
+        List<User> members = new ArrayList<>();
+        String sql = "SELECT DISTINCT u.UserId, u.Email, u.UserName, u.FullName, u.PhoneNumber, " +
+                "u.Address, u.Gender, u.DOB, u.Role, u.Status " +
+                "FROM Users u " +
+                "INNER JOIN Member_Packages mp ON u.UserId = mp.MemberId " +
+                "WHERE u.Role = 'Member' " +
+                "ORDER BY u.FullName";
+
+        try (Connection conn = DbConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                User user = createUserFromResultSet(rs);
+                members.add(user);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return members;
+    }
+
+    private User createUserFromResultSet(ResultSet rs) throws SQLException {
+        User user = new User();
+        user.setId(rs.getInt("UserId"));
+        user.setEmail(rs.getString("Email"));
+        user.setUserName(rs.getString("UserName"));
+        user.setFullName(rs.getString("FullName"));
+        user.setPhoneNumber(rs.getString("PhoneNumber"));
+        user.setAddress(rs.getString("Address"));
+        user.setGender(rs.getString("Gender"));
+
+        java.sql.Date dob = rs.getDate("DOB");
+        if (dob != null) {
+            user.setDob(dob.toLocalDate());
+        }
+
+        user.setRole(rs.getString("Role"));
+        user.setStatus(rs.getString("Status"));
+
+        Timestamp createdAt = rs.getTimestamp("CreatedAt");
+        if (createdAt != null) {
+            user.setCreatedAt(createdAt.toInstant());
+        }
+
+        Timestamp updatedAt = rs.getTimestamp("UpdatedAt");
+        if (updatedAt != null) {
+            user.setUpdatedAt(updatedAt.toInstant());
+        }
+
+        return user;
+    }
+
+    public List<User> getMembersWithCurrentPackage() {
+        List<User> members = new ArrayList<>();
+        String sql = "SELECT DISTINCT u.UserId, u.Email, u.UserName, u.FullName, u.PhoneNumber, " +
+                "u.Address, u.Gender, u.DOB, u.Role, u.Status " +
+                "FROM Users u " +
+                "INNER JOIN Member_Packages mp ON u.UserId = mp.MemberId " +
+                "WHERE u.Role = 'Member' AND mp.Status IN ('ACTIVE', 'PENDING') " +
+                "ORDER BY u.FullName";
+
+        System.out.println("Executing SQL: " + sql);
+
+        try (Connection conn = DbConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("UserId"));
+                user.setEmail(rs.getString("Email"));
+                user.setUserName(rs.getString("UserName"));
+                user.setFullName(rs.getString("FullName"));
+                user.setPhoneNumber(rs.getString("PhoneNumber"));
+                user.setAddress(rs.getString("Address"));
+                user.setGender(rs.getString("Gender"));
+                user.setRole(rs.getString("Role"));
+                user.setStatus(rs.getString("Status"));
+                
+                java.sql.Date dob = rs.getDate("DOB");
+                if (dob != null) {
+                    user.setDob(dob.toLocalDate());
+                }
+                
+                members.add(user);
+                System.out.println("Found member: " + user.getFullName());
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error in getMembersWithCurrentPackage: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        System.out.println("Total members found: " + members.size());
+        return members;
+    }
 }
