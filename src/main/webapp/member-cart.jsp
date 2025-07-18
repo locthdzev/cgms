@@ -21,309 +21,357 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Giỏ hàng - CGMS</title>
-    <link rel="stylesheet" href="assets/css/argon-dashboard.css?v=2.1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
-    <style>
-        .main-content {
-            margin-left: 260px;
-            transition: margin-left 0.3s;
-        }
-        @media (max-width: 991.98px) {
+    <head>
+        <meta charset="UTF-8">
+        <title>Giỏ hàng - CGMS</title>
+        <link rel="stylesheet" href="assets/css/argon-dashboard.css?v=2.1.0">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+        <style>
             .main-content {
-                margin-left: 0;
+                margin-left: 260px;
+                transition: margin-left 0.3s;
             }
-        }
-        .cart-card {
-            border: none;
-            border-radius: 1rem;
-            box-shadow: 0 8px 24px 0 rgba(0,0,0,0.07);
-            overflow: hidden;
-            background: #fff;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            transition: box-shadow 0.18s;
-        }
-        .cart-card:hover {
-            box-shadow: 0 12px 38px 0 rgba(0,0,0,0.16);
-        }
-        .cart-img-wrap {
-            background: #f7fafc;
-            border-bottom: 1px solid #e9ecef;
-            padding: 18px 12px 14px 12px;
-            text-align: center;
-            min-height: 160px;
-            max-height: 160px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: none;
-        }
-        .cart-img {
-            width: 120px;
-            height: 120px;
-            object-fit: contain;
-            border-radius: 18px;
-            background: #fff;
-            box-shadow: 0 1px 6px 0 rgba(60,60,60,0.07);
-            display: block;
-            margin: 0 auto;
-            border: 1px solid #f1f3f4;
-        }
-        .info-label {
-            font-weight: bold;
-            color: #495057;
-            letter-spacing: 0.5px;
-            margin-right: 5px;
-            font-size: 0.97rem;
-        }
-        .cart-title {
-            font-size: 1.09rem;
-            font-weight: bold;
-            color: #23272b;
-            letter-spacing: 1px;
-            margin-bottom: 2px;
-            text-transform: none;
-            display: inline;
-        }
-        .cart-desc {
-            font-size: 0.97rem;
-            color: #7b8a99;
-            font-weight: 500;
-            display: inline;
-        }
-        .cart-price {
-            font-weight: bold;
-            color: #dc3545;
-            font-size: 1.08rem;
-            display: inline;
-        }
-        .quantity-group {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 8px;
-            margin: 16px 0 10px 0;
-        }
-        .qty-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            border: 1.5px solid #d1d5db;
-            background: #f6f9fc;
-            color: #23272b;
-            transition: background 0.18s, border 0.18s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            box-shadow: none;
-            outline: none;
-        }
-        .qty-btn:hover, .qty-btn:focus {
-            background: #e9f7f3;
-            border: 1.5px solid #25a18e;
-            color: #25a18e;
-        }
-        .qty-value {
-            width: 50px;
-            height: 40px;
-            text-align: center;
-            border: none;
-            border-radius: 16px;
-            background: #f1f3f4;
-            font-weight: 700;
-            font-size: 1.07rem;
-            color: #1a1a1a;
-            outline: none;
-            box-shadow: none;
-            margin: 0;
-            padding: 0;
-            vertical-align: middle;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .qty-value:focus {
-            background: #e9ecef;
-        }
-        .remove-btn {
-            font-size: 0.96rem;
-            padding: 3px 10px;
-            margin-top: 6px;
-        }
-        .cart-total-bar {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 3px 16px 0 rgba(0,0,0,0.08);
-            padding: 1.5rem 2rem 1rem 2rem;
-            margin-top: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 40px;
-        }
-        .checkout-btn {
-            padding: 0.75rem 2.5rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 2rem;
-            background: linear-gradient(90deg, #54d7ba 0%, #25a18e 100%);
-            color: #fff;
-            border: none;
-            box-shadow: 0 2px 12px 0 rgba(84,215,186,0.15);
-            transition: background 0.2s;
-        }
-        .checkout-btn:disabled {
-            background: #c3c3c3 !important;
-            color: #fff;
-            opacity: 0.7;
-        }
-        @media (max-width: 768px) {
-            .cart-total-bar {
+            @media (max-width: 991.98px) {
+                .main-content {
+                    margin-left: 0;
+                }
+            }
+            .cart-card {
+                border: none;
+                border-radius: 1rem;
+                box-shadow: 0 8px 24px 0 rgba(0,0,0,0.07);
+                overflow: hidden;
+                background: #fff;
+                height: 100%;
+                display: flex;
                 flex-direction: column;
-                gap: 18px;
-                padding: 1rem 1rem;
+                transition: box-shadow 0.18s;
             }
-        }
-    </style>
-</head>
-<body class="g-sidenav-show bg-gray-100">
-<div class="min-height-300 bg-dark position-absolute w-100"></div>
+            .cart-card:hover {
+                box-shadow: 0 12px 38px 0 rgba(0,0,0,0.16);
+            }
+            .cart-img-wrap {
+                background: #f7fafc;
+                border-bottom: 1px solid #e9ecef;
+                padding: 18px 12px 14px 12px;
+                text-align: center;
+                min-height: 160px;
+                max-height: 160px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: none;
+            }
+            .cart-img {
+                width: 120px;
+                height: 120px;
+                object-fit: contain;
+                border-radius: 18px;
+                background: #fff;
+                box-shadow: 0 1px 6px 0 rgba(60,60,60,0.07);
+                display: block;
+                margin: 0 auto;
+                border: 1px solid #f1f3f4;
+            }
+            .info-label {
+                font-weight: bold;
+                color: #495057;
+                letter-spacing: 0.5px;
+                margin-right: 5px;
+                font-size: 0.97rem;
+            }
+            .cart-title {
+                font-size: 1.09rem;
+                font-weight: bold;
+                color: #23272b;
+                letter-spacing: 1px;
+                margin-bottom: 2px;
+                text-transform: none;
+                display: inline;
+            }
+            .cart-desc {
+                font-size: 0.97rem;
+                color: #7b8a99;
+                font-weight: 500;
+                display: inline;
+            }
+            .cart-price {
+                font-weight: bold;
+                color: #dc3545;
+                font-size: 1.08rem;
+                display: inline;
+            }
+            .quantity-group {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 8px;
+                margin: 16px 0 10px 0;
+            }
+            .qty-btn {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                font-size: 1.2rem;
+                border: 1.5px solid #d1d5db;
+                background: #f6f9fc;
+                color: #23272b;
+                transition: background 0.18s, border 0.18s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+                box-shadow: none;
+                outline: none;
+            }
+            .qty-btn:hover, .qty-btn:focus {
+                background: #e9f7f3;
+                border: 1.5px solid #25a18e;
+                color: #25a18e;
+            }
+            .qty-value {
+                width: 50px;
+                height: 40px;
+                text-align: center;
+                border: none;
+                border-radius: 16px;
+                background: #f1f3f4;
+                font-weight: 700;
+                font-size: 1.07rem;
+                color: #1a1a1a;
+                outline: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                vertical-align: middle;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .qty-value:focus {
+                background: #e9ecef;
+            }
+            .remove-btn {
+                font-size: 0.96rem;
+                padding: 3px 10px;
+                margin-top: 6px;
+            }
+            .cart-total-bar {
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 3px 16px 0 rgba(0,0,0,0.08);
+                padding: 1.5rem 2rem 1rem 2rem;
+                margin-top: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 40px;
+            }
+            .checkout-btn {
+                padding: 0.75rem 2.5rem;
+                font-size: 1.1rem;
+                font-weight: 600;
+                border-radius: 2rem;
+                background: linear-gradient(90deg, #54d7ba 0%, #25a18e 100%);
+                color: #fff;
+                border: none;
+                box-shadow: 0 2px 12px 0 rgba(84,215,186,0.15);
+                transition: background 0.2s;
+            }
+            .checkout-btn:disabled {
+                background: #c3c3c3 !important;
+                color: #fff;
+                opacity: 0.7;
+            }
+            @media (max-width: 768px) {
+                .cart-total-bar {
+                    flex-direction: column;
+                    gap: 18px;
+                    padding: 1rem 1rem;
+                }
+            }
+        </style>
+    </head>
+    <body class="g-sidenav-show bg-gray-100">
+        <div class="min-height-300 bg-dark position-absolute w-100"></div>
 
-<!-- Toast -->
-<div class="toast-container position-fixed top-0 end-0 p-3">
-    <% if (successMessage != null) { %>
-    <div class="toast align-items-center text-white bg-success border-0" id="successToast" role="alert">
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="fas fa-check-circle me-2"></i><%= successMessage %>
+        <!-- Toast -->
+        <div class="toast-container position-fixed top-0 end-0 p-3">
+            <% if (successMessage != null) { %>
+            <div class="toast align-items-center text-white bg-success border-0" id="successToast" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-check-circle me-2"></i><%= successMessage %>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            <% } %>
+            <% if (errorMessage != null) { %>
+            <div class="toast align-items-center text-white bg-danger border-0" id="errorToast" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-exclamation-circle me-2"></i><%= errorMessage %>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+            <% } %>
         </div>
-    </div>
-    <% } %>
-    <% if (errorMessage != null) { %>
-    <div class="toast align-items-center text-white bg-danger border-0" id="errorToast" role="alert">
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="fas fa-exclamation-circle me-2"></i><%= errorMessage %>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-    <% } %>
-</div>
 
-<%@ include file="member_sidebar.jsp" %>
+        <%@ include file="member_sidebar.jsp" %>
 
-<main class="main-content position-relative border-radius-lg">
-    <jsp:include page="navbar.jsp">
-        <jsp:param name="pageTitle" value="Giỏ hàng"/>
-        <jsp:param name="parentPage" value="Dashboard"/>
-        <jsp:param name="parentPageUrl" value="member-dashboard"/>
-        <jsp:param name="currentPage" value="Giỏ hàng"/>
-    </jsp:include>
+        <main class="main-content position-relative border-radius-lg">
+            <jsp:include page="navbar.jsp">
+                <jsp:param name="pageTitle" value="Giỏ hàng"/>
+                <jsp:param name="parentPage" value="Dashboard"/>
+                <jsp:param name="parentPageUrl" value="member-dashboard"/>
+                <jsp:param name="currentPage" value="Giỏ hàng"/>
+            </jsp:include>
 
-    <div class="container-fluid py-4">
-        <div class="card mb-4">
-            <div class="card-header pb-0">
-                <h6 class="mb-0">
-                    <i class="fas fa-shopping-cart me-2"></i>Giỏ hàng của bạn
-                </h6>
-            </div>
-            <div class="card-body">
-                <% if (cartItems != null && !cartItems.isEmpty()) { %>
-                <div class="row">
-                    <% for (Cart c : cartItems) { %>
-                    <div class="col-md-4 mb-4">
-                        <div class="cart-card h-100 d-flex flex-column">
-                            <div class="cart-img-wrap">
-                                <img src="<%= (c.getProduct().getImageUrl() != null && !c.getProduct().getImageUrl().isEmpty()) ? c.getProduct().getImageUrl() : "assets/img/no-image.png" %>"
-                                     class="cart-img" alt="Product">
-                            </div>
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <div>
-                                    <div class="mb-1">
-                                        <span class="info-label">Tên sản phẩm:</span>
-                                        <span class="cart-title d-inline"><%= c.getProduct().getName() %></span>
+            <div class="container-fluid py-4">
+                <div class="card mb-4">
+                    <div class="card-header pb-0">
+                        <h6 class="mb-0">
+                            <i class="fas fa-shopping-cart me-2"></i>Giỏ hàng của bạn
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <% if (cartItems != null && !cartItems.isEmpty()) { %>
+                        <div class="row">
+                            <% for (Cart c : cartItems) { %>
+                            <div class="col-md-4 mb-4">
+                                <div class="cart-card h-100 d-flex flex-column">
+                                    <div class="cart-img-wrap">
+                                        <img src="<%= (c.getProduct().getImageUrl() != null && !c.getProduct().getImageUrl().isEmpty()) ? c.getProduct().getImageUrl() : "assets/img/no-image.png" %>"
+                                             class="cart-img" alt="Product">
                                     </div>
-                                    <div class="mb-1">
-                                        <span class="info-label">Mô tả:</span>
-                                        <span class="cart-desc d-inline"><%= c.getProduct().getDescription() %></span>
-                                    </div>
-                                    <div class="mb-2">
-                                        <span class="info-label">Giá:</span>
-                                        <span class="cart-price d-inline"><%= String.format("%,d", c.getProduct().getPrice().longValue()) %> VNĐ</span>
-                                    </div>
-                                    <div class="quantity-group">
-                                        <a href="member-cart?action=decrease&id=<%= c.getId() %>" class="btn qty-btn" title="Giảm">
-                                            <i class="fas fa-minus"></i>
-                                        </a>
-                                        <input type="text" class="qty-value" value="<%= c.getQuantity() %>" readonly>
-                                        <a href="member-cart?action=increase&id=<%= c.getId() %>" class="btn qty-btn" title="Tăng">
-                                            <i class="fas fa-plus"></i>
+                                    <div class="card-body d-flex flex-column justify-content-between">
+                                        <div>
+                                            <div class="mb-1">
+                                                <span class="info-label">Tên sản phẩm:</span>
+                                                <span class="cart-title d-inline"><%= c.getProduct().getName() %></span>
+                                            </div>
+                                            <div class="mb-1">
+                                                <span class="info-label">Mô tả:</span>
+                                                <span class="cart-desc d-inline"><%= c.getProduct().getDescription() %></span>
+                                            </div>
+                                            <div class="mb-2">
+                                                <span class="info-label">Giá:</span>
+                                                <span class="cart-price d-inline"><%= String.format("%,d", c.getProduct().getPrice().longValue()) %> VNĐ</span>
+                                            </div>
+                                            <div class="quantity-group">
+                                                <button type="button" class="btn qty-btn decrease-btn" data-id="<%= c.getId() %>">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <input type="text" class="qty-value" value="<%= c.getQuantity() %>" readonly>
+                                                <button type="button" class="btn qty-btn increase-btn" data-id="<%= c.getId() %>">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <a href="member-cart?action=remove&id=<%= c.getId() %>" class="btn btn-outline-danger remove-btn ms-auto mt-2">
+                                            <i class="fas fa-trash"></i> Xoá
                                         </a>
                                     </div>
                                 </div>
-                                <a href="member-cart?action=remove&id=<%= c.getId() %>" class="btn btn-outline-danger remove-btn ms-auto mt-2">
-                                    <i class="fas fa-trash"></i> Xoá
-                                </a>
+                            </div>
+                            <% } %>
+                        </div>
+                        <%
+                            long total = 0;
+                            if (cartItems != null) {
+                                for (Models.Cart c : cartItems) {
+                                    total += c.getProduct().getPrice().longValue() * c.getQuantity();
+                                }
+                            }
+                        %>
+                        <div class="cart-total-bar">
+                            <div class="fs-5 fw-bold">
+                                Tổng cộng: <span class="text-danger fs-4"><%= String.format("%,d", total) %> VNĐ</span>
+                            </div>
+                            <button class="checkout-btn" disabled>Thanh toán</button>
+                        </div>
+                        <% } else { %>
+                        <div class="alert alert-info text-center mt-4" style="font-size:1.1rem;">
+                            <i class="fas fa-shopping-cart me-2"></i>Giỏ hàng của bạn đang trống.
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer pt-3">
+                <div class="container-fluid">
+                    <div class="row align-items-center justify-content-lg-between">
+                        <div class="col-lg-6 mb-lg-0 mb-4">
+                            <div class="text-muted text-sm text-center text-lg-start">
+                                © <script>document.write(new Date().getFullYear())</script>, CoreFit Gym Management System
                             </div>
                         </div>
                     </div>
-                    <% } %>
                 </div>
-                <%
-                    long total = 0;
-                    if (cartItems != null) {
-                        for (Models.Cart c : cartItems) {
-                            total += c.getProduct().getPrice().longValue() * c.getQuantity();
-                        }
-                    }
-                %>
-                <div class="cart-total-bar">
-                    <div class="fs-5 fw-bold">
-                        Tổng cộng: <span class="text-danger fs-4"><%= String.format("%,d", total) %> VNĐ</span>
-                    </div>
-                    <button class="checkout-btn" disabled>Thanh toán</button>
-                </div>
-                <% } else { %>
-                <div class="alert alert-info text-center mt-4" style="font-size:1.1rem;">
-                    <i class="fas fa-shopping-cart me-2"></i>Giỏ hàng của bạn đang trống.
-                </div>
-                <% } %>
-            </div>
-        </div>
-    </div>
+            </footer>
+        </main>
 
-    <footer class="footer pt-3">
-        <div class="container-fluid">
-            <div class="row align-items-center justify-content-lg-between">
-                <div class="col-lg-6 mb-lg-0 mb-4">
-                    <div class="text-muted text-sm text-center text-lg-start">
-                        © <script>document.write(new Date().getFullYear())</script>, CoreFit Gym Management System
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-</main>
+        <!-- Scripts -->
+        <script>
+            document.querySelectorAll('.qty-btn').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const cartId = this.getAttribute('data-id');
+                    const input = this.parentElement.querySelector('.qty-value');
+                    const oldQty = parseInt(input.value);
+                    const action = this.classList.contains('increase-btn') ? 'increase' : 'decrease';
+                    // Optimistic update
+                    let newQty = oldQty + (action === 'increase' ? 1 : -1);
+                    if (newQty < 1)
+                        newQty = 1; // hoặc xóa luôn
+                    input.value = newQty;
+                    this.disabled = true; // tránh double click
 
-<!-- Scripts -->
-<script src="assets/js/core/bootstrap.bundle.min.js"></script>
-<script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        if (document.getElementById('successToast'))
-            new bootstrap.Toast('#successToast').show();
-        if (document.getElementById('errorToast'))
-            new bootstrap.Toast('#errorToast').show();
-    });
-</script>
-</body>
+                    fetch('member-cart?action=' + action + '&id=' + cartId, {
+                        method: 'GET',
+                        headers: {'X-Requested-With': 'XMLHttpRequest'}
+                    })
+                            .then(response => response.json())
+                            .then(data => {
+                                this.disabled = false;
+                                if (data.success) {
+                                    input.value = data.newQuantity;
+                                    // Nếu trả về newQuantity = 0 thì ẩn luôn sản phẩm
+                                    if (data.newQuantity <= 0) {
+                                        this.closest('.col-md-4').remove();
+                                    }
+                                    if (data.cartTotal !== undefined) {
+                                        document.querySelector('.cart-total-bar .text-danger').textContent =
+                                                data.cartTotal.toLocaleString() + ' VNĐ';
+                                    }
+                                } else {
+                                    // Nếu có lỗi, rollback lại số cũ
+                                    input.value = oldQty;
+                                    alert(data.message || "Có lỗi xảy ra!");
+                                }
+                            })
+                            .catch(() => {
+                                this.disabled = false;
+                                input.value = oldQty; // rollback lại
+                                alert("Lỗi mạng hoặc server!");
+                            });
+                });
+            });
+
+        </script>
+
+        <script src="assets/js/core/bootstrap.bundle.min.js"></script>
+        <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                if (document.getElementById('successToast'))
+                    new bootstrap.Toast('#successToast').show();
+                if (document.getElementById('errorToast'))
+                    new bootstrap.Toast('#errorToast').show();
+            });
+        </script>
+    </body>
 </html>

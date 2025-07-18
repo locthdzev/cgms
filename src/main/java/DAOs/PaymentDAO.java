@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import Models.Package;
 
 public class PaymentDAO {
 
@@ -132,8 +133,9 @@ public class PaymentDAO {
     }
 
     public Payment getPaymentById(int paymentId) {
-        String sql = "SELECT p.*, mp.* FROM Payments p "
+        String sql = "SELECT p.*, mp.*, pkg.* FROM Payments p "
                 + "LEFT JOIN Member_Packages mp ON p.MemberPackageId = mp.MemberPackageId "
+                + "LEFT JOIN Packages pkg ON mp.PackageId = pkg.PackageId "
                 + "WHERE p.PaymentId = ?";
 
         Connection conn = null;
@@ -147,7 +149,7 @@ public class PaymentDAO {
             rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return mapPayment(rs);
+                return mapPaymentWithPackage(rs);
             } else {
                 return null;
             }
@@ -243,6 +245,51 @@ public class PaymentDAO {
         }
     }
 
+    /**
+     * Lấy danh sách thanh toán của một người dùng
+     * 
+     * @param userId ID của người dùng
+     * @return Danh sách các thanh toán
+     */
+    public List<Payment> getPaymentsByUserId(int userId) {
+        String sql = "SELECT p.*, mp.* FROM Payments p "
+                + "LEFT JOIN Member_Packages mp ON p.MemberPackageId = mp.MemberPackageId "
+                + "WHERE mp.MemberId = ? "
+                + "ORDER BY p.PaymentDate DESC";
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        List<Payment> payments = new ArrayList<>();
+
+        try {
+            conn = DbConnection.getConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, userId);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                payments.add(mapPayment(rs));
+            }
+
+            return payments;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    DbConnection.closeConnection(conn);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private Payment mapPayment(ResultSet rs) throws SQLException {
         Payment payment = new Payment();
         payment.setId(rs.getInt("PaymentId"));
@@ -275,6 +322,63 @@ public class PaymentDAO {
         if (!rs.wasNull()) {
             MemberPackage memberPackage = new MemberPackage();
             memberPackage.setId(memberPackageId);
+            payment.setMemberPackage(memberPackage);
+        }
+
+        return payment;
+    }
+
+    private Payment mapPaymentWithPackage(ResultSet rs) throws SQLException {
+        Payment payment = new Payment();
+        payment.setId(rs.getInt("PaymentId"));
+        payment.setAmount(rs.getBigDecimal("Amount"));
+        payment.setPaymentMethod(rs.getString("PaymentMethod"));
+
+        Timestamp paymentDate = rs.getTimestamp("PaymentDate");
+        if (paymentDate != null) {
+            payment.setPaymentDate(paymentDate.toInstant());
+        }
+
+        payment.setTransactionId(rs.getString("TransactionId"));
+        payment.setStatus(rs.getString("Status"));
+
+        Timestamp createdAt = rs.getTimestamp("CreatedAt");
+        if (createdAt != null) {
+            payment.setCreatedAt(createdAt.toInstant());
+        }
+
+        Timestamp updatedAt = rs.getTimestamp("UpdatedAt");
+        if (updatedAt != null) {
+            payment.setUpdatedAt(updatedAt.toInstant());
+        }
+
+        payment.setPaymentData(rs.getString("PaymentData"));
+        payment.setCallbackData(rs.getString("CallbackData"));
+
+        // Tạo MemberPackage với thông tin đầy đủ
+        int memberPackageId = rs.getInt("MemberPackageId");
+        if (!rs.wasNull()) {
+            MemberPackage memberPackage = new MemberPackage();
+            memberPackage.setId(memberPackageId);
+
+            // Tạo Package và gán vào MemberPackage
+            int packageId = rs.getInt("PackageId");
+            if (!rs.wasNull()) {
+                Package pkg = new Package();
+                pkg.setId(packageId);
+                pkg.setName(rs.getString("Name"));
+                pkg.setPrice(rs.getBigDecimal("Price"));
+                pkg.setDuration(rs.getInt("Duration"));
+                pkg.setSessions(rs.getInt("Sessions"));
+                pkg.setDescription(rs.getString("Description"));
+                pkg.setStatus(rs.getString("Status"));
+
+                memberPackage.setPackageField(pkg);
+            }
+
+            // Gán thông tin khác cho MemberPackage nếu cần
+            memberPackage.setTotalPrice(rs.getBigDecimal("TotalPrice"));
+
             payment.setMemberPackage(memberPackage);
         }
 
