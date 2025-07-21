@@ -107,29 +107,62 @@
             <div class="col-12">
                 <%-- Hiển thị thông báo thành công/lỗi --%>
                 <% 
-                String successMessage = (String) session.getAttribute("successMessage");
-                String errorMessage = (String) session.getAttribute("errorMessage");
-                if (successMessage != null) {
-                    session.removeAttribute("successMessage");
+                // Lấy thông báo từ request hoặc session (giống các trang khác)
+                String successMessage = (String) request.getAttribute("successMessage");
+                if (successMessage == null) {
+                    successMessage = (String) session.getAttribute("successMessage");
+                    if (successMessage != null) {
+                        session.removeAttribute("successMessage");
+                    }
                 }
-                if (errorMessage != null) {
-                    session.removeAttribute("errorMessage");
+                String errorMessage = (String) request.getAttribute("errorMessage");
+                if (errorMessage == null) {
+                    errorMessage = (String) session.getAttribute("errorMessage");
+                    if (errorMessage != null) {
+                        session.removeAttribute("errorMessage");
+                    }
                 }
+                boolean hasSuccessMessage = successMessage != null;
+                boolean hasErrorMessage = errorMessage != null;
                 %>
                 
-                <% if (successMessage != null) { %>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i> <%= successMessage %>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <!-- Toast Container (thông báo giống các trang khác) -->
+                <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+                    <% if (hasSuccessMessage) { %>
+                    <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <i class="fas fa-check-circle me-2"></i> <%= successMessage %>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <% } %>
+                    <% if (hasErrorMessage) { %>
+                    <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" id="errorToast">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <i class="fas fa-exclamation-circle me-2"></i> <%= errorMessage %>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <% } %>
                 </div>
-                <% } %>
-                
-                <% if (errorMessage != null) { %>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i> <%= errorMessage %>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                <% } %>
+                <script>
+                    window.addEventListener('DOMContentLoaded', function() {
+                        var successToast = document.getElementById('successToast');
+                        if (successToast) {
+                            var toast = new bootstrap.Toast(successToast, { delay: 3500 });
+                            toast.show();
+                        }
+                        var errorToast = document.getElementById('errorToast');
+                        if (errorToast) {
+                            var toast = new bootstrap.Toast(errorToast, { delay: 3500 });
+                            toast.show();
+                        }
+                    });
+                </script>
                 
                 <%-- Hiển thị danh sách member cần check-in hôm nay --%>
                 <% 
@@ -249,18 +282,6 @@
                     <div class="card-header bg-warning text-dark">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Không có lịch tập hôm nay
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Hôm nay (<%= java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) %>)</strong> không có Member nào có lịch tập với trạng thái "Đã xác nhận".
-                            <br><br>
-                            <small class="text-muted">
-                                • Kiểm tra lại lịch tập trong hệ thống<br>
-                                • Đảm bảo có lịch tập được tạo cho hôm nay<br>
-                                • Lịch tập phải có trạng thái "Đã xác nhận"
-                            </small>
-                        </div>
                     </div>
                 </div>
                 <% } %>

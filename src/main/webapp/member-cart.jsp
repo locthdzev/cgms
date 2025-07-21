@@ -190,6 +190,66 @@
                     padding: 1rem 1rem;
                 }
             }
+            .cart-table {
+              width: 100%;
+              border-collapse: separate;
+              border-spacing: 0 12px;
+            }
+            .cart-table th, .cart-table td {
+              vertical-align: middle;
+              background: #fff;
+              border: none;
+              padding: 16px 8px;
+              font-size: 1rem;
+            }
+            .cart-table th {
+              color: #344767;
+              font-weight: 700;
+              background: #f7fafc;
+              border-radius: 8px 8px 0 0;
+            }
+            .cart-table td img {
+              width: 70px; height: 70px; object-fit: cover; border-radius: 12px; border: 1.5px solid #e9ecef;
+            }
+            .cart-table .cart-title {
+              font-weight: bold; color: #222; font-size: 1.08rem;
+            }
+            .cart-table .cart-desc {
+              color: #7b8a99; font-size: 0.95rem;
+            }
+            .cart-table .cart-price, .cart-table .cart-line-total {
+              font-weight: bold; color: #e74c3c; font-size: 1.08rem;
+            }
+            .cart-table .cart-line-total { color: #27ae60; }
+            .cart-table .qty-group { display: flex; align-items: center; gap: 6px; }
+            .cart-table .qty-btn {
+              width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #d1d5db; background: #f6f9fc; color: #23272b;
+              display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: background 0.18s, border 0.18s;
+            }
+            .cart-table .qty-btn:hover { background: #e9f7f3; border: 1.5px solid #25a18e; color: #25a18e; }
+            .cart-table .qty-value { width: 40px; text-align: center; border: none; background: #f1f3f4; font-weight: 700; border-radius: 8px; }
+            .cart-table .remove-btn {
+              background: #ffeaea; color: #e74c3c; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transition: background 0.18s;
+            }
+            .cart-table .remove-btn:hover { background: #e74c3c; color: #fff; }
+            @media (max-width: 991.98px) {
+              .cart-table th, .cart-table td { font-size: 0.97rem; padding: 10px 4px; }
+              .cart-table td img { width: 50px; height: 50px; }
+            }
+            @media (max-width: 767.98px) {
+              .cart-table, .cart-table thead, .cart-table tbody, .cart-table tr { display: block; width: 100%; }
+              .cart-table tr { margin-bottom: 18px; box-shadow: 0 2px 8px 0 rgba(0,0,0,0.07); border-radius: 12px; }
+              .cart-table td, .cart-table th { display: block; width: 100%; text-align: left; border-radius: 0; }
+              .cart-table td img { width: 100%; height: 120px; margin-bottom: 8px; }
+              .cart-table .qty-group { justify-content: flex-start; }
+            }
+            .cart-checkout-bar {
+              background: #fff; border-radius: 12px; box-shadow: 0 3px 16px 0 rgba(0,0,0,0.08); padding: 1.5rem 2rem 1rem 2rem; margin-top: 30px; display: flex; align-items: center; justify-content: flex-end; gap: 40px;
+            }
+            .cart-checkout-btn {
+              padding: 0.9rem 2.8rem; font-size: 1.15rem; font-weight: 700; border-radius: 2rem; background: linear-gradient(90deg, #54d7ba 0%, #25a18e 100%); color: #fff; border: none; box-shadow: 0 2px 12px 0 rgba(84,215,186,0.15); transition: background 0.2s;
+            }
+            .cart-checkout-btn:disabled { background: #c3c3c3 !important; color: #fff; opacity: 0.7; }
         </style>
     </head>
     <body class="g-sidenav-show bg-gray-100">
@@ -219,6 +279,25 @@
             <% } %>
         </div>
 
+        <!-- Modal xác nhận xóa -->
+        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Xác nhận xóa sản phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <%@ include file="member_sidebar.jsp" %>
 
         <main class="main-content position-relative border-radius-lg">
@@ -238,59 +317,48 @@
                     </div>
                     <div class="card-body">
                         <% if (cartItems != null && !cartItems.isEmpty()) { %>
-                        <div class="row">
-                            <% for (Cart c : cartItems) { %>
-                            <div class="col-md-4 mb-4">
-                                <div class="cart-card h-100 d-flex flex-column">
-                                    <div class="cart-img-wrap">
-                                        <img src="<%= (c.getProduct().getImageUrl() != null && !c.getProduct().getImageUrl().isEmpty()) ? c.getProduct().getImageUrl() : "assets/img/no-image.png" %>"
-                                             class="cart-img" alt="Product">
-                                    </div>
-                                    <div class="card-body d-flex flex-column justify-content-between">
-                                        <div>
-                                            <div class="mb-1">
-                                                <span class="info-label">Tên sản phẩm:</span>
-                                                <span class="cart-title d-inline"><%= c.getProduct().getName() %></span>
-                                            </div>
-                                            <div class="mb-1">
-                                                <span class="info-label">Mô tả:</span>
-                                                <span class="cart-desc d-inline"><%= c.getProduct().getDescription() %></span>
-                                            </div>
-                                            <div class="mb-2">
-                                                <span class="info-label">Giá:</span>
-                                                <span class="cart-price d-inline"><%= String.format("%,d", c.getProduct().getPrice().longValue()) %> VNĐ</span>
-                                            </div>
-                                            <div class="quantity-group">
-                                                <button type="button" class="btn qty-btn decrease-btn" data-id="<%= c.getId() %>">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                                <input type="text" class="qty-value" value="<%= c.getQuantity() %>" readonly>
-                                                <button type="button" class="btn qty-btn increase-btn" data-id="<%= c.getId() %>">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <a href="member-cart?action=remove&id=<%= c.getId() %>" class="btn btn-outline-danger remove-btn ms-auto mt-2">
-                                            <i class="fas fa-trash"></i> Xoá
-                                        </a>
-                                    </div>
+                        <form id="cartForm">
+                        <table class="cart-table">
+                          <thead>
+                            <tr>
+                              <th><input type="checkbox" id="selectAllCart" /></th>
+                              <th>Ảnh</th>
+                              <th>Tên sản phẩm</th>
+                              <th>Giá</th>
+                              <th>Số lượng</th>
+                              <th>Thành tiền</th>
+                              <th>Xóa</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          <% for (Cart c : cartItems) { %>
+                            <tr>
+                              <td><input type="checkbox" class="select-cart-item" data-id="<%= c.getId() %>" checked /></td>
+                              <td><img src="<%= (c.getProduct().getImageUrl() != null && !c.getProduct().getImageUrl().isEmpty()) ? c.getProduct().getImageUrl() : "assets/img/no-image.png" %>" alt="Product"></td>
+                              <td>
+                                <div class="cart-title"><a href="product.jsp?id=<%= c.getProduct().getId() %>" class="text-decoration-none text-dark" target="_blank"><%= c.getProduct().getName() %></a></div>
+                                <div class="cart-desc"><%= c.getProduct().getDescription() %></div>
+                              </td>
+                              <td><span class="cart-price"><%= String.format("%,d", c.getProduct().getPrice().longValue()) %> VNĐ</span></td>
+                              <td>
+                                <div class="qty-group">
+                                  <button type="button" class="qty-btn decrease-btn" data-id="<%= c.getId() %>"><i class="fas fa-minus"></i></button>
+                                  <input type="text" class="qty-value" value="<%= c.getQuantity() %>" readonly>
+                                  <button type="button" class="qty-btn increase-btn" data-id="<%= c.getId() %>"><i class="fas fa-plus"></i></button>
                                 </div>
-                            </div>
-                            <% } %>
-                        </div>
-                        <%
-                            long total = 0;
-                            if (cartItems != null) {
-                                for (Models.Cart c : cartItems) {
-                                    total += c.getProduct().getPrice().longValue() * c.getQuantity();
-                                }
-                            }
-                        %>
-                        <div class="cart-total-bar">
-                            <div class="fs-5 fw-bold">
-                                Tổng cộng: <span class="text-danger fs-4"><%= String.format("%,d", total) %> VNĐ</span>
-                            </div>
-                            <button class="checkout-btn" disabled>Thanh toán</button>
+                              </td>
+                              <td><span class="cart-line-total fw-bold text-success" id="line-total-<%= c.getId() %>"><%= String.format("%,d", c.getProduct().getPrice().longValue() * c.getQuantity()) %> VNĐ</span></td>
+                              <td><button type="button" class="remove-btn" data-id="<%= c.getId() %>"><i class="fas fa-trash"></i></button></td>
+                            </tr>
+                          <% } %>
+                          </tbody>
+                        </table>
+                        </form>
+                        <div class="cart-checkout-bar">
+                          <div class="fs-5 fw-bold">
+                            Tổng cộng: <span class="text-danger fs-4" id="selectedTotal"></span>
+                          </div>
+                          <button class="cart-checkout-btn" disabled>Thanh toán</button>
                         </div>
                         <% } else { %>
                         <div class="alert alert-info text-center mt-4" style="font-size:1.1rem;">
@@ -316,51 +384,114 @@
 
         <!-- Scripts -->
         <script>
-            document.querySelectorAll('.qty-btn').forEach(function (btn) {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const cartId = this.getAttribute('data-id');
-                    const input = this.parentElement.querySelector('.qty-value');
-                    const oldQty = parseInt(input.value);
-                    const action = this.classList.contains('increase-btn') ? 'increase' : 'decrease';
-                    // Optimistic update
-                    let newQty = oldQty + (action === 'increase' ? 1 : -1);
-                    if (newQty < 1)
-                        newQty = 1; // hoặc xóa luôn
-                    input.value = newQty;
-                    this.disabled = true; // tránh double click
-
-                    fetch('member-cart?action=' + action + '&id=' + cartId, {
-                        method: 'GET',
-                        headers: {'X-Requested-With': 'XMLHttpRequest'}
-                    })
-                            .then(response => response.json())
-                            .then(data => {
-                                this.disabled = false;
-                                if (data.success) {
-                                    input.value = data.newQuantity;
-                                    // Nếu trả về newQuantity = 0 thì ẩn luôn sản phẩm
-                                    if (data.newQuantity <= 0) {
-                                        this.closest('.col-md-4').remove();
-                                    }
-                                    if (data.cartTotal !== undefined) {
-                                        document.querySelector('.cart-total-bar .text-danger').textContent =
-                                                data.cartTotal.toLocaleString() + ' VNĐ';
-                                    }
-                                } else {
-                                    // Nếu có lỗi, rollback lại số cũ
-                                    input.value = oldQty;
-                                    alert(data.message || "Có lỗi xảy ra!");
-                                }
-                            })
-                            .catch(() => {
-                                this.disabled = false;
-                                input.value = oldQty; // rollback lại
-                                alert("Lỗi mạng hoặc server!");
-                            });
-                });
+// Cập nhật tổng tiền các sản phẩm được chọn
+function updateSelectedTotal() {
+    let total = 0;
+    document.querySelectorAll('.select-cart-item:checked').forEach(function(cb) {
+        const row = cb.closest('tr');
+        const price = parseInt(row.querySelector('.cart-price').textContent.replace(/[^\d]/g, ''));
+        const qty = parseInt(row.querySelector('.qty-value').value);
+        total += price * qty;
+    });
+    document.getElementById('selectedTotal').textContent = total.toLocaleString() + ' VNĐ';
+    document.querySelector('.cart-checkout-btn').disabled = document.querySelectorAll('.select-cart-item:checked').length === 0;
+}
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('selectAllCart').addEventListener('change', function() {
+        document.querySelectorAll('.select-cart-item').forEach(cb => { cb.checked = this.checked; });
+        updateSelectedTotal();
+    });
+    document.querySelectorAll('.select-cart-item').forEach(cb => {
+        cb.addEventListener('change', function() {
+            if (!this.checked) document.getElementById('selectAllCart').checked = false;
+            else if (document.querySelectorAll('.select-cart-item:checked').length === document.querySelectorAll('.select-cart-item').length)
+                document.getElementById('selectAllCart').checked = true;
+            updateSelectedTotal();
+        });
+    });
+    updateSelectedTotal();
+    let deleteRow = null;
+    let deleteCartId = null;
+    const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+    document.querySelectorAll('.remove-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            deleteRow = this.closest('tr');
+            deleteCartId = this.getAttribute('data-id');
+            confirmDeleteModal.show();
+        });
+    });
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        if (deleteRow && deleteCartId) {
+            fetch('member-cart?action=remove&id=' + deleteCartId, {
+                method: 'GET',
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    deleteRow.remove();
+                    updateSelectedTotal();
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra!');
+                }
+                confirmDeleteModal.hide();
+            })
+            .catch(() => {
+                alert('Lỗi mạng hoặc server!');
+                confirmDeleteModal.hide();
             });
-
+        }
+    });
+});
+document.querySelectorAll('.qty-btn').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const cartId = this.getAttribute('data-id');
+        const input = this.parentElement.querySelector('.qty-value');
+        const oldQty = parseInt(input.value);
+        const action = this.classList.contains('increase-btn') ? 'increase' : 'decrease';
+        if (action === 'decrease' && oldQty === 1) {
+            // Không làm gì nếu giảm ở mức 1
+            return;
+        }
+        let newQty = oldQty + (action === 'increase' ? 1 : -1);
+        input.value = newQty;
+        this.disabled = true;
+        fetch('member-cart?action=' + action + '&id=' + cartId, {
+            method: 'GET',
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            this.disabled = false;
+            if (data.success) {
+                input.value = data.newQuantity;
+                if (data.newQuantity <= 0) {
+                    this.closest('tr').remove();
+                }
+                updateSelectedTotal();
+                const row = this.closest('tr');
+                const price = parseInt(row.querySelector('.cart-price').textContent.replace(/[^\d]/g, ''));
+                row.querySelector('.cart-line-total').textContent = (price * data.newQuantity).toLocaleString() + ' VNĐ';
+                const toast = document.createElement('div');
+                toast.className = 'toast align-items-center text-white bg-success border-0';
+                toast.role = 'alert';
+                toast.innerHTML = '<div class="d-flex"><div class="toast-body"><i class="fas fa-check-circle me-2"></i>Cập nhật số lượng thành công</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>';
+                document.querySelector('.toast-container').appendChild(toast);
+                new bootstrap.Toast(toast, {delay: 2000}).show();
+                setTimeout(() => toast.remove(), 2200);
+            } else {
+                input.value = oldQty;
+                alert(data.message || "Có lỗi xảy ra!");
+            }
+        })
+        .catch(() => {
+            this.disabled = false;
+            input.value = oldQty;
+            alert("Lỗi mạng hoặc server!");
+        });
+    });
+});
         </script>
 
         <script src="assets/js/core/bootstrap.bundle.min.js"></script>
