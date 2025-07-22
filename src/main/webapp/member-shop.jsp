@@ -3,6 +3,8 @@
 <%@page import="Services.ProductService" %>
 <%@page import="Models.User" %>
 <%@page import="java.util.List" %>
+<%@page import="java.util.ArrayList"%>
+
 
 <%
     User loggedInUser = (User) session.getAttribute("loggedInUser");
@@ -12,7 +14,14 @@
     }
 
     ProductService productService = new ProductService();
-    List<Product> products = productService.getAllProducts();
+    List<Product> allProducts = productService.getAllProducts();
+List<Product> products = new ArrayList<>();
+for (Product product : allProducts) {
+    if ("Active".equalsIgnoreCase(product.getStatus())) {
+        products.add(product);
+    }
+}
+
 
     String successMessage = (String) session.getAttribute("successMessage");
     if (successMessage != null) session.removeAttribute("successMessage");
