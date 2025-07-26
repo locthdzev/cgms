@@ -1,12 +1,18 @@
 package Models;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 import java.time.Instant;
 
+@Getter
+@Setter
 @Entity
-@Table(name = "PasswordResetTokens")
+@Table(name = "PasswordResetTokens", uniqueConstraints = {
+        @UniqueConstraint(name = "UQ__Password__1EB4F81734058E0B", columnNames = {"Token"})
+})
 public class PasswordResetToken {
     @Id
     @Column(name = "TokenId", nullable = false)
@@ -29,53 +35,5 @@ public class PasswordResetToken {
     @Nationalized
     @Column(name = "Status", nullable = false, length = 20)
     private String status;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public Instant getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Instant expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
 }

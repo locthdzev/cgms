@@ -150,11 +150,11 @@ public class PayOSService {
                     responseData.getCheckoutUrl(),
                     Instant.now().plus(24, ChronoUnit.HOURS));
 
-            // Không cần cập nhật mã QR vào database nữa
-            if (paymentLink != null && responseData.getQrCode() != null) {
-                // Chỉ cập nhật đối tượng trong bộ nhớ
-                paymentLink.setQrCode(responseData.getQrCode());
-            }
+            // // Không cần cập nhật mã QR vào database nữa
+            // if (paymentLink != null && responseData.getQrCode() != null) {
+            // // Chỉ cập nhật đối tượng trong bộ nhớ
+            // paymentLink.setQrCode(responseData.getQrCode());
+            // }
 
             return paymentLink;
         } catch (Exception e) {
