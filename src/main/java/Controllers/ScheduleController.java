@@ -138,7 +138,19 @@ public class ScheduleController extends HttpServlet {
                     }
                     // Time
                     if (scheduleTimes[i] != null && !scheduleTimes[i].trim().isEmpty()) {
-                        sch.setScheduleTime(LocalTime.parse(scheduleTimes[i]));
+                        LocalTime scheduleTime = LocalTime.parse(scheduleTimes[i]);
+                        // Kiểm tra điều kiện giờ bắt đầu
+                        LocalTime minTime = LocalTime.of(7, 0);
+                        LocalTime maxTime = LocalTime.of(22, 0);
+                        if (scheduleTime.isBefore(minTime) || scheduleTime.isAfter(maxTime)) {
+                            req.setAttribute("errorMessage", "Chỉ được tạo lịch từ 07:00 đến 22:00!");
+                            req.setAttribute("formAction", "create");
+                            req.setAttribute("trainers", service.getAllTrainers());
+                            req.setAttribute("members", service.getActiveMembersWithPackage());
+                            req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                            return;
+                        }
+                        sch.setScheduleTime(scheduleTime);
                     }
                     // Duration
                     if (durationHoursArr[i] != null && !durationHoursArr[i].trim().isEmpty()) {
