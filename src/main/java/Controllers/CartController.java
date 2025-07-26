@@ -36,8 +36,17 @@ public class CartController extends HttpServlet {
         } else if ("remove".equals(action)) {
             int cartId = Integer.parseInt(req.getParameter("id"));
             cartService.removeItem(cartId);
-            req.getSession().setAttribute("successMessage", "Đã xóa sản phẩm khỏi giỏ!");
-            resp.sendRedirect("member-cart");
+            long cartTotal = cartService.getCartTotal(user.getId());
+            if (isAjax(req)) {
+                resp.setContentType("application/json");
+                resp.setCharacterEncoding("UTF-8");
+                String json = "{\"success\": true, \"cartTotal\": " + cartTotal + "}";
+                resp.getWriter().write(json);
+                return;
+            } else {
+                req.getSession().setAttribute("successMessage", "Đã xóa sản phẩm khỏi giỏ!");
+                resp.sendRedirect("member-cart");
+            }
         } else if ("increase".equals(action) || "decrease".equals(action)) {
             int cartId = Integer.parseInt(req.getParameter("id"));
             int delta = "increase".equals(action) ? 1 : -1;
@@ -47,7 +56,8 @@ public class CartController extends HttpServlet {
             if (isAjax(req)) {
                 resp.setContentType("application/json");
                 resp.setCharacterEncoding("UTF-8");
-                String json = "{\"success\": true, \"newQuantity\": " + newQuantity + ", \"cartTotal\": " + cartTotal + "}";
+                String json = "{\"success\": true, \"newQuantity\": " + newQuantity + ", \"cartTotal\": " + cartTotal
+                        + "}";
                 resp.getWriter().write(json);
                 return;
             } else {
@@ -66,7 +76,8 @@ public class CartController extends HttpServlet {
             if (isAjax(req)) {
                 resp.setContentType("application/json");
                 resp.setCharacterEncoding("UTF-8");
-                String json = "{\"success\": true, \"newQuantity\": " + newQuantity + ", \"cartTotal\": " + cartTotal + "}";
+                String json = "{\"success\": true, \"newQuantity\": " + newQuantity + ", \"cartTotal\": " + cartTotal
+                        + "}";
                 resp.getWriter().write(json);
                 return;
             } else {
