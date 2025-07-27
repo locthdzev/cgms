@@ -5,8 +5,8 @@
     User sidebarUser = (User) session.getAttribute("loggedInUser");
     
     // Lấy đường dẫn hiện tại để xác định menu nào đang active
-    String currentURI = request.getRequestURI();
-    String pageName = currentURI.substring(currentURI.lastIndexOf("/") + 1);
+    String sidebarCurrentURI = request.getRequestURI();
+    String sidebarPageName = sidebarCurrentURI.substring(sidebarCurrentURI.lastIndexOf("/") + 1);
 %>
 
 <aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4" id="sidenav-main">
@@ -21,7 +21,7 @@
     <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link <%= "pt_dashboard.jsp".equals(pageName) ? "active" : "" %>" href="pt_dashboard.jsp">
+                <a class="nav-link <%= "pt_dashboard.jsp".equals(sidebarPageName) ? "active" : "" %>" href="pt_dashboard.jsp">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-tachometer-alt text-primary text-sm opacity-10"></i>
                     </div>
@@ -29,7 +29,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <%= "pt_schedule_management.jsp".equals(pageName) ? "active" : "" %>" href="${pageContext.request.contextPath}/pt_schedule">
+                <a class="nav-link <%= sidebarCurrentURI.contains("pt-schedule") ? "active" : "" %>" href="pt-schedule">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-calendar-check text-info text-sm opacity-10"></i>
                     </div>
@@ -37,7 +37,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <%= "pt_clients.jsp".equals(pageName) ? "active" : "" %>" href="pt_clients.jsp">
+                <a class="nav-link <%= "pt_clients.jsp".equals(sidebarPageName) ? "active" : "" %>" href="pt_clients.jsp">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-users text-success text-sm opacity-10"></i>
                     </div>
@@ -49,7 +49,7 @@
                 <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Tài khoản</h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link <%= "profile.jsp".equals(pageName) ? "active" : "" %>" href="profile">
+                <a class="nav-link <%= "profile.jsp".equals(sidebarPageName) ? "active" : "" %>" href="profile">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="fas fa-user text-info text-sm opacity-10"></i>
                     </div>
