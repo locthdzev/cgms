@@ -413,6 +413,50 @@
             <div class="col-12">
                 <% if (scheduleList != null) { %>
                 
+                <div class="card mb-4" style="border: 1px solid #e3e3e3; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+    <div class="card-header pb-2 pt-2 bg-light d-flex align-items-center">
+        <i class="fas fa-filter me-2 text-info"></i>
+        <h6 class="mb-0 text-info">Bộ lọc lịch tập</h6>
+    </div>
+    <div class="card-body pt-3 pb-2">
+        <form method="get" action="schedule" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Lọc theo Trainer</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                    <select name="trainerId" class="form-select">
+                        <option value="">Tất cả Trainer</option>
+                        <% if (trainers != null) {
+                            String selectedTrainer = request.getParameter("trainerId");
+                            for (User trainer : trainers) { %>
+                                <option value="<%= trainer.getId() %>" <% if (selectedTrainer != null && selectedTrainer.equals(String.valueOf(trainer.getId()))) { %>selected<% } %>><%= trainer.getFullName() != null ? trainer.getFullName() : trainer.getUserName() %></option>
+                        <% } } %>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Lọc theo Member</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                    <select name="memberId" class="form-select">
+                        <option value="">Tất cả Member</option>
+                        <% if (members != null) {
+                            String selectedMember = request.getParameter("memberId");
+                            for (User member : members) { %>
+                                <option value="<%= member.getId() %>" <% if (selectedMember != null && selectedMember.equals(String.valueOf(member.getId()))) { %>selected<% } %>><%= member.getFullName() != null ? member.getFullName() : member.getUserName() %></option>
+                        <% } } %>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex align-items-end justify-content-center">
+                <button type="submit" class="btn btn-info me-2 px-4"><i class="fas fa-search me-1"></i>Lọc</button>
+                <a href="schedule" class="btn btn-outline-secondary px-4">Bỏ lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+<div style="margin-bottom: 1.5rem;"></div>
+                
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                         <h6>Lịch tập tháng</h6>
@@ -426,6 +470,7 @@
                         </div>
                     </div>
                     <div class="card-body p-0">
+                        
                         <div class="calendar-container">
                             <!-- Calendar Header -->
                             <div class="calendar-header">
@@ -530,46 +575,41 @@
                             <input type="hidden" name="formAction" value="<%= formAction %>"/>
                             <% if ("edit".equals(formAction) && schedule != null) { %>
                                 <input type="hidden" name="id" value="<%= schedule.getId() %>"/>
-                            <% } %>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Trainer *</label>
-                                    <select name="trainerId" class="form-control" required>
-                                        <option value="">Chọn Trainer</option>
-                                        <% if (trainers != null) {
-                                            for (User trainer : trainers) { %>
-                                                <option value="<%= trainer.getId() %>" 
-                                                    <% if ("edit".equals(formAction) && schedule != null && schedule.getTrainer() != null && schedule.getTrainer().getId() != null && schedule.getTrainer().getId().equals(trainer.getId())) { %>selected<% } %>>
-                                                    <%= trainer.getFullName() != null ? trainer.getFullName() : trainer.getUserName() %>
-                                                </option>
-                                        <% } } %>
-                                    </select>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Trainer *</label>
+                                        <select name="trainerId" class="form-control" required disabled>
+                                            <option value="">Chọn Trainer</option>
+                                            <% if (trainers != null) {
+                                                for (User trainer : trainers) { %>
+                                                    <option value="<%= trainer.getId() %>"
+                                                        <% if (schedule != null && schedule.getTrainer() != null && schedule.getTrainer().getId() != null && schedule.getTrainer().getId().equals(trainer.getId())) { %>selected<% } %>>
+                                                        <%= trainer.getFullName() != null ? trainer.getFullName() : trainer.getUserName() %>
+                                                    </option>
+                                            <% } } %>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Member *</label>
+                                        <select name="memberId" class="form-control" required disabled>
+                                            <option value="">Chọn Member</option>
+                                            <% if (members != null) {
+                                                for (User member : members) { %>
+                                                    <option value="<%= member.getId() %>"
+                                                        <% if (schedule != null && schedule.getMember() != null && schedule.getMember().getId() != null && schedule.getMember().getId().equals(member.getId())) { %>selected<% } %>>
+                                                        <%= member.getFullName() != null ? member.getFullName() : member.getUserName() %>
+                                                    </option>
+                                            <% } } %>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Member *</label>
-                                    <select name="memberId" class="form-control" required>
-                                        <option value="">Chọn Member</option>
-                                        <% if (members != null) {
-                                            for (User member : members) { %>
-                                                <option value="<%= member.getId() %>"
-                                                    <% if ("edit".equals(formAction) && schedule != null && schedule.getMember() != null && schedule.getMember().getId() != null && schedule.getMember().getId().equals(member.getId())) { %>selected<% } %>>
-                                                    <%= member.getFullName() != null ? member.getFullName() : member.getUserName() %>
-                                                </option>
-                                        <% } } %>
-                                    </select>
-                                </div>
-                            </div>
-                            <div id="scheduleRows">
-                                <% if ("edit".equals(formAction) && schedule != null) { %>
-                                    <!-- Form chỉnh sửa - chỉ hiển thị 1 dòng -->
+                                <div id="scheduleRows">
                                     <div class="row schedule-row mb-2">
                                         <div class="col-md-3 mb-2">
-                                            <input type="date" name="scheduleDate" class="form-control" required 
-                                                value="<%= schedule.getScheduleDate() != null ? schedule.getScheduleDate().toString() : "" %>" />
+                                            <input type="date" name="scheduleDate" class="form-control" required value="<%= schedule.getScheduleDate() != null ? schedule.getScheduleDate().toString() : "" %>" readonly />
                                         </div>
                                         <div class="col-md-3 mb-2">
-                                            <input type="time" name="scheduleTime" class="form-control" required 
-                                                value="<%= schedule.getScheduleTime() != null ? schedule.getScheduleTime().toString() : "" %>" />
+                                            <input type="time" name="scheduleTime" class="form-control" required value="<%= schedule.getScheduleTime() != null ? schedule.getScheduleTime().toString() : "" %>" />
                                         </div>
                                         <div class="col-md-3 mb-2">
                                             <select name="durationHours" class="form-control" required>
@@ -602,17 +642,45 @@
                                             <!-- Không có nút xóa cho form chỉnh sửa -->
                                         </div>
                                     </div>
-                                <% } else { %>
-                                    <!-- Form tạo mới - có thể thêm nhiều dòng -->
+                                </div>
+                            <% } else { %>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Trainer *</label>
+                                        <select name="trainerId" class="form-control" required>
+                                            <option value="">Chọn Trainer</option>
+                                            <% if (trainers != null) {
+                                                for (User trainer : trainers) { %>
+                                                    <option value="<%= trainer.getId() %>"><%= trainer.getFullName() != null ? trainer.getFullName() : trainer.getUserName() %></option>
+                                            <% } } %>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Member *</label>
+                                        <select name="memberId" class="form-control" required>
+                                            <option value="">Chọn Member</option>
+                                            <% if (members != null) {
+                                                for (User member : members) { %>
+                                                    <option value="<%= member.getId() %>"><%= member.getFullName() != null ? member.getFullName() : member.getUserName() %></option>
+                                            <% } } %>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="createFullWeek" name="createFullWeek" onchange="toggleFullWeekMode()">
+                                    <label class="form-check-label" for="createFullWeek">Tạo lịch cho cả tuần (thứ 2 đến thứ 7)</label>
+                                </div>
+                                <div id="fullWeekRow" style="display:none;">
                                     <div class="row schedule-row mb-2">
                                         <div class="col-md-3 mb-2">
-                                            <input type="date" name="scheduleDate" class="form-control" required />
+                                            <input type="date" name="weekStartDate" class="form-control" required />
+                                            <small class="text-muted">Chọn ngày thứ 2</small>
                                         </div>
                                         <div class="col-md-3 mb-2">
-                                            <input type="time" name="scheduleTime" class="form-control" required />
+                                            <input type="time" name="weekScheduleTime" class="form-control" required />
                                         </div>
                                         <div class="col-md-3 mb-2">
-                                            <select name="durationHours" class="form-control" required>
+                                            <select name="weekDurationHours" class="form-control" required>
                                                 <% for (double i = 0.5; i <= 3.0; i += 0.5) { 
                                                     int hours = (int) i;
                                                     int minutes = (int) ((i - hours) * 60);
@@ -630,24 +698,62 @@
                                             </select>
                                         </div>
                                         <div class="col-md-2 mb-2">
-                                            <select name="status" class="form-control" required>
+                                            <select name="weekStatus" class="form-control" required>
                                                 <option value="Pending">Chờ xác nhận</option>
                                                 <option value="Confirmed">Đã xác nhận</option>
                                                 <option value="Completed">Hoàn thành</option>
                                                 <option value="Cancelled">Đã hủy</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-1 mb-2 d-flex align-items-center">
-                                            <button type="button" class="btn btn-danger btn-sm remove-row" onclick="removeScheduleRow(this)" style="display:none;">&times;</button>
+                                    </div>
+                                </div>
+                                <div id="scheduleRowsWrapper">
+                                    <div id="scheduleRows">
+                                        <!-- Form tạo mới - có thể thêm nhiều dòng -->
+                                        <div class="row schedule-row mb-2">
+                                            <div class="col-md-3 mb-2">
+                                                <input type="date" name="scheduleDate" class="form-control" required />
+                                            </div>
+                                            <div class="col-md-3 mb-2">
+                                                <input type="time" name="scheduleTime" class="form-control" required />
+                                            </div>
+                                            <div class="col-md-3 mb-2">
+                                                <select name="durationHours" class="form-control" required>
+                                                    <% for (double i = 0.5; i <= 3.0; i += 0.5) { 
+                                                        int hours = (int) i;
+                                                        int minutes = (int) ((i - hours) * 60);
+                                                        String label = "";
+                                                        if (hours > 0 && minutes > 0) {
+                                                            label = hours + " giờ " + minutes + " phút";
+                                                        } else if (hours > 0) {
+                                                            label = hours + " giờ";
+                                                        } else {
+                                                            label = minutes + " phút";
+                                                        }
+                                                    %>
+                                                        <option value="<%= i %>"><%= label %></option>
+                                                    <% } %>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2 mb-2">
+                                                <select name="status" class="form-control" required>
+                                                    <option value="Pending">Chờ xác nhận</option>
+                                                    <option value="Confirmed">Đã xác nhận</option>
+                                                    <option value="Completed">Hoàn thành</option>
+                                                    <option value="Cancelled">Đã hủy</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-1 mb-2 d-flex align-items-center">
+                                                <button type="button" class="btn btn-danger btn-sm remove-row" onclick="removeScheduleRow(this)">&times;</button>
+                                            </div>
                                         </div>
                                     </div>
-                                <% } %>
-                            </div>
-                            <% if (!"edit".equals(formAction)) { %>
-                            <div class="mb-3">
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="addScheduleRow()"><i class="fas fa-plus me-1"></i>Thêm dòng</button>
-                            </div>
+                                    <div class="mb-3" id="addRowBtnWrapper">
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="addScheduleRow()"><i class="fas fa-plus me-1"></i>Thêm dòng</button>
+                                    </div>
+                                </div>
                             <% } %>
+                            </div>
                             <div class="d-flex justify-content-end mt-4">
                                 <button type="reset" class="btn btn-light me-2">Làm mới</button>
                                 <button class="btn btn-primary" type="submit">
@@ -675,6 +781,24 @@
                             var row = btn.closest('.schedule-row');
                             row.parentNode.removeChild(row);
                         }
+                        function toggleFullWeekMode() {
+                            var checked = document.getElementById('createFullWeek').checked;
+                            document.getElementById('fullWeekRow').style.display = checked ? '' : 'none';
+                            document.getElementById('scheduleRowsWrapper').style.display = checked ? 'none' : '';
+                            // Xử lý required
+                            // Khối tuần
+                            document.querySelectorAll('#fullWeekRow input, #fullWeekRow select').forEach(function(input) {
+                                input.required = checked;
+                            });
+                            // Các dòng thường
+                            document.querySelectorAll('#scheduleRows input, #scheduleRows select').forEach(function(input) {
+                                input.required = !checked;
+                            });
+                        }
+                        // Đảm bảo trạng thái required đúng khi load lại trang
+                        document.addEventListener('DOMContentLoaded', function() {
+                            toggleFullWeekMode();
+                        });
                         </script>
                     </div>
                 </div>
