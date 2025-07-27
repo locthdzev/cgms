@@ -525,12 +525,7 @@
                         </a>
                     </div>
                     <div class="card-body">
-                        <% if (request.getAttribute("errorMessage") != null) { %>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-circle me-2"></i> <%= request.getAttribute("errorMessage") %>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        <% } %>
+                        
                         <form method="post" id="multiScheduleForm">
                             <input type="hidden" name="formAction" value="<%= formAction %>"/>
                             <% if ("edit".equals(formAction) && schedule != null) { %>

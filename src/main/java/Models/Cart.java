@@ -1,11 +1,21 @@
 package Models;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 import java.time.Instant;
 
+@Getter
+@Setter
 @Entity
+@Table(name = "Cart", indexes = {
+        @Index(name = "IX_Cart_MemberId", columnList = "MemberId"),
+        @Index(name = "IX_Cart_ProductId", columnList = "ProductId")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "UQ_Cart_MemberId_ProductId_Status", columnNames = {"MemberId", "ProductId", "Status"})
+})
 public class Cart {
     @Id
     @Column(name = "CartId", nullable = false)
@@ -28,53 +38,5 @@ public class Cart {
     @Nationalized
     @Column(name = "Status", nullable = false, length = 20)
     private String status;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public User getMember() {
-        return member;
-    }
-
-    public void setMember(User member) {
-        this.member = member;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Instant getAddedAt() {
-        return addedAt;
-    }
-
-    public void setAddedAt(Instant addedAt) {
-        this.addedAt = addedAt;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
 }

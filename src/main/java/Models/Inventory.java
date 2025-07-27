@@ -1,11 +1,18 @@
 package Models;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 import java.time.Instant;
 
+@Getter
+@Setter
 @Entity
+@Table(name = "Inventory", indexes = {
+        @Index(name = "IX_Inventory_ProductId", columnList = "ProductId")
+})
 public class Inventory {
     @Id
     @Column(name = "InventoryId", nullable = false)
@@ -17,6 +24,17 @@ public class Inventory {
 
     @Column(name = "Quantity", nullable = false)
     private Integer quantity;
+
+    @Nationalized
+    @Column(name = "SupplierName", nullable = false, length = 100)
+    private String supplierName;
+
+    @Nationalized
+    @Column(name = "TaxCode", nullable = false, length = 50)
+    private String taxCode;
+
+    @Column(name = "ImportedDate", nullable = false)
+    private Instant importedDate;
 
     @Column(name = "LastUpdated", nullable = false)
     private Instant lastUpdated;
@@ -35,7 +53,6 @@ public class Inventory {
     @Column(name = "Status", nullable = false, length = 20)  // Tình trạng
     private String status;
 
-    // Getters and Setters
     public Integer getId() {
         return id;
     }
@@ -68,30 +85,6 @@ public class Inventory {
         this.lastUpdated = lastUpdated;
     }
 
-    public Instant getImportedDate() {
-        return importedDate;
-    }
-
-    public void setImportedDate(Instant importedDate) {
-        this.importedDate = importedDate;
-    }
-
-    public String getSupplierName() {
-        return supplierName;
-    }
-
-    public void setSupplierName(String supplierName) {
-        this.supplierName = supplierName;
-    }
-
-    public String getTaxCode() {
-        return taxCode;
-    }
-
-    public void setTaxCode(String taxCode) {
-        this.taxCode = taxCode;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -99,4 +92,5 @@ public class Inventory {
     public void setStatus(String status) {
         this.status = status;
     }
+
 }
