@@ -1,21 +1,49 @@
 package Models;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Nationalized;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.Instant;
 
+@Getter
+@Setter
+@Entity
+@Table(name = "Job_Execution_Logs")
 public class JobExecutionLog {
+    @Id
+    @Column(name = "LogId", nullable = false)
     private Integer id;
+
+    @Nationalized
+    @Column(name = "JobName", nullable = false, length = 100)
     private String jobName;
+
+    @Column(name = "ExecutionTime", nullable = false)
     private Instant executionTime;
-    private boolean success;
+
+    @Column(name = "Success", nullable = false)
+    private Boolean success = false;
+
+    @Nationalized
+    @Column(name = "Message", length = 500)
     private String message;
-    private Long executionDuration; // Thời gian thực thi (ms)
+
+    @Column(name = "ExecutionDuration")
+    private Long executionDuration;
+
+    @Column(name = "CreatedAt", nullable = false)
     private Instant createdAt;
 
     public JobExecutionLog() {
     }
 
     public JobExecutionLog(String jobName, Instant executionTime, boolean success, String message,
-            Long executionDuration) {
+            long executionDuration) {
         this.jobName = jobName;
         this.executionTime = executionTime;
         this.success = success;
@@ -24,59 +52,7 @@ public class JobExecutionLog {
         this.createdAt = Instant.now();
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getJobName() {
-        return jobName;
-    }
-
-    public void setJobName(String jobName) {
-        this.jobName = jobName;
-    }
-
-    public Instant getExecutionTime() {
-        return executionTime;
-    }
-
-    public void setExecutionTime(Instant executionTime) {
-        this.executionTime = executionTime;
-    }
-
     public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Long getExecutionDuration() {
-        return executionDuration;
-    }
-
-    public void setExecutionDuration(Long executionDuration) {
-        this.executionDuration = executionDuration;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
+        return success != null && success;
     }
 }

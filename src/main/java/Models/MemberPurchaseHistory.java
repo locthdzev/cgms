@@ -1,5 +1,7 @@
 package Models;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
@@ -7,8 +9,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 
+@Getter
+@Setter
 @Entity
-@Table(name = "Member_Purchase_History")
+@Table(name = "Member_Purchase_History", indexes = {
+        @Index(name = "IX_Member_Purchase_History_MemberId", columnList = "MemberId")
+})
 public class MemberPurchaseHistory {
     @Id
     @Column(name = "PurchaseId", nullable = false)
@@ -45,85 +51,5 @@ public class MemberPurchaseHistory {
     @Nationalized
     @Column(name = "Status", nullable = false, length = 20)
     private String status;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public User getMember() {
-        return member;
-    }
-
-    public void setMember(User member) {
-        this.member = member;
-    }
-
-    public MemberPackage getMemberPackage() {
-        return memberPackage;
-    }
-
-    public void setMemberPackage(MemberPackage memberPackage) {
-        this.memberPackage = memberPackage;
-    }
-
-    public ProductSale getSale() {
-        return sale;
-    }
-
-    public void setSale(ProductSale sale) {
-        this.sale = sale;
-    }
-
-    public String getPurchaseType() {
-        return purchaseType;
-    }
-
-    public void setPurchaseType(String purchaseType) {
-        this.purchaseType = purchaseType;
-    }
-
-    public BigDecimal getPurchaseAmount() {
-        return purchaseAmount;
-    }
-
-    public void setPurchaseAmount(BigDecimal purchaseAmount) {
-        this.purchaseAmount = purchaseAmount;
-    }
-
-    public LocalDate getPurchaseDate() {
-        return purchaseDate;
-    }
-
-    public void setPurchaseDate(LocalDate purchaseDate) {
-        this.purchaseDate = purchaseDate;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
 }
