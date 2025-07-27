@@ -134,7 +134,18 @@ public class ScheduleController extends HttpServlet {
                     }
                     // Date
                     if (scheduleDates[i] != null && !scheduleDates[i].trim().isEmpty()) {
-                        sch.setScheduleDate(LocalDate.parse(scheduleDates[i]));
+                        LocalDate date = LocalDate.parse(scheduleDates[i]);
+                        // Kiểm tra nếu là Chủ Nhật
+                        if (date.getDayOfWeek().getValue() == 7) { // 7 = SUNDAY
+                            req.setAttribute("errorMessage",
+                                    "Không được tạo lịch vào Chủ Nhật! Phòng gym chỉ hoạt động từ thứ 2 đến thứ 7.");
+                            req.setAttribute("formAction", "create");
+                            req.setAttribute("trainers", service.getAllTrainers());
+                            req.setAttribute("members", service.getActiveMembersWithPackage());
+                            req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                            return;
+                        }
+                        sch.setScheduleDate(date);
                     }
                     // Time
                     if (scheduleTimes[i] != null && !scheduleTimes[i].trim().isEmpty()) {
@@ -149,6 +160,22 @@ public class ScheduleController extends HttpServlet {
                             req.setAttribute("members", service.getActiveMembersWithPackage());
                             req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
                             return;
+                        }
+                        // Kiểm tra thời gian kết thúc không vượt quá giờ đóng cửa
+                        if (durationHoursArr != null && durationHoursArr[i] != null
+                                && !durationHoursArr[i].trim().isEmpty()) {
+                            double duration = Double.parseDouble(durationHoursArr[i]);
+                            int minutes = (int) (duration * 60);
+                            LocalTime endTime = scheduleTime.plusMinutes(minutes);
+                            if (endTime.isAfter(maxTime)) {
+                                req.setAttribute("errorMessage",
+                                        "Thời gian tập vượt quá giờ đóng cửa (22:00). Vui lòng chọn giờ bắt đầu sớm hơn!");
+                                req.setAttribute("formAction", "create");
+                                req.setAttribute("trainers", service.getAllTrainers());
+                                req.setAttribute("members", service.getActiveMembersWithPackage());
+                                req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                                return;
+                            }
                         }
                         sch.setScheduleTime(scheduleTime);
                     }
@@ -167,7 +194,12 @@ public class ScheduleController extends HttpServlet {
                         service.saveSchedule(sch);
                         successCount++;
                     } catch (Exception ex) {
-                        // Có thể log lỗi từng dòng nếu muốn
+                        req.setAttribute("errorMessage", ex.getMessage());
+                        req.setAttribute("formAction", "create");
+                        req.setAttribute("trainers", service.getAllTrainers());
+                        req.setAttribute("members", service.getActiveMembersWithPackage());
+                        req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                        return;
                     }
                 }
                 session.setAttribute("successMessage",
@@ -206,7 +238,19 @@ public class ScheduleController extends HttpServlet {
                 // Set schedule date
                 String scheduleDateStr = req.getParameter("scheduleDate");
                 if (scheduleDateStr != null && !scheduleDateStr.trim().isEmpty()) {
-                    schedule.setScheduleDate(LocalDate.parse(scheduleDateStr));
+                    LocalDate date = LocalDate.parse(scheduleDateStr);
+                    // Kiểm tra nếu là Chủ Nhật
+                    if (date.getDayOfWeek().getValue() == 7) { // 7 = SUNDAY
+                        req.setAttribute("errorMessage",
+                                "Không được tạo hoặc chỉnh sửa lịch vào Chủ Nhật! Phòng gym chỉ hoạt động từ thứ 2 đến thứ 7.");
+                        req.setAttribute("formAction", formAction);
+                        req.setAttribute("trainers", service.getAllTrainers());
+                        req.setAttribute("members", service.getActiveMembersWithPackage());
+                        req.setAttribute("schedule", schedule);
+                        req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                        return;
+                    }
+                    schedule.setScheduleDate(date);
                 }
 
                 // Set schedule time
@@ -270,7 +314,18 @@ public class ScheduleController extends HttpServlet {
                 // Set schedule date
                 String scheduleDateStr = req.getParameter("scheduleDate");
                 if (scheduleDateStr != null && !scheduleDateStr.trim().isEmpty()) {
-                    schedule.setScheduleDate(LocalDate.parse(scheduleDateStr));
+                    LocalDate date = LocalDate.parse(scheduleDateStr);
+                    // Kiểm tra nếu là Chủ Nhật
+                    if (date.getDayOfWeek().getValue() == 7) { // 7 = SUNDAY
+                        req.setAttribute("errorMessage",
+                                "Không được tạo lịch vào Chủ Nhật! Phòng gym chỉ hoạt động từ thứ 2 đến thứ 7.");
+                        req.setAttribute("formAction", "create");
+                        req.setAttribute("trainers", service.getAllTrainers());
+                        req.setAttribute("members", service.getActiveMembersWithPackage());
+                        req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                        return;
+                    }
+                    schedule.setScheduleDate(date);
                 } else {
                     schedule.setScheduleDate(null);
                 }
