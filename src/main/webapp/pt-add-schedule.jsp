@@ -86,7 +86,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="scheduleTime" class="form-control-label">Thời gian bắt đầu <span class="text-danger">*</span></label>
-                                            <input class="form-control" type="time" id="scheduleTime" name="scheduleTime" required>
+                                            <input class="form-control" type="time" id="scheduleTime" name="scheduleTime" required min="07:00" max="22:00">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
