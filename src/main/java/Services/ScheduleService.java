@@ -233,8 +233,8 @@ public class ScheduleService {
                     .plusMinutes((int) ((existingSchedule.getDurationHours().doubleValue() % 1) * 60));
 
             // Check for time overlap
-            if (!(endTime.isBefore(existingStart) || startTime.isAfter(existingEnd))) {
-                return false; // Time conflict found
+            if (startTime.isBefore(existingEnd) && existingStart.isBefore(endTime)) {
+                return false;
             }
         }
         return true; // No conflicts
