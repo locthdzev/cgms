@@ -9,6 +9,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @WebServlet("/inventory/*")
@@ -21,11 +23,8 @@ public class InventoryController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String pathInfo = req.getPathInfo();
         String action = req.getParameter("action");
-
-        if (action == null)
-            action = "list";
+        if (action == null) action = "list"; // Default action is "list"
 
         switch (action) {
             case "add":
@@ -37,13 +36,18 @@ public class InventoryController extends HttpServlet {
 
             case "edit":
                 // Hiển thị form cập nhật số lượng
-                int productId = Integer.parseInt(req.getParameter("productId"));
-                Inventory inventory = inventoryService.getInventoryByProductId(productId);
-                Product product = productService.getProductById(productId);
+                try {
+                    int productId = Integer.parseInt(req.getParameter("productId"));
+                    Inventory inventory = inventoryService.getInventoryByProductId(productId);
+                    Product product = productService.getProductById(productId);
 
-                req.setAttribute("inventory", inventory);
-                req.setAttribute("product", product);
-                req.getRequestDispatcher("/inventory-edit.jsp").forward(req, resp);
+                    req.setAttribute("inventory", inventory);
+                    req.setAttribute("product", product);
+                    req.getRequestDispatcher("/inventory-edit.jsp").forward(req, resp);
+                } catch (NumberFormatException e) {
+                    req.setAttribute("errorMessage", "Dữ liệu sản phẩm không hợp lệ.");
+                    req.getRequestDispatcher("/inventory-list.jsp").forward(req, resp);
+                }
                 break;
 
             case "list":
@@ -66,17 +70,40 @@ public class InventoryController extends HttpServlet {
 
         try {
             if ("add".equals(action)) {
-                // Thêm sản phẩm vào kho
+                // Lấy các tham số từ form
                 int productId = Integer.parseInt(req.getParameter("productId"));
                 int quantity = Integer.parseInt(req.getParameter("quantity"));
+                String supplierName = req.getParameter("supplierName");
+                String taxCode = req.getParameter("taxCode");
+                String status = req.getParameter("status");
 
+                // Kiểm tra nếu quantity hợp lệ
                 if (quantity <= 0) {
                     session.setAttribute("errorMessage", "Số lượng phải lớn hơn 0");
                     resp.sendRedirect(req.getContextPath() + "/inventory?action=add");
                     return;
                 }
 
-                boolean success = inventoryService.addProductToInventory(productId, quantity);
+                // Kiểm tra mã số thuế hợp lệ (ví dụ, bạn có thể kiểm tra định dạng)
+                if (taxCode == null || taxCode.isEmpty() || !taxCode.matches("[0-9]{10}")) {
+                    session.setAttribute("errorMessage", "Mã số thuế không hợp lệ.");
+                    resp.sendRedirect(req.getContextPath() + "/inventory?action=add");
+                    return;
+                }
+
+                // Lấy ngày nhập kho từ form
+                String importedDateStr = req.getParameter("importedDate");
+                Instant importedDate;
+                try {
+                    importedDate = java.time.LocalDate.parse(importedDateStr).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant();
+                } catch (Exception e) {
+                    session.setAttribute("errorMessage", "Ngày nhập kho không hợp lệ.");
+                    resp.sendRedirect(req.getContextPath() + "/inventory?action=add");
+                    return;
+                }
+
+                // Thêm sản phẩm vào kho
+                boolean success = inventoryService.addProductToInventory(productId, quantity, supplierName, taxCode, status, importedDate);
 
                 if (success) {
                     session.setAttribute("successMessage", "Thêm sản phẩm vào kho thành công!");
@@ -84,18 +111,22 @@ public class InventoryController extends HttpServlet {
                     session.setAttribute("errorMessage", "Không thể thêm sản phẩm vào kho!");
                 }
 
+                resp.sendRedirect(req.getContextPath() + "/inventory?action=list");
+
             } else if ("update".equals(action)) {
                 // Cập nhật số lượng tồn kho
                 int productId = Integer.parseInt(req.getParameter("productId"));
                 int quantity = Integer.parseInt(req.getParameter("quantity"));
+                String status = req.getParameter("status");
 
+                // Kiểm tra số lượng hợp lệ
                 if (quantity < 0) {
                     session.setAttribute("errorMessage", "Số lượng không thể âm");
                     resp.sendRedirect(req.getContextPath() + "/inventory?action=edit&productId=" + productId);
                     return;
                 }
 
-                boolean success = inventoryService.updateInventoryQuantity(productId, quantity);
+                boolean success = inventoryService.updateInventoryQuantity(productId, quantity, status);
 
                 if (success) {
                     session.setAttribute("successMessage", "Cập nhật số lượng thành công!");

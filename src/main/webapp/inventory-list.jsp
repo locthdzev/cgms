@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
     <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <!-- CSS Files -->
@@ -24,7 +24,7 @@
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
-        <div class="min-height-300 bg-dark position-absolute w-100"></div>
+    <div class="min-height-300 bg-dark position-absolute w-100"></div>
     
     <!-- Sidebar -->
     <%@ include file="sidebar.jsp" %>
@@ -72,6 +72,9 @@
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">SẢN PHẨM</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">SỐ LƯỢNG</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">TRẠNG THÁI</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">NHÀ CUNG CẤP</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">MÃ SỐ THUẾ</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">NGÀY NHẬP</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">THAO TÁC</th>
                                         </tr>
                                     </thead>
@@ -91,6 +94,15 @@
                                                     <span class="badge badge-sm ${inventory.quantity > 0 ? 'bg-gradient-success' : 'bg-gradient-danger'}">
                                                         ${inventory.quantity > 0 ? 'Còn hàng' : 'Hết hàng'}
                                                     </span>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">${inventory.supplierName}</p>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">${inventory.taxCode}</p>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">${inventory.importedDate}</p>
                                                 </td>
                                                 <td>
                                                     <a href="${pageContext.request.contextPath}/inventory?action=edit&productId=${inventory.product.id}" 
@@ -118,5 +130,3 @@
     <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 </body>
 </html>
-
-

@@ -21,10 +21,21 @@ public class Inventory {
     @Column(name = "LastUpdated", nullable = false)
     private Instant lastUpdated;
 
-    @Nationalized
-    @Column(name = "Status", nullable = false, length = 20)
+    @Column(name = "ImportedDate", nullable = false)
+    private Instant importedDate;  // Ngày nhập kho
+
+    @Nationalized  // Hỗ trợ đa ngôn ngữ cho tên nhà cung cấp
+    @Column(name = "SupplierName", nullable = false, length = 100)  // Tên nhà cung cấp
+    private String supplierName;
+
+    @Column(name = "TaxCode", nullable = false, length = 50)  // Mã số thuế
+    private String taxCode;
+
+    @Nationalized  // Hỗ trợ đa ngôn ngữ cho tình trạng
+    @Column(name = "Status", nullable = false, length = 20)  // Tình trạng
     private String status;
 
+    // Getters and Setters
     public Integer getId() {
         return id;
     }
@@ -57,6 +68,30 @@ public class Inventory {
         this.lastUpdated = lastUpdated;
     }
 
+    public Instant getImportedDate() {
+        return importedDate;
+    }
+
+    public void setImportedDate(Instant importedDate) {
+        this.importedDate = importedDate;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
+    }
+
+    public String getTaxCode() {
+        return taxCode;
+    }
+
+    public void setTaxCode(String taxCode) {
+        this.taxCode = taxCode;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -64,5 +99,4 @@ public class Inventory {
     public void setStatus(String status) {
         this.status = status;
     }
-
 }
