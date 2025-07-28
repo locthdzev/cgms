@@ -1969,74 +1969,6 @@
             </div>
           </div>
         </div>
-        <div class="row pt-lg-6">
-          <div class="col-lg-3">
-            <div
-              class="position-sticky pb-lg-5 pb-3 mt-lg-0 mt-5 ps-2"
-              style="top: 100px"
-            >
-              <h3>Trang thiết bị</h3>
-              <h6 class="text-secondary font-weight-normal pe-3">
-                Phòng tập được trang bị đầy đủ với các thiết bị hiện đại từ các thương hiệu hàng đầu thế giới
-              </h6>
-            </div>
-          </div>
-          <div class="col-lg-9">
-            <div class="row mt-3">
-              <div class="col-md-4">
-                <a href="./sections/navigation/navbars.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 m-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/navigation/navbars/navbar-large.jpg"
-                      alt=""
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Navbars</h6>
-                    <p class="text-secondary text-sm">4 Examples</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="./sections/navigation/nav-tabs.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 m-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/navigation/nav-tabs/tab-large.jpg"
-                      alt=""
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Nav Tabs</h6>
-                    <p class="text-secondary text-sm">2 Nav Tabs</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="./sections/navigation/pagination.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 m-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/navigation/pagination/pagination-large.jpg"
-                      alt=""
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Pagination</h6>
-                    <p class="text-secondary text-sm">3 Examples</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="row">
           <div class="col-lg-3">
             <div
@@ -2499,7 +2431,7 @@
         <hr class="horizontal dark my-5" />
       </div>
     </section>
-    <section class="py-sm-7" id="download-soft-ui">
+    <!-- <section class="py-sm-7" id="download-soft-ui">
       <div
         class="bg-gradient-dark position-relative m-3 border-radius-xl overflow-hidden"
       >
@@ -2532,7 +2464,7 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
     <!-- START Section Content W/ 2 images aside of icon title description -->
     <section class="pt-lg-7 pt-5">
       <div class="container">
