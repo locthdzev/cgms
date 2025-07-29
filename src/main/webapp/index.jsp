@@ -1,10 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="Services.StatsService" %>
+<%@ page import="Services.UserService" %>
 <%@ page import="DAOs.PackageDAO" %>
 <%@ page import="Models.Package" %>
+<%@ page import="Models.User" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.util.Locale" %>
+<%@ page import="java.util.stream.Collectors" %>
 <%
   StatsService statsService = new StatsService();
   int activeMembersCount = statsService.getActiveMembersCount();
@@ -15,6 +18,13 @@
   PackageDAO packageDAO = new PackageDAO();
   List<Package> activePackages = packageDAO.getAllActivePackages();
   NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+  
+  // Lấy danh sách Personal Trainers cho Guest
+  UserService userService = new UserService();
+  List<User> allUsers = userService.getAllUsers();
+  List<User> activeTrainers = allUsers.stream()
+      .filter(user -> "Personal Trainer".equals(user.getRole()) && "Active".equals(user.getStatus()))
+      .collect(Collectors.toList());
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -832,21 +842,21 @@
                                       </g>
                                     </g>
                                   </g>
-                                </svg>
-                              </div>
-                              <div>
-                                <h6
-                                  class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0"
-                                >
-                                  Foundation
-                                </h6>
-                                <span class="text-sm"
-                                  >See our colors, icons and typography</span
-                                >
-                              </div>
+                                </g>
+                              </svg>
                             </div>
-                          </a>
-                        </div>
+                            <div>
+                              <h6
+                                class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0"
+                              >
+                                Foundation
+                              </h6>
+                              <span class="text-sm"
+                                >See our colors, icons and typography</span
+                              >
+                            </div>
+                          </div>
+                        </a>
                       </div>
                     </div>
                   </li>
@@ -998,6 +1008,361 @@
         </div>
       </div>
     </section>
+    
+    <!-- Schedule Section -->
+    <section class="my-5 py-5" id="schedule-section" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); position: relative; overflow: hidden;">
+      <!-- Background decoration -->
+      <div class="position-absolute w-100 h-100" style="top: 0; left: 0; opacity: 0.1;">
+        <div style="position: absolute; top: 15%; left: 8%; width: 120px; height: 120px; border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; transform: rotate(45deg);"></div>
+        <div style="position: absolute; top: 50%; right: 5%; width: 100px; height: 100px; border: 3px solid rgba(255,255,255,0.6); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: 15%; left: 20%; width: 80px; height: 80px; border: 3px solid rgba(255,255,255,0.6); transform: rotate(45deg);"></div>
+        <div style="position: absolute; top: 25%; right: 25%; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+      </div>
+      
+      <div class="container position-relative">
+        <div class="row justify-content-center text-center mb-5">
+          <div class="col-lg-8">
+            <div class="mb-4">
+              <div style="display: inline-block; padding: 15px 35px; background: rgba(255,255,255,0.3); border-radius: 60px; backdrop-filter: blur(15px); border: 2px solid rgba(255,255,255,0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <i class="fas fa-clock" style="color: #2d3748; font-size: 2.8rem;"></i>
+              </div>
+            </div>
+            <h2 class="text-dark mb-0" style="font-weight: 800; letter-spacing: 1px; font-size: 2.5rem;">Lịch hoạt động</h2>
+            <h3 class="text-dark mb-4" style="font-weight: 300; opacity: 0.7; font-size: 1.3rem;">CoreFit Gym luôn sẵn sàng phục vụ bạn</h3>
+            <p class="lead text-dark" style="opacity: 0.6; line-height: 1.8; font-size: 1.1rem;">
+              Chúng tôi mở cửa 6 ngày trong tuần với thời gian linh hoạt, 
+              giúp bạn dễ dàng sắp xếp lịch tập phù hợp với cuộc sống bận rộn.
+            </p>
+          </div>
+        </div>
+        
+        <div class="row justify-content-center">
+          <div class="col-lg-12">
+            <!-- Weekdays in a horizontal scrollable layout -->
+            <div class="schedule-container" style="background: rgba(255,255,255,0.4); border-radius: 30px; padding: 40px; backdrop-filter: blur(20px); border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 25px 70px rgba(0,0,0,0.1);">
+              <div class="row g-4">
+                <!-- Monday -->
+                <div class="col-lg-2 col-md-4 col-6">
+                  <div class="day-card text-center" style="background: linear-gradient(135deg, #42e695 0%, #3bb2b8 100%); border-radius: 25px; padding: 30px 20px; box-shadow: 0 15px 40px rgba(66, 230, 149, 0.4); transition: all 0.4s ease; position: relative; overflow: hidden; border: 3px solid rgba(255,255,255,0.2);">
+                    <div class="day-bg" style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; opacity: 0.6;"></div>
+                    <div style="position: relative; z-index: 2;">
+                      <div class="day-icon mb-3" style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-dumbbell text-white" style="font-size: 1.2rem;"></i>
+                      </div>
+                      <h6 class="text-white mb-2" style="font-weight: 700; font-size: 0.9rem;">THỨ HAI</h6>
+                      <div class="time-badge" style="background: rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; margin-bottom: 10px;">
+                        <p class="text-white mb-0" style="font-size: 0.85rem; font-weight: 600;">7:00 - 22:00</p>
+                      </div>
+                      <div style="width: 30px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px; margin: 0 auto;"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Tuesday -->
+                <div class="col-lg-2 col-md-4 col-6">
+                  <div class="day-card text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 25px; padding: 30px 20px; box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4); transition: all 0.4s ease; position: relative; overflow: hidden; border: 3px solid rgba(255,255,255,0.2);">
+                    <div class="day-bg" style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; opacity: 0.6;"></div>
+                    <div style="position: relative; z-index: 2;">
+                      <div class="day-icon mb-3" style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-dumbbell text-white" style="font-size: 1.2rem;"></i>
+                      </div>
+                      <h6 class="text-white mb-2" style="font-weight: 700; font-size: 0.9rem;">THỨ BA</h6>
+                      <div class="time-badge" style="background: rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; margin-bottom: 10px;">
+                        <p class="text-white mb-0" style="font-size: 0.85rem; font-weight: 600;">7:00 - 22:00</p>
+                      </div>
+                      <div style="width: 30px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px; margin: 0 auto;"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Wednesday -->
+                <div class="col-lg-2 col-md-4 col-6">
+                  <div class="day-card text-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 25px; padding: 30px 20px; box-shadow: 0 15px 40px rgba(240, 147, 251, 0.4); transition: all 0.4s ease; position: relative; overflow: hidden; border: 3px solid rgba(255,255,255,0.2);">
+                    <div class="day-bg" style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; opacity: 0.6;"></div>
+                    <div style="position: relative; z-index: 2;">
+                      <div class="day-icon mb-3" style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-dumbbell text-white" style="font-size: 1.2rem;"></i>
+                      </div>
+                      <h6 class="text-white mb-2" style="font-weight: 700; font-size: 0.9rem;">THỨ TƯ</h6>
+                      <div class="time-badge" style="background: rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; margin-bottom: 10px;">
+                        <p class="text-white mb-0" style="font-size: 0.85rem; font-weight: 600;">7:00 - 22:00</p>
+                      </div>
+                      <div style="width: 30px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px; margin: 0 auto;"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Thursday -->
+                <div class="col-lg-2 col-md-4 col-6">
+                  <div class="day-card text-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 25px; padding: 30px 20px; box-shadow: 0 15px 40px rgba(79, 172, 254, 0.4); transition: all 0.4s ease; position: relative; overflow: hidden; border: 3px solid rgba(255,255,255,0.2);">
+                    <div class="day-bg" style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; opacity: 0.6;"></div>
+                    <div style="position: relative; z-index: 2;">
+                      <div class="day-icon mb-3" style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-dumbbell text-white" style="font-size: 1.2rem;"></i>
+                      </div>
+                      <h6 class="text-white mb-2" style="font-weight: 700; font-size: 0.9rem;">THỨ NĂM</h6>
+                      <div class="time-badge" style="background: rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; margin-bottom: 10px;">
+                        <p class="text-white mb-0" style="font-size: 0.85rem; font-weight: 600;">7:00 - 22:00</p>
+                      </div>
+                      <div style="width: 30px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px; margin: 0 auto;"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Friday -->
+                <div class="col-lg-2 col-md-4 col-6">
+                  <div class="day-card text-center" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 25px; padding: 30px 20px; box-shadow: 0 15px 40px rgba(250, 112, 154, 0.4); transition: all 0.4s ease; position: relative; overflow: hidden; border: 3px solid rgba(255,255,255,0.2);">
+                    <div class="day-bg" style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; opacity: 0.6;"></div>
+                    <div style="position: relative; z-index: 2;">
+                      <div class="day-icon mb-3" style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-dumbbell text-white" style="font-size: 1.2rem;"></i>
+                      </div>
+                      <h6 class="text-white mb-2" style="font-weight: 700; font-size: 0.9rem;">THỨ SÁU</h6>
+                      <div class="time-badge" style="background: rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; margin-bottom: 10px;">
+                        <p class="text-white mb-0" style="font-size: 0.85rem; font-weight: 600;">7:00 - 22:00</p>
+                      </div>
+                      <div style="width: 30px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px; margin: 0 auto;"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Saturday -->
+                <div class="col-lg-2 col-md-4 col-6">
+                  <div class="day-card text-center" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 25px; padding: 30px 20px; box-shadow: 0 15px 40px rgba(168, 237, 234, 0.4); transition: all 0.4s ease; position: relative; overflow: hidden; border: 3px solid rgba(255,255,255,0.2);">
+                    <div class="day-bg" style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; opacity: 0.6;"></div>
+                    <div style="position: relative; z-index: 2;">
+                      <div class="day-icon mb-3" style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-dumbbell text-dark" style="font-size: 1.2rem;"></i>
+                      </div>
+                      <h6 class="text-dark mb-2" style="font-weight: 700; font-size: 0.9rem;">THỨ BẢY</h6>
+                      <div class="time-badge" style="background: rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; margin-bottom: 10px;">
+                        <p class="text-dark mb-0" style="font-size: 0.85rem; font-weight: 600;">7:00 - 22:00</p>
+                      </div>
+                      <div style="width: 30px; height: 3px; background: rgba(0,0,0,0.2); border-radius: 2px; margin: 0 auto;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Sunday Special Card -->
+              <div class="row justify-content-center mt-4">
+                <div class="col-lg-4 col-md-6">
+                  <div class="sunday-card text-center" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); border-radius: 25px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(210, 153, 194, 0.4); position: relative; overflow: hidden; border: 3px solid rgba(255,255,255,0.3);">
+                    <div class="day-bg" style="position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; opacity: 0.6;"></div>
+                    <div style="position: relative; z-index: 2;">
+                      <div class="day-icon mb-4" style="width: 70px; height: 70px; background: rgba(255,255,255,0.3); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-bed text-dark" style="font-size: 2rem;"></i>
+                      </div>
+                      <h4 class="text-dark mb-3" style="font-weight: 700;">CHỦ NHẬT</h4>
+                      <div class="closed-badge" style="background: rgba(255,255,255,0.4); border-radius: 25px; padding: 12px 25px; margin-bottom: 15px; display: inline-block;">
+                        <p class="text-dark mb-0" style="font-size: 1.1rem; font-weight: 700;">NGHỈ</p>
+                      </div>
+                      <p class="text-dark mb-0" style="font-size: 0.9rem; opacity: 0.7;">Thời gian nghỉ ngơi để phục hồi</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <style>
+      #schedule-section .day-card:hover {
+        transform: translateY(-15px) scale(1.08);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.25) !important;
+      }
+      
+      #schedule-section .sunday-card:hover {
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 30px 70px rgba(210, 153, 194, 0.6) !important;
+      }
+      
+      #schedule-section .day-icon {
+        transition: all 0.3s ease;
+      }
+      
+      #schedule-section .day-card:hover .day-icon {
+        transform: scale(1.2) rotate(15deg);
+      }
+      
+      #schedule-section .sunday-card:hover .day-icon {
+        transform: scale(1.1) rotate(-10deg);
+      }
+      
+      #schedule-section .time-badge {
+        transition: all 0.3s ease;
+      }
+      
+      #schedule-section .day-card:hover .time-badge {
+        background: rgba(255,255,255,0.5) !important;
+        transform: scale(1.05);
+      }
+      
+      /* Responsive grid for mobile */
+      @media (max-width: 1200px) {
+        #schedule-section .col-lg-2 {
+          flex: 0 0 auto;
+          width: 33.33333333%;
+        }
+      }
+      
+      @media (max-width: 992px) {
+        #schedule-section .col-lg-2 {
+          flex: 0 0 auto;
+          width: 50%;
+        }
+        
+        #schedule-section .day-card {
+          padding: 25px 15px !important;
+        }
+        
+        #schedule-section .schedule-container {
+          padding: 30px !important;
+        }
+        
+        #schedule-section h2 {
+          font-size: 2rem !important;
+        }
+      }
+      
+      @media (max-width: 768px) {
+        #schedule-section .col-lg-2 {
+          flex: 0 0 auto;
+          width: 50%;
+        }
+        
+        #schedule-section .day-card {
+          padding: 20px 12px !important;
+        }
+        
+        #schedule-section .schedule-container {
+          padding: 25px !important;
+        }
+        
+        #schedule-section h2 {
+          font-size: 1.8rem !important;
+        }
+        
+        #schedule-section h3 {
+          font-size: 1.1rem !important;
+        }
+        
+        #schedule-section .lead {
+          font-size: 1rem !important;
+        }
+        
+        #schedule-section .day-icon {
+          width: 40px !important;
+          height: 40px !important;
+        }
+        
+        #schedule-section .day-icon i {
+          font-size: 1rem !important;
+        }
+      }
+      
+      @media (max-width: 576px) {
+        #schedule-section .col-lg-2 {
+          flex: 0 0 auto;
+          width: 100%;
+          margin-bottom: 15px;
+        }
+        
+        #schedule-section .day-card {
+          padding: 25px 20px !important;
+        }
+        
+        #schedule-section .schedule-container {
+          padding: 20px !important;
+        }
+        
+        #schedule-section h2 {
+          font-size: 1.6rem !important;
+        }
+        
+        #schedule-section .sunday-card {
+          padding: 30px 25px !important;
+        }
+        
+        #schedule-section .col-lg-4 {
+          flex: 0 0 auto;
+          width: 100%;
+        }
+      }
+      
+      /* Animation for schedule cards */
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      @keyframes bounceIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.3);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.1);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      
+      #schedule-section .day-card {
+        animation: slideInUp 0.6s ease forwards;
+      }
+      
+      #schedule-section .day-card:nth-child(1) { animation-delay: 0.1s; }
+      #schedule-section .day-card:nth-child(2) { animation-delay: 0.2s; }
+      #schedule-section .day-card:nth-child(3) { animation-delay: 0.3s; }
+      #schedule-section .day-card:nth-child(4) { animation-delay: 0.4s; }
+      #schedule-section .day-card:nth-child(5) { animation-delay: 0.5s; }
+      #schedule-section .day-card:nth-child(6) { animation-delay: 0.6s; }
+      
+      #schedule-section .sunday-card {
+        animation: bounceIn 0.8s ease forwards;
+        animation-delay: 0.8s;
+      }
+      
+      /* Glass morphism effect */
+      #schedule-section .schedule-container {
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+      }
+      
+      #schedule-section .day-card {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+      
+      /* Pulse animation for Sunday card */
+      #schedule-section .sunday-card .day-icon {
+        animation: pulse 2s infinite;
+      }
+      
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
     
     <!-- Packages Section for Guests -->
     <section class="my-5 py-5" id="packages-section">
@@ -1272,6 +1637,260 @@
       }
     </style>
     
+    <!-- Personal Trainers Section for Guests -->
+    <section class="my-5 py-5" id="trainers-section" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+      <div class="container">
+        <div class="row justify-content-center text-center mb-5">
+          <div class="col-lg-8">
+            <h2 class="text-dark mb-0">Đội ngũ huấn luyện viên</h2>
+            <h2 class="text-primary text-gradient">Chuyên nghiệp và tận tâm</h2>
+            <p class="lead">
+              Gặp gỡ đội ngũ Personal Trainer giàu kinh nghiệm của chúng tôi. 
+              Họ sẵn sàng hỗ trợ bạn đạt được mục tiêu sức khỏe và thể hình một cách hiệu quả nhất.
+            </p>
+          </div>
+        </div>
+        
+        <div class="row">
+          <% 
+            if (activeTrainers != null && !activeTrainers.isEmpty()) {
+              for (User trainer : activeTrainers) {
+          %>
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card trainer-card h-100" style="border: none; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+              <div class="card-header text-center position-relative p-0" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); height: 180px; display: flex; align-items: center; justify-content: center;">
+                <div class="trainer-avatar" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 5px solid rgba(255,255,255,0.3); box-shadow: 0 8px 25px rgba(0,0,0,0.2);">
+                  <% if (trainer.getGender() != null && trainer.getGender().equalsIgnoreCase("Nữ")) { %>
+                    <img src="assets/img/pt-nu.jpg" alt="<%= trainer.getFullName() %>" style="width: 100%; height: 100%; object-fit: cover;">
+                  <% } else { %>
+                    <img src="assets/img/pt-nam.jpg" alt="<%= trainer.getFullName() %>" style="width: 100%; height: 100%; object-fit: cover;">
+                  <% } %>
+                </div>
+                
+                <div class="position-absolute" style="top: 15px; right: 15px;">
+                  <span class="badge text-dark" style="background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 25px; font-weight: 700; font-size: 0.75rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <i class="fas fa-dumbbell me-1" style="color: #4facfe;"></i>PERSONAL TRAINER
+                  </span>
+                </div>
+              </div>
+              
+              <div class="card-body" style="padding: 2.5rem 2rem;">
+                <div class="text-center mb-4">
+                  <h4 class="text-dark mb-2 font-weight-bold" style="font-size: 1.4rem; color: #2d3748 !important;"><%= trainer.getFullName() %></h4>
+                  <% if (trainer.getGender() != null && !trainer.getGender().trim().isEmpty()) { %>
+                  <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                    <%= trainer.getGender() %>
+                  </span>
+                  <% } %>
+                </div>
+                
+                <div class="trainer-info mb-4">
+                  <% if (trainer.getExperience() != null && !trainer.getExperience().trim().isEmpty()) { %>
+                  <div class="info-item mb-3" style="display: flex; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%); border-radius: 15px; box-shadow: 0 4px 15px rgba(250, 177, 160, 0.3);">
+                    <div class="icon-wrapper me-3" style="width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <i class="fas fa-award" style="color: #d63031; font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                      <div class="text-dark font-weight-bold" style="font-size: 0.85rem; color: #2d3748 !important;">Kinh nghiệm</div>
+                      <div class="text-dark" style="font-size: 0.9rem; color: #4a5568 !important;"><%= trainer.getExperience() %></div>
+                    </div>
+                  </div>
+                  <% } %>
+                  
+                  <% if (trainer.getPhoneNumber() != null && !trainer.getPhoneNumber().trim().isEmpty()) { %>
+                  <div class="info-item mb-3" style="display: flex; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 15px; box-shadow: 0 4px 15px rgba(168, 237, 234, 0.3);">
+                    <div class="icon-wrapper me-3" style="width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <img src="assets/svg/icons8-phone.svg" alt="Phone" style="width: 20px; height: 20px;">
+                    </div>
+                    <div>
+                      <div class="text-dark font-weight-bold" style="font-size: 0.85rem; color: #2d3748 !important;">Số điện thoại</div>
+                      <a href="tel:<%= trainer.getPhoneNumber() %>" class="text-dark text-decoration-none font-weight-bold" style="font-size: 0.95rem; color: #4a5568 !important;">
+                        <%= trainer.getPhoneNumber() %>
+                      </a>
+                    </div>
+                  </div>
+                  <% } %>
+                  
+                  <% if (trainer.getEmail() != null && !trainer.getEmail().trim().isEmpty()) { %>
+                  <div class="info-item mb-3" style="display: flex; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 15px; box-shadow: 0 4px 15px rgba(252, 182, 159, 0.3);">
+                    <div class="icon-wrapper me-3" style="width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <img src="assets/svg/icons8-gmail.svg" alt="Gmail" style="width: 20px; height: 20px;">
+                    </div>
+                    <div style="flex: 1;">
+                      <div class="text-dark font-weight-bold" style="font-size: 0.85rem; color: #2d3748 !important;">Email</div>
+                      <div class="text-dark" style="font-size: 0.85rem; color: #4a5568 !important; word-break: break-all;"><%= trainer.getEmail() %></div>
+                    </div>
+                  </div>
+                  <% } %>
+                  
+                  <% if (trainer.getZalo() != null && !trainer.getZalo().trim().isEmpty()) { %>
+                  <div class="info-item mb-3" style="display: flex; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); border-radius: 15px; box-shadow: 0 4px 15px rgba(210, 153, 194, 0.3);">
+                    <div class="icon-wrapper me-3" style="width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <img src="assets/svg/icons8-zalo.svg" alt="Zalo" style="width: 20px; height: 20px;">
+                    </div>
+                    <div>
+                      <div class="text-dark font-weight-bold" style="font-size: 0.85rem; color: #2d3748 !important;">Zalo</div>
+                      <div class="text-dark font-weight-bold" style="font-size: 0.95rem; color: #4a5568 !important;"><%= trainer.getZalo() %></div>
+                    </div>
+                  </div>
+                  <% } %>
+                  
+                  <% if (trainer.getFacebook() != null && !trainer.getFacebook().trim().isEmpty()) { %>
+                  <div class="info-item mb-3" style="display: flex; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 15px; box-shadow: 0 4px 15px rgba(168, 230, 207, 0.3);">
+                    <div class="icon-wrapper me-3" style="width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <img src="assets/svg/icons8-facebook.svg" alt="Facebook" style="width: 20px; height: 20px;">
+                    </div>
+                    <div>
+                      <div class="text-dark font-weight-bold" style="font-size: 0.85rem; color: #2d3748 !important;">Facebook</div>
+                      <a href="<%= trainer.getFacebook().startsWith("http") ? trainer.getFacebook() : "https://facebook.com/" + trainer.getFacebook() %>" target="_blank" class="text-dark text-decoration-none" style="font-size: 0.9rem; color: #4a5568 !important; word-break: break-all;"><%= trainer.getFacebook() %></a>
+                    </div>
+                  </div>
+                  <% } %>
+                </div>
+                
+                <div class="text-center">
+                  <div class="dropdown">
+                    <button class="btn btn-primary w-100" type="button" id="contactTrainer<%= trainer.getId() %>" data-bs-toggle="dropdown" aria-expanded="false" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 25px; padding: 15px 30px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 8px 25px rgba(118, 75, 162, 0.4); transition: all 0.3s ease; font-size: 0.9rem;">
+                      <i class="fas fa-phone me-2"></i>LIÊN HỆ NGAY
+                      <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
+                        <path d="M11.8079 14.7695L8.09346 10.3121C7.65924 9.79109 8.02976 9 8.70803 9L15.292 9C15.9702 9 16.3408 9.79108 15.9065 10.3121L12.1921 14.7695C12.0921 14.8895 11.9079 14.8895 11.8079 14.7695Z" fill="white"/>
+                      </svg>
+                    </button>
+                    <ul class="dropdown-menu w-100" aria-labelledby="contactTrainer<%= trainer.getId() %>" style="border-radius: 20px; border: none; box-shadow: 0 15px 35px rgba(0,0,0,0.1); padding: 10px;">
+                      <% if (trainer.getFacebook() != null && !trainer.getFacebook().trim().isEmpty()) { %>
+                      <li>
+                        <a class="dropdown-item d-flex align-items-center" href="<%= trainer.getFacebook().startsWith("http") ? trainer.getFacebook() : "https://facebook.com/" + trainer.getFacebook() %>" target="_blank" style="padding: 15px 20px; border-radius: 15px; margin: 5px 0; background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); transition: all 0.3s ease;">
+                          <img src="assets/svg/icons8-facebook.svg" alt="Facebook" style="width: 24px; height: 24px; margin-right: 12px;">
+                          <span style="font-weight: 600; color: #2d3748;">Liên hệ qua Facebook</span>
+                        </a>
+                      </li>
+                      <% } %>
+                      <% if (trainer.getEmail() != null && !trainer.getEmail().trim().isEmpty()) { %>
+                      <li>
+                        <a class="dropdown-item d-flex align-items-center" href="https://mail.google.com/mail/?view=cm&fs=1&to=<%= trainer.getEmail() %>" target="_blank" style="padding: 15px 20px; border-radius: 15px; margin: 5px 0; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); transition: all 0.3s ease;">
+                          <img src="assets/svg/icons8-gmail.svg" alt="Gmail" style="width: 24px; height: 24px; margin-right: 12px;">
+                          <span style="font-weight: 600; color: #2d3748;">Liên hệ qua Gmail</span>
+                        </a>
+                      </li>
+                      <% } %>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <% 
+              }
+            } else {
+          %>
+          <div class="col-12">
+            <div class="alert text-center" style="background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1)); border: none; border-radius: 20px; padding: 3rem;">
+              <div class="mb-3">
+                <i class="fas fa-user-tie" style="font-size: 3rem; color: #4facfe;"></i>
+              </div>
+              <h4 class="text-dark mb-3">Hiện tại chưa có huấn luyện viên nào!</h4>
+              <p class="text-secondary mb-0" style="font-size: 1.1rem;">Chúng tôi đang tuyển dụng các PT chuyên nghiệp. Vui lòng quay lại sau hoặc liên hệ để được tư vấn.</p>
+            </div>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </section>
+    
+    <style>
+      .trainer-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.2) !important;
+      }
+      
+      .info-item {
+        transition: all 0.3s ease;
+      }
+      
+      .info-item:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+      }
+      
+      .dropdown-menu .dropdown-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+      }
+      
+      .trainer-card .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(118, 75, 162, 0.6) !important;
+      }
+      
+      .icon-wrapper {
+        transition: all 0.3s ease;
+      }
+      
+      .info-item:hover .icon-wrapper {
+        transform: scale(1.1);
+      }
+      
+      .trainer-avatar {
+        transition: all 0.3s ease;
+      }
+      
+      .trainer-card:hover .trainer-avatar {
+        transform: scale(1.05);
+      }
+      
+      /* Animation */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .trainer-card {
+        animation: fadeInUp 0.6s ease forwards;
+      }
+      
+      .trainer-card:nth-child(1) { animation-delay: 0.1s; }
+      .trainer-card:nth-child(2) { animation-delay: 0.2s; }
+      .trainer-card:nth-child(3) { animation-delay: 0.3s; }
+      
+      /* Responsive */
+      @media (max-width: 768px) {
+        #trainers-section .card-body {
+          padding: 1.5rem !important;
+        }
+        
+        #trainers-section .trainer-avatar {
+          width: 100px !important;
+          height: 100px !important;
+        }
+        
+        #trainers-section .card-header {
+          height: 150px !important;
+        }
+        
+        #trainers-section .info-item {
+          padding: 10px 12px !important;
+          margin-bottom: 0.75rem !important;
+        }
+        
+        #trainers-section .icon-wrapper {
+          width: 35px !important;
+          height: 35px !important;
+        }
+        
+        #trainers-section .btn {
+          padding: 12px 20px !important;
+          font-size: 0.85rem !important;
+        }
+      }
+    </style>
+    
     <section class="my-5 py-5">
       <div class="container">
         <div class="row align-items-center">
@@ -1361,7 +1980,7 @@
                               <path
                                 class="color-background"
                                 d="M39.198,22.4912623 C37.3776246,22.4928106 35.5817531,22.0149171 33.951625,21.0951667 L33.92225,21.1107282 C31.1430221,22.6838032 27.9255001,22.9318916 24.9844167,21.7998837 C24.4750389,21.605469 23.9777983,21.3722567 23.4960833,21.1018359 L23.4745417,21.1129513 C20.6961809,22.6871153 17.4786145,22.9344611 14.5386667,21.7998837 C14.029926,21.6054643 13.533337,21.3722507 13.0522917,21.1018359 C11.4250962,22.0190609 9.63246555,22.4947009 7.81570833,22.4912623 C7.16510551,22.4842162 6.51607673,22.4173045 5.875,22.2911849 L5.875,44.7220845 C5.875,45.9498589 6.7517757,46.9451667 7.83333333,46.9451667 L19.5833333,46.9451667 L19.5833333,33.6066734 L27.4166667,33.6066734 L27.4166667,46.9451667 L39.1666667,46.9451667 C40.2482243,46.9451667 41.125,45.9498589 41.125,44.7220845 L41.125,22.2822926 C40.4887822,22.4116582 39.8442868,22.4815492 39.198,22.4912623 Z"
-                              ></path>
+                                ></path>
                             </g>
                           </g>
                         </g>
