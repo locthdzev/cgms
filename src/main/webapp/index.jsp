@@ -1,4 +1,21 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="Services.StatsService" %>
+<%@ page import="DAOs.PackageDAO" %>
+<%@ page import="Models.Package" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.text.NumberFormat" %>
+<%@ page import="java.util.Locale" %>
+<%
+  StatsService statsService = new StatsService();
+  int activeMembersCount = statsService.getActiveMembersCount();
+  int activeTrainersCount = statsService.getActiveTrainersCount();
+  int activePackagesCount = statsService.getActivePackagesCount();
+  
+  // Lấy danh sách gói tập đang hoạt động cho Guest
+  PackageDAO packageDAO = new PackageDAO();
+  List<Package> activePackages = packageDAO.getAllActivePackages();
+  NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+%>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
   <head>
@@ -17,6 +34,10 @@
     <!-- Fonts and icons -->
     <link
       href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
@@ -864,12 +885,12 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-7 text-center mx-auto">
-              <h1 class="text-white pt-3 mt-n5">CoreFit Gym</h1>
-              <p class="lead text-white mt-3">
+              <h1 class="text-white pt-3 mt-n5" style="font-family: 'Poppins', sans-serif; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">COREFIT GYM</h1>
+              <p class="lead text-white mt-3" style="font-family: 'Inter', sans-serif; font-weight: 300; letter-spacing: 0.5px; line-height: 1.8;">
                 Nâng cao sức khỏe, thay đổi ngoại hình và cải thiện cuộc sống.<br />
-                Hãy để chúng tôi đồng hành cùng bạn trên hành trình chinh phục bản thân.
+                <span style="font-style: italic;">Hãy để chúng tôi đồng hành cùng bạn trên hành trình chinh phục bản thân.</span>
               </p>
-              <a href="/register" class="btn btn-lg btn-white mt-3">Bắt đầu ngay</a>
+              <a href="/register" class="btn btn-lg btn-white mt-3" style="font-weight: 600; border-radius: 8px; padding: 12px 35px; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2); transition: all 0.3s ease;">Bắt đầu ngay</a>
             </div>
           </div>
         </div>
@@ -940,11 +961,11 @@
               <div class="col-md-4 position-relative">
                 <div class="p-3 text-center">
                   <h1 class="text-gradient text-dark">
-                    <span id="state1" countTo="1000">0</span>+
+                    <span id="state1" countTo="<%= activeMembersCount %>">0</span>+
                   </h1>
                   <h5 class="mt-3">Thành viên tích cực</h5>
                   <p class="text-sm">
-                    Hơn 1000 thành viên đang tập luyện và đạt được mục tiêu sức khỏe cùng chúng tôi.
+                    Hơn <%= activeMembersCount %> thành viên đang tập luyện và đạt được mục tiêu sức khỏe cùng chúng tôi.
                   </p>
                 </div>
                 <hr class="vertical dark" />
@@ -952,7 +973,7 @@
               <div class="col-md-4 position-relative">
                 <div class="p-3 text-center">
                   <h1 class="text-gradient text-dark">
-                    <span id="state2" countTo="15">0</span>+
+                    <span id="state2" countTo="<%= activeTrainersCount %>">0</span>+
                   </h1>
                   <h5 class="mt-3">Huấn luyện viên chuyên nghiệp</h5>
                   <p class="text-sm">
@@ -963,7 +984,7 @@
               </div>
               <div class="col-md-4">
                 <div class="p-3 text-center">
-                  <h1 class="text-gradient text-dark" id="state3" countTo="25">
+                  <h1 class="text-gradient text-dark" id="state3" countTo="<%= activePackagesCount %>">
                     0
                   </h1>
                   <h5 class="mt-3">Gói tập đa dạng</h5>
@@ -977,6 +998,280 @@
         </div>
       </div>
     </section>
+    
+    <!-- Packages Section for Guests -->
+    <section class="my-5 py-5" id="packages-section">
+      <div class="container">
+        <div class="row justify-content-center text-center mb-5">
+          <div class="col-lg-8">
+            <h2 class="text-dark mb-0">Các gói tập của chúng tôi</h2>
+            <h2 class="text-primary text-gradient">Lựa chọn phù hợp cho mọi nhu cầu</h2>
+            <p class="lead">
+              Khám phá các gói tập đa dạng được thiết kế đặc biệt để đáp ứng mục tiêu và ngân sách của bạn. 
+              Từ gói cơ bản đến gói cao cấp, chúng tôi có tất cả những gì bạn cần.
+            </p>
+          </div>
+        </div>
+        
+        <div class="row">
+          <% 
+            if (activePackages != null && !activePackages.isEmpty()) {
+              for (Package pkg : activePackages) {
+          %>
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow-lg h-100 package-card" style="transition: all 0.3s ease; border: none; border-radius: 20px; overflow: hidden; position: relative;">
+              <% if ("Premium".equals(pkg.getName()) || pkg.getName().toLowerCase().contains("premium") || pkg.getName().toLowerCase().contains("vip")) { %>
+                <div class="position-absolute" style="top: 15px; right: 15px; z-index: 10;">
+                  <span class="badge text-dark" style="background: linear-gradient(135deg, #FFD700, #FFA500); padding: 8px 16px; border-radius: 25px; font-weight: 600; font-size: 0.75rem; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);">
+                    <i class="fas fa-crown me-1"></i>Premium
+                  </span>
+                </div>
+              <% } %>
+              
+              <div class="card-header text-center position-relative" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2.5rem 2rem; border: none;">
+                <h3 class="text-white mb-3 font-weight-bold" style="letter-spacing: 1px;"><%= pkg.getName() %></h3>
+                <div class="price-section">
+                  <h1 class="text-white font-weight-bolder mb-0" style="font-size: 2.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                    <%= currencyFormat.format(pkg.getPrice()) %>
+                  </h1>
+                  <p class="text-white opacity-9 mb-0" style="font-size: 1rem; margin-top: 8px;">
+                    <i class="fas fa-calendar-alt me-1"></i><%= pkg.getDuration() %> ngày
+                  </p>
+                </div>
+              </div>
+              
+              <div class="card-body d-flex flex-column" style="padding: 2rem;">
+                <div class="flex-grow-1">
+                  <div class="features-list">
+                    <div class="feature-item mb-3" style="display: flex; align-items: center; padding: 12px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border-left: 4px solid #667eea;">
+                      <div class="feature-icon me-3" style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-clock text-white" style="font-size: 0.9rem;"></i>
+                      </div>
+                      <div>
+                        <span class="font-weight-bold text-dark">Thời hạn sử dụng</span>
+                        <p class="mb-0 text-secondary" style="font-size: 0.9rem;"><%= pkg.getDuration() %> ngày</p>
+                      </div>
+                    </div>
+                    
+                    <% if (pkg.getSessions() != null && pkg.getSessions() > 0) { %>
+                    <div class="feature-item mb-3" style="display: flex; align-items: center; padding: 12px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border-left: 4px solid #667eea;">
+                      <div class="feature-icon me-3" style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-dumbbell text-white" style="font-size: 0.9rem;"></i>
+                      </div>
+                      <div>
+                        <span class="font-weight-bold text-dark">Số buổi tập</span>
+                        <p class="mb-0 text-secondary" style="font-size: 0.9rem;"><%= pkg.getSessions() %> buổi</p>
+                      </div>
+                    </div>
+                    <% } %>
+                    
+                    <div class="feature-item mb-3" style="display: flex; align-items: center; padding: 12px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border-left: 4px solid #667eea;">
+                      <div class="feature-icon me-3" style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-tools text-white" style="font-size: 0.9rem;"></i>
+                      </div>
+                      <div>
+                        <span class="font-weight-bold text-dark">Thiết bị tập luyện</span>
+                        <p class="mb-0 text-secondary" style="font-size: 0.9rem;">Sử dụng đầy đủ thiết bị hiện đại</p>
+                      </div>
+                    </div>
+                    
+                    <div class="feature-item mb-3" style="display: flex; align-items: center; padding: 12px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border-left: 4px solid #667eea;">
+                      <div class="feature-icon me-3" style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user-tie text-white" style="font-size: 0.9rem;"></i>
+                      </div>
+                      <div>
+                        <span class="font-weight-bold text-dark">Hỗ trợ chuyên nghiệp</span>
+                        <p class="mb-0 text-secondary" style="font-size: 0.9rem;">Tư vấn chương trình tập phù hợp</p>
+                      </div>
+                    </div>
+                    
+                    <% if ("Premium".equals(pkg.getName()) || pkg.getName().toLowerCase().contains("premium") || pkg.getName().toLowerCase().contains("vip")) { %>
+                    <div class="feature-item mb-3" style="display: flex; align-items: center; padding: 12px; background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1)); border-radius: 12px; border-left: 4px solid #FFD700;">
+                      <div class="feature-icon me-3" style="width: 40px; height: 40px; background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user-graduate text-white" style="font-size: 0.9rem;"></i>
+                      </div>
+                      <div>
+                        <span class="font-weight-bold text-dark">PT cá nhân</span>
+                        <p class="mb-0 text-secondary" style="font-size: 0.9rem;">Huấn luyện viên riêng 1-1</p>
+                      </div>
+                    </div>
+                    
+                    <div class="feature-item mb-3" style="display: flex; align-items: center; padding: 12px; background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1)); border-radius: 12px; border-left: 4px solid #FFD700;">
+                      <div class="feature-icon me-3" style="width: 40px; height: 40px; background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-apple-alt text-white" style="font-size: 0.9rem;"></i>
+                      </div>
+                      <div>
+                        <span class="font-weight-bold text-dark">Chế độ dinh dưỡng</span>
+                        <p class="mb-0 text-secondary" style="font-size: 0.9rem;">Kế hoạch dinh dưỡng cá nhân</p>
+                      </div>
+                    </div>
+                    <% } %>
+                  </div>
+                  
+                  <% if (pkg.getDescription() != null && !pkg.getDescription().trim().isEmpty()) { %>
+                  <div class="mt-4 p-3" style="background: rgba(0,0,0,0.05); border-radius: 12px; border-left: 4px solid #667eea;">
+                    <h6 class="text-dark mb-2" style="font-weight: 600;">
+                      <i class="fas fa-info-circle me-2 text-primary"></i>Mô tả gói tập
+                    </h6>
+                    <p class="text-secondary mb-0" style="font-size: 0.9rem; line-height: 1.6;"><%= pkg.getDescription() %></p>
+                  </div>
+                  <% } %>
+                </div>
+                
+                <div class="mt-4">
+                  <a href="/register" class="btn btn-lg w-100" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; border-radius: 15px; padding: 15px; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4); transition: all 0.3s ease; color: white !important;">
+                    <i class="fas fa-rocket me-2"></i>Đăng ký ngay
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <% 
+              }
+            } else {
+          %>
+          <div class="col-12">
+            <div class="alert text-center" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); border: none; border-radius: 20px; padding: 3rem;">
+              <div class="mb-3">
+                <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #667eea;"></i>
+              </div>
+              <h4 class="text-dark mb-3">Hiện tại chưa có gói tập nào!</h4>
+              <p class="text-secondary mb-0" style="font-size: 1.1rem;">Chúng tôi đang cập nhật các gói tập mới. Vui lòng quay lại sau hoặc liên hệ để được tư vấn.</p>
+            </div>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </section>
+    
+    <style>
+      .package-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 25px 50px rgba(102, 126, 234, 0.2) !important;
+      }
+      
+      #packages-section .card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        background: white;
+        position: relative;
+      }
+      
+      #packages-section .card-header {
+        border: none;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      #packages-section .card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
+      
+      #packages-section .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(40, 167, 69, 0.5) !important;
+        background: linear-gradient(135deg, #218838 0%, #1e7e34 100%) !important;
+      }
+      
+      #packages-section .feature-item {
+        transition: all 0.3s ease;
+      }
+      
+      #packages-section .feature-item:hover {
+        transform: translateX(5px);
+        background: rgba(102, 126, 234, 0.15) !important;
+      }
+      
+      #packages-section .price-section h1 {
+        position: relative;
+        z-index: 2;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        #packages-section .card {
+          margin-bottom: 2rem;
+        }
+        
+        #packages-section .card-header {
+          padding: 2rem 1.5rem !important;
+        }
+        
+        #packages-section .price-section h1 {
+          font-size: 2rem !important;
+        }
+        
+        #packages-section .card-body {
+          padding: 1.5rem !important;
+        }
+        
+        #packages-section .feature-item {
+          padding: 10px !important;
+        }
+        
+        #packages-section .feature-icon {
+          width: 35px !important;
+          height: 35px !important;
+        }
+      }
+      
+      @media (max-width: 576px) {
+        #packages-section .col-lg-4 {
+          margin-bottom: 1.5rem;
+        }
+        
+        #packages-section .card-header h3 {
+          font-size: 1.3rem;
+        }
+        
+        #packages-section .price-section h1 {
+          font-size: 1.8rem !important;
+        }
+        
+        #packages-section .btn {
+          font-size: 1rem !important;
+          padding: 12px !important;
+        }
+      }
+      
+      /* Animation for loading */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      #packages-section .package-card {
+        animation: fadeInUp 0.6s ease forwards;
+      }
+      
+      #packages-section .package-card:nth-child(1) { animation-delay: 0.1s; }
+      #packages-section .package-card:nth-child(2) { animation-delay: 0.2s; }
+      #packages-section .package-card:nth-child(3) { animation-delay: 0.3s; }
+      
+      /* Gradient text effect */
+      #packages-section .text-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    </style>
+    
     <section class="my-5 py-5">
       <div class="container">
         <div class="row align-items-center">
@@ -1969,393 +2264,6 @@
             </div>
           </div>
         </div>
-        <div class="row pt-lg-6">
-          <div class="col-lg-3">
-            <div
-              class="position-sticky pb-lg-5 pb-3 mt-lg-0 mt-5 ps-2"
-              style="top: 100px"
-            >
-              <h3>Trang thiết bị</h3>
-              <h6 class="text-secondary font-weight-normal pe-3">
-                Phòng tập được trang bị đầy đủ với các thiết bị hiện đại từ các thương hiệu hàng đầu thế giới
-              </h6>
-            </div>
-          </div>
-          <div class="col-lg-9">
-            <div class="row mt-3">
-              <div class="col-md-4">
-                <a href="./sections/navigation/navbars.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 m-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/navigation/navbars/navbar-large.jpg"
-                      alt=""
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Navbars</h6>
-                    <p class="text-secondary text-sm">4 Examples</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="./sections/navigation/nav-tabs.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 m-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/navigation/nav-tabs/tab-large.jpg"
-                      alt=""
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Nav Tabs</h6>
-                    <p class="text-secondary text-sm">2 Nav Tabs</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="./sections/navigation/pagination.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 m-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/navigation/pagination/pagination-large.jpg"
-                      alt=""
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Pagination</h6>
-                    <p class="text-secondary text-sm">3 Examples</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-3">
-            <div
-              class="position-sticky pb-lg-5 pb-3 mt-lg-0 mt-5 ps-2"
-              style="top: 100px"
-            >
-              <h3>Elements</h3>
-              <h6 class="text-secondary font-weight-normal pe-3">
-                80+ carefully crafted small elements that come with multiple
-                colors and shapes
-              </h6>
-            </div>
-          </div>
-          <div class="col-lg-9">
-            <div class="row mt-3">
-              <div class="col-md-4">
-                <a href="./sections/elements/buttons.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 my-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/buttons/button-large.jpg"
-                      alt=""
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Buttons</h6>
-                    <p class="text-secondary text-sm">6 Examples</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="./sections/elements/avatars.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 my-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/avatars/avatar-large.jpg"
-                      alt="avatars"
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Avatars</h6>
-                    <p class="text-secondary text-sm">2 Examples</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="./sections/elements/dropdowns.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 my-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/dropdowns/dropdown-large.jpg"
-                      alt=""
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Dropdowns</h6>
-                    <p class="text-secondary text-sm">2 Examples</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-            <div class="row mt-3">
-              <div class="col-md-4">
-                <a href="./sections/elements/toggles.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 my-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/toggles/toggle-large.jpg"
-                      alt="toggles"
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Toggles</h6>
-                    <p class="text-secondary text-sm">2 Examples</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="javascript:;">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <div class="position-absolute top-0 end-0 p-2 z-index-1">
-                      <svg
-                        width="24px"
-                        height="24px"
-                        viewBox="0 0 24 24"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                      >
-                        <g
-                          stroke="none"
-                          stroke-width="1"
-                          fill="none"
-                          fill-rule="evenodd"
-                        >
-                          <circle
-                            fill="#1F2937"
-                            cx="12"
-                            cy="12"
-                            r="12"
-                          ></circle>
-                          <g
-                            transform="translate(7.000000, 5.000000)"
-                            fill="#FFFFFF"
-                            fill-rule="nonzero"
-                          >
-                            <path
-                              d="M5,0 C3.16666667,0 1.66666667,1.5 1.66666667,3.33333333 L1.66666667,4.58333333 C0.666666667,5.5 0,6.83333333 0,8.33333333 C0,11.0833333 2.25,13.3333333 5,13.3333333 C7.75,13.3333333 10,11.0833333 10,8.33333333 C10,6.83333333 9.33333333,5.5 8.33333333,4.58333333 L8.33333333,3.33333333 C8.33333333,1.5 6.83333333,0 5,0 Z M5.83333333,8.91666667 L5.83333333,10.8333333 L4.16666667,10.8333333 L4.16666667,8.91666667 C3.66666667,8.66666667 3.33333333,8.08333333 3.33333333,7.5 C3.33333333,6.58333333 4.08333333,5.83333333 5,5.83333333 C5.91666667,5.83333333 6.66666667,6.58333333 6.66666667,7.5 C6.66666667,8.08333333 6.33333333,8.66666667 5.83333333,8.91666667 Z M6.66666667,3.66666667 C6.16666667,3.41666667 5.58333333,3.33333333 5,3.33333333 C4.41666667,3.33333333 3.83333333,3.41666667 3.33333333,3.66666667 L3.33333333,3.33333333 C3.33333333,2.41666667 4.08333333,1.66666667 5,1.66666667 C5.91666667,1.66666667 6.66666667,2.41666667 6.66666667,3.33333333 L6.66666667,3.66666667 Z"
-                            ></path>
-                          </g>
-                        </g>
-                      </svg>
-                    </div>
-                    <img
-                      class="w-100 my-auto opacity-6"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/social-buttons/social-btn-large.jpg"
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="top"
-                      title="Pro Element"
-                      alt="social buttons"
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Social Buttons</h6>
-                    <p class="text-secondary text-sm">2 Examples</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="javascript:;">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <div class="position-absolute top-0 end-0 p-2 z-index-1">
-                      <svg
-                        width="24px"
-                        height="24px"
-                        viewBox="0 0 24 24"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                      >
-                        <g
-                          stroke="none"
-                          stroke-width="1"
-                          fill="none"
-                          fill-rule="evenodd"
-                        >
-                          <circle
-                            fill="#1F2937"
-                            cx="12"
-                            cy="12"
-                            r="12"
-                          ></circle>
-                          <g
-                            transform="translate(7.000000, 5.000000)"
-                            fill="#FFFFFF"
-                            fill-rule="nonzero"
-                          >
-                            <path
-                              d="M5,0 C3.16666667,0 1.66666667,1.5 1.66666667,3.33333333 L1.66666667,4.58333333 C0.666666667,5.5 0,6.83333333 0,8.33333333 C0,11.0833333 2.25,13.3333333 5,13.3333333 C7.75,13.3333333 10,11.0833333 10,8.33333333 C10,6.83333333 9.33333333,5.5 8.33333333,4.58333333 L8.33333333,3.33333333 C8.33333333,1.5 6.83333333,0 5,0 Z M5.83333333,8.91666667 L5.83333333,10.8333333 L4.16666667,10.8333333 L4.16666667,8.91666667 C3.66666667,8.66666667 3.33333333,8.08333333 3.33333333,7.5 C3.33333333,6.58333333 4.08333333,5.83333333 5,5.83333333 C5.91666667,5.83333333 6.66666667,6.58333333 6.66666667,7.5 C6.66666667,8.08333333 6.33333333,8.66666667 5.83333333,8.91666667 Z M6.66666667,3.66666667 C6.16666667,3.41666667 5.58333333,3.33333333 5,3.33333333 C4.41666667,3.33333333 3.83333333,3.41666667 3.33333333,3.66666667 L3.33333333,3.33333333 C3.33333333,2.41666667 4.08333333,1.66666667 5,1.66666667 C5.91666667,1.66666667 6.66666667,2.41666667 6.66666667,3.33333333 L6.66666667,3.66666667 Z"
-                            ></path>
-                          </g>
-                        </g>
-                      </svg>
-                    </div>
-                    <img
-                      class="w-100 my-auto opacity-6"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/button-groups/button-groups-large.jpg"
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="top"
-                      title="Pro Element"
-                      alt="button groups"
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Button Groups</h6>
-                    <p class="text-secondary text-sm">5 Examples</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-            <div class="row mt-3">
-              <div class="col-md-4 mt-md-0 mt-3">
-                <a href="./sections/elements/breadcrumbs.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 my-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/breadcrumbs/breadcrumbs-large.jpg"
-                      alt="breadcrumbs"
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Breadcrumbs</h6>
-                    <p class="text-secondary text-sm">1 Example</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="./sections/elements/badges.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 my-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/badges/badge-large.jpg"
-                      alt="badges"
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Badges</h6>
-                    <p class="text-secondary text-sm">3 Example</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="./sections/elements/progress-bars.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 my-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/progress-bars/progress-large.jpg"
-                      alt=""
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Progress Bars</h6>
-                    <p class="text-secondary text-sm">4 Examples</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-            <div class="row mt-3">
-              <div class="col-md-4 mt-md-0 mt-3">
-                <a href="javascript:;">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <div class="position-absolute top-0 end-0 p-2 z-index-1">
-                      <svg
-                        width="24px"
-                        height="24px"
-                        viewBox="0 0 24 24"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                      >
-                        <g
-                          stroke="none"
-                          stroke-width="1"
-                          fill="none"
-                          fill-rule="evenodd"
-                        >
-                          <circle
-                            fill="#1F2937"
-                            cx="12"
-                            cy="12"
-                            r="12"
-                          ></circle>
-                          <g
-                            transform="translate(7.000000, 5.000000)"
-                            fill="#FFFFFF"
-                            fill-rule="nonzero"
-                          >
-                            <path
-                              d="M5,0 C3.16666667,0 1.66666667,1.5 1.66666667,3.33333333 L1.66666667,4.58333333 C0.666666667,5.5 0,6.83333333 0,8.33333333 C0,11.0833333 2.25,13.3333333 5,13.3333333 C7.75,13.3333333 10,11.0833333 10,8.33333333 C10,6.83333333 9.33333333,5.5 8.33333333,4.58333333 L8.33333333,3.33333333 C8.33333333,1.5 6.83333333,0 5,0 Z M5.83333333,8.91666667 L5.83333333,10.8333333 L4.16666667,10.8333333 L4.16666667,8.91666667 C3.66666667,8.66666667 3.33333333,8.08333333 3.33333333,7.5 C3.33333333,6.58333333 4.08333333,5.83333333 5,5.83333333 C5.91666667,5.83333333 6.66666667,6.58333333 6.66666667,7.5 C6.66666667,8.08333333 6.33333333,8.66666667 5.83333333,8.91666667 Z M6.66666667,3.66666667 C6.16666667,3.41666667 5.58333333,3.33333333 5,3.33333333 C4.41666667,3.33333333 3.83333333,3.41666667 3.33333333,3.66666667 L3.33333333,3.33333333 C3.33333333,2.41666667 4.08333333,1.66666667 5,1.66666667 C5.91666667,1.66666667 6.66666667,2.41666667 6.66666667,3.33333333 L6.66666667,3.66666667 Z"
-                            ></path>
-                          </g>
-                        </g>
-                      </svg>
-                    </div>
-                    <img
-                      class="w-100 my-auto opacity-6"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/tables/table-2.jpg"
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="top"
-                      title="Pro Element"
-                      alt="tables"
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Tables</h6>
-                    <p class="text-secondary text-sm">3 Examples</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-4">
-                <a href="./sections/elements/typography.html">
-                  <div
-                    class="card shadow-lg move-on-hover min-height-160 min-height-160"
-                  >
-                    <img
-                      class="w-100 my-auto"
-                      src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/sections/elements/typography/typography-2.jpg"
-                      alt=""
-                    />
-                  </div>
-                  <div class="mt-2 ms-2">
-                    <h6 class="mb-0">Typography</h6>
-                    <p class="text-secondary text-sm">2 Examples</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
     <section class="py-5">
@@ -2499,7 +2407,7 @@
         <hr class="horizontal dark my-5" />
       </div>
     </section>
-    <section class="py-sm-7" id="download-soft-ui">
+    <!-- <section class="py-sm-7" id="download-soft-ui">
       <div
         class="bg-gradient-dark position-relative m-3 border-radius-xl overflow-hidden"
       >
@@ -2532,7 +2440,7 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
     <!-- START Section Content W/ 2 images aside of icon title description -->
     <section class="pt-lg-7 pt-5">
       <div class="container">

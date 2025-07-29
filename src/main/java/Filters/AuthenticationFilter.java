@@ -15,7 +15,8 @@ public class AuthenticationFilter implements Filter {
 
     // Các URL không cần xác thực
     private static final List<String> PUBLIC_URLS = Arrays.asList(
-            "/login", "/GoogleLoginController", "/register", "/logout", "/verify-email", "/VerifyEmail",
+            "/login", "/GoogleLoginController", "/register", "/RegisterController", "/logout", "/verify-email",
+            "/VerifyEmail",
             "/forgot-password", "/reset-password", "/assets/", "/css/", "/js/", "/img/", "/svg/");
 
     // Các URL chỉ dành cho Admin
