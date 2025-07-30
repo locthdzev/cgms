@@ -88,10 +88,10 @@
     <link
       rel="apple-touch-icon"
       sizes="76x76"
-      href="assets/img/weightlifting.png"
+      href="assets/img/icons8-gym-96.png"
     />
-    <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
-    <title>Hồ sơ cá nhân - CGMS</title>
+    <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png" />
+    <title>CORE-FIT GYM</title>
     <!--     Fonts and icons     -->
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"

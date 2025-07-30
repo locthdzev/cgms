@@ -48,9 +48,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Gói Tập - CGMS</title>
-    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
-    <link rel="icon" type="image/png" href="assets/img/weightlifting.png">
+    <title>CORE-FIT GYM</title>
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/icons8-gym-96.png" />
+    <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png">
     <!-- Fonts and icons -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Font Awesome Icons -->

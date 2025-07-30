@@ -8,7 +8,7 @@ pageEncoding="UTF-8"%>
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <title>Đăng ký tài khoản</title>
+    <title>Đăng ký tài khoản - CORE-FIT GYM</title>
     <link href="assets/css/soft-design-system.css?v=1.1.0" rel="stylesheet" />
     <link
       href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800"

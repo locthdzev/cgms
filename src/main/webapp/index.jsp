@@ -40,7 +40,7 @@
             href="assets/img/icons8-gym-96.png"
     />
     <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png"/>
-    <title>Corefit Gym</title>
+    <title>CORE-FIT GYM</title>
     <!-- Fonts and icons -->
     <link
             href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800"

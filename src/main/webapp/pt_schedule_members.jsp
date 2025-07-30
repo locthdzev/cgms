@@ -7,9 +7,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="apple-touch-icon" sizes="76x76" href="${pageContext.request.contextPath}/assets/img/weightlifting.png">
-    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/assets/img/weightlifting.png">
-    <title>Chi tiết lịch tập - Personal Trainer</title>
+    <link rel="apple-touch-icon" sizes="76x76" href="${pageContext.request.contextPath}/assets/img/icons8-gym-96.png">
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/assets/img/icons8-gym-96.png">
+    <title>CORE-FIT GYM</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
     <link id="pagestyle" href="${pageContext.request.contextPath}/assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />

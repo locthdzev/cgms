@@ -11,10 +11,10 @@ import="Utilities.ConfigUtil" %>
     <link
       rel="apple-touch-icon"
       sizes="76x76"
-      href="assets/img/apple-icon.png"
+      href="assets/img/icons8-gym-96.png"
     />
     <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png" />
-    <title>Đăng nhập - CoreFit Gym Management System</title>
+    <title>Đăng nhập - CORE-FIT GYM</title>
     <!-- Fonts and icons -->
     <link
       href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800"

@@ -5,7 +5,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>Cập nhật trạng thái gói tập - CoreFit Gym</title>
+        <title>CORE-FIT GYM</title>
     </head>
     <body>
         <div class="container mt-5 pt-5">
