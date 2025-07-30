@@ -34,7 +34,7 @@
                 href="${pageContext.request.contextPath}/dashboard"
         >
             <img
-                    src="${pageContext.request.contextPath}/assets/img/weightlifting.png"
+                    src="${pageContext.request.contextPath}/assets/img/icons8-gym-96.png"
                     width="26px"
                     height="26px"
                     class="navbar-brand-img h-100"

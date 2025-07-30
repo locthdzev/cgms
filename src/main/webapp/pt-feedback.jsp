@@ -5,8 +5,8 @@
 <head>
     <meta charset="UTF-8" />
     <title>PT Feedback | CoreFit Gym</title>
-    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
-    <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/icons8-gym-96.png" />
+    <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <!-- Fonts and icons -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -24,7 +24,7 @@
     <div class="sidenav-header">
         <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-xl-none" id="iconSidenav"></i>
         <a class="navbar-brand m-0" href="#">
-            <img src="./assets/img/weightlifting.png" class="navbar-brand-img h-100" alt="logo" />
+            <img src="assets/img/icons8-gym-96.png" class="navbar-brand-img h-100" alt="logo" />
             <span class="ms-1 font-weight-bold">CGMS</span>
         </a>
     </div>
