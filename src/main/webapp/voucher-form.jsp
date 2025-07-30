@@ -13,8 +13,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
-        <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
+        <link rel="apple-touch-icon" sizes="76x76" href="assets/img/icons8-gym-96.png" />
+        <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png" />
         <title>
             <%= isEdit ? "Chỉnh sửa voucher" : "Thêm voucher mới" %> - CGMS
         </title>

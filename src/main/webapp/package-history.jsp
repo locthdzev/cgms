@@ -57,9 +57,9 @@
     <link
       rel="apple-touch-icon"
       sizes="76x76"
-      href="assets/img/weightlifting.png"
+      href="assets/img/icons8-gym-96.png"
     />
-    <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
+    <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png" />
     <title>Lịch sử gói tập - CGMS</title>
     <!--     Fonts and icons     -->
     <link
