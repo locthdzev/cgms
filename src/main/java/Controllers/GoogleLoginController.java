@@ -5,6 +5,7 @@ import Models.MemberLevel;
 import Services.UserService;
 import DAOs.UserDAO;
 import Utilities.ConfigUtil;
+import Utilities.EmailSender;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -76,7 +77,11 @@ public class GoogleLoginController extends HttpServlet {
                     user = new User();
                     user.setEmail(email);
                     user.setFullName(name); // Tên đã được xử lý UTF-8 ở trên
-                    user.setUserName(email); // Sử dụng email làm username
+
+                    // Tạo username từ email (cắt trước dấu @)
+                    String username = email.substring(0, email.indexOf("@"));
+                    user.setUserName(username);
+
                     user.setGoogleId(googleId);
                     user.setRole("Member");
                     user.setStatus("Active");
@@ -86,11 +91,11 @@ public class GoogleLoginController extends HttpServlet {
                     defaultLevel.setId(1); // Giả sử level ID 1 là level mặc định
                     user.setLevel(defaultLevel);
 
-                    // Tạo một mật khẩu ngẫu nhiên (người dùng sẽ không cần dùng nó)
-                    String randomPassword = java.util.UUID.randomUUID().toString();
+                    // Tạo mật khẩu ngẫu nhiên an toàn (10 ký tự)
+                    String randomPassword = EmailSender.generateSecurePassword(10);
 
-                    // Đăng ký người dùng mới
-                    userService.registerGoogleUser(user, randomPassword);
+                    // Đăng ký người dùng mới và gửi email thông tin tài khoản
+                    userService.registerGoogleUserWithEmail(user, randomPassword);
                 }
             }
 
