@@ -40,7 +40,7 @@
             href="assets/img/icons8-gym-96.png"
     />
     <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png"/>
-    <title>Corefit Gym</title>
+    <title>CORE-FIT GYM</title>
     <!-- Fonts and icons -->
     <link
             href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800"
@@ -80,7 +80,7 @@
                             data-placement="bottom"
                             target="_blank"
                     >
-                        Corefit Gym
+                        CORE-FIT GYM
                     </a>
                     <button
                             class="navbar-toggler shadow-none ms-2"
@@ -898,7 +898,7 @@
                 <div class="col-lg-7 text-center mx-auto">
                     <h1 class="text-white pt-3 mt-n5"
                         style="font-family: 'Poppins', sans-serif; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                        COREFIT GYM</h1>
+                        CORE-FIT GYM</h1>
                     <p class="lead text-white mt-3"
                        style="font-family: 'Inter', sans-serif; font-weight: 300; letter-spacing: 0.5px; line-height: 1.8;">
                         Nâng cao sức khỏe, thay đổi ngoại hình và cải thiện cuộc sống.<br/>
@@ -2371,7 +2371,7 @@
                         style="top: 100px"
                 >
                     <h4 class="">
-                        Giới thiệu các thiết bị
+                        Thiết Bị
                     </h4>
                     <h6 class="text-secondary">
                         Tìm hiểu về các thiết bị tập luyện hiện đại và chuyên nghiệp tại CoreFit Gym
@@ -3480,240 +3480,7 @@
         </div>
     </div>
 </section>
-<section class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="row text-center my-sm-5 mt-5">
-                <div class="col-lg-6 mx-auto">
-                    <h2 class="text-primary text-gradient mb-0">Boost creativity</h2>
-                    <h2 class="">With our coded pages</h2>
-                    <p class="lead">
-                        The easiest way to get started is to use one of our <br/>
-                        pre-built example pages.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <a href="./pages/about-us.html">
-                            <div class="card move-on-hover">
-                                <img
-                                        class="w-100"
-                                        src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/section-pages/about-us.jpg"
-                                        alt=""
-                                />
-                            </div>
-                            <div class="mt-2 ms-2">
-                                <h6 class="mb-0">About Us Page</h6>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-6 mt-md-0 mt-5">
-                        <a href="./pages/contact-us.html">
-                            <div class="card move-on-hover">
-                                <img
-                                        class="w-100"
-                                        src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/section-pages/contact-us.jpg"
-                                        alt=""
-                                />
-                            </div>
-                            <div class="mt-2 ms-2">
-                                <h6 class="mb-0">Contact Us Page</h6>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-6 mt-md-0 mt-6">
-                        <a href="./pages/sign-in.html">
-                            <div class="card move-on-hover">
-                                <img
-                                        class="w-100"
-                                        src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/section-account/sign-in.jpg"
-                                        alt=""
-                                />
-                            </div>
-                            <div class="mt-2 ms-2">
-                                <h6 class="mb-0">Sign In Page</h6>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-6 mt-md-0 mt-6">
-                        <a href="./pages/author.html">
-                            <div class="card move-on-hover">
-                                <img
-                                        class="w-100"
-                                        src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/presentation/section-pages/author.jpg"
-                                        alt=""
-                                />
-                            </div>
-                            <div class="mt-2 ms-2">
-                                <h6 class="mb-0">Author Page</h6>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mx-auto mt-md-0 mt-5">
-                <div class="position-sticky" style="top: 100px !important">
-                    <h4 class="">
-                        Presentation Pages for Company, Sign In Page, Author and Contact
-                    </h4>
-                    <h6 class="text-secondary">
-                        These is just a small selection of the multiple possibitilies
-                        you have. Focus on the business, not on the design.
-                    </h6>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- -------- START Content Presentation Docs ------- -->
-<div class="container mt-sm-5">
-    <div
-            class="page-header min-vh-50 my-sm-3 mb-3 border-radius-xl"
-            style="
-            background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-design-system/assets/img/desktop.jpg');
-          "
-    >
-        <span class="mask bg-gradient-dark"></span>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 ms-lg-5">
-                    <h4 class="text-white mb-0">Built by developers</h4>
-                    <h1 class="text-white">Complex Documentation</h1>
-                    <p class="lead text-white opacity-8">
-                        From colors, cards, typography to complex elements, you will
-                        find the full documentation. Play with the utility classes and
-                        you will create unlimited combinations for our components.
-                    </p>
-                    <a
-                            href="https://www.creative-tim.com/learning-lab/bootstrap/license/soft-ui-design-system"
-                            class="text-white icon-move-right"
-                    >
-                        Read docs
-                        <i class="fas fa-arrow-right text-sm ms-1"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- -------- END Content Presentation Docs ------- -->
-<section class="py-7">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-6 mx-auto text-center">
-                <h2 class="mb-0">Trusted by over</h2>
-                <h2 class="text-gradient text-primary mb-3">
-                    2,600,000 web developers
-                </h2>
-                <p class="lead">
-                    Many Fortune 500 companies, startups, universities and
-                    governmental institutions love Creative Tim's products.
-                </p>
-            </div>
-        </div>
 
-        <hr class="horizontal dark my-5"/>
-    </div>
-</section>
-
-<!-- START Section Content W/ 2 images aside of icon title description -->
-<section class="pt-lg-7 pt-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-5 col-md-8 order-2 order-md-2 order-lg-1">
-                <div
-                        class="position-relative ms-lg-5 mb-0 mb-md-7 mb-lg-0 d-none d-md-block d-lg-block d-xl-block h-75"
-                >
-                    <div
-                            class="bg-primary w-100 h-100 border-radius-xl position-absolute d-lg-block d-none"
-                    ></div>
-                    <img
-                            src="./assets/img/curved-images/curved11.jpg"
-                            class="w-100 border-radius-xl mt-6 ms-lg-5 position-relative z-index-5"
-                            alt=""
-                    />
-                </div>
-            </div>
-            <div class="col-lg-5 col-md-12 ms-auto order-1 order-md-1 order-lg-1">
-                <div class="p-3 pt-0">
-                    <div
-                            class="icon icon-shape bg-primary rounded-circle shadow text-center mb-4"
-                    >
-                        <i class="ni ni-building"></i>
-                    </div>
-                    <h4 class="text-gradient text-primary mb-0">Special Thanks</h4>
-                    <h4 class="mb-4">
-                        <a
-                                href="https://twitter.com/dnyivn"
-                                target="blank"
-                                rel="nofollow"
-                        >3D Images by Danny Ivan</a
-                        >
-                    </h4>
-                    <p>
-                        We are more than happy to use the great images made by Danny
-                        inside Soft UI Design System. They come with a high level of
-                        quality and bright colors, fitting perfect with our product's
-                        colors.<br/><br/>
-                        Danny is a important designer that is active into the 3D Image
-                        space. His war was awarded many times in different categories in
-                        Behance, Digital Art or Motion Graphics.
-                    </p>
-                    <a
-                            href="https://www.behance.net/dannyivan"
-                            target="blank"
-                            rel="nofollow"
-                            class="text-dark icon-move-right"
-                    >Check Danny's work
-                        <i class="fas fa-arrow-right text-sm ms-1"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- END Section Content -->
-<!-- -------   START PRE-FOOTER 2 - simple social line w/ title & 3 buttons    -------- -->
-<div class="pt-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-5 ms-auto">
-                <h4 class="mb-1">Thank you for your support!</h4>
-                <p class="lead mb-0">We deliver the best web products</p>
-            </div>
-            <div class="col-lg-5 me-lg-auto my-lg-auto text-lg-end mt-5">
-                <a
-                        href="https://twitter.com/intent/tweet?text=Check%20Soft%20UI%20Design%20System%20made%20by%20%40CreativeTim%20%23webdesign%20%23designsystem%20%23bootstrap5&url=https%3A%2F%2Fwww.creative-tim.com%2Fproduct%2Fsoft-ui-design-system"
-                        class="btn btn-info mb-0 me-2"
-                        target="_blank"
-                >
-                    <i class="fab fa-twitter me-1"></i> Tweet
-                </a>
-                <a
-                        href="https://www.facebook.com/sharer/sharer.php?u=https://www.creative-tim.com/product/soft-ui-design-system"
-                        class="btn btn-primary mb-0 me-2"
-                        target="_blank"
-                >
-                    <i class="fab fa-facebook-square me-1"></i> Share
-                </a>
-                <a
-                        href="https://www.pinterest.com/pin/create/button/?url=https://www.creative-tim.com/product/soft-ui-design-system"
-                        class="btn btn-dark mb-0 me-2"
-                        target="_blank"
-                >
-                    <i class="fab fa-pinterest me-1"></i> Pin it
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- -------   END PRE-FOOTER 2 - simple social line w/ title & 3 buttons    -------- -->
 <footer class="footer pt-5 mt-5">
     <hr class="horizontal dark mb-5"/>
     <div class="container">
@@ -3721,55 +3488,68 @@
             <div class="col-md-3 mb-4 ms-auto">
                 <div>
                     <h6 class="text-gradient text-primary font-weight-bolder">
-                        Soft UI Design 3 System
+                        Corefit Gym
                     </h6>
+                    <p class="text-sm mt-3 mb-4">
+                        Nâng cao sức khỏe, thay đổi ngoại hình và cải thiện cuộc sống. 
+                        Hãy để chúng tôi đồng hành cùng bạn trên hành trình chinh phục bản thân.
+                    </p>
                 </div>
                 <div>
-                    <h6 class="mt-3 mb-2 opacity-8">Social</h6>
+                    <h6 class="mt-3 mb-2 opacity-8">Mạng xã hội</h6>
                     <ul class="d-flex flex-row ms-n3 nav">
                         <li class="nav-item">
                             <a
                                     class="nav-link pe-1"
-                                    href="https://www.facebook.com/CreativeTim/"
+                                    href="https://www.facebook.com/corefitgym"
                                     target="_blank"
                             >
-                                <i class="fab fa-facebook text-lg opacity-8"></i>
+                                <img src="./assets/svg/icons8-facebook.svg" alt="Facebook" width="20" height="20" class="opacity-8">
                             </a>
                         </li>
                         <li class="nav-item">
                             <a
                                     class="nav-link pe-1"
-                                    href="https://twitter.com/creativetim"
+                                    href="https://www.instagram.com/corefitgym"
                                     target="_blank"
                             >
-                                <i class="fab fa-twitter text-lg opacity-8"></i>
+                                <img src="./assets/svg/icons8-insta.svg" alt="Instagram" width="20" height="20" class="opacity-8">
                             </a>
                         </li>
                         <li class="nav-item">
                             <a
                                     class="nav-link pe-1"
-                                    href="https://dribbble.com/creativetim"
+                                    href="https://www.tiktok.com/@corefitgym"
                                     target="_blank"
                             >
-                                <i class="fab fa-dribbble text-lg opacity-8"></i>
+                                <img src="./assets/svg/icons8-tiktok.svg" alt="TikTok" width="20" height="20" class="opacity-8">
                             </a>
                         </li>
                         <li class="nav-item">
                             <a
                                     class="nav-link pe-1"
-                                    href="https://github.com/creativetimofficial"
+                                    href="https://t.me/corefitgym"
                                     target="_blank"
                             >
-                                <i class="fab fa-github text-lg opacity-8"></i>
+                                <img src="./assets/svg/icons8-telegram.svg" alt="Telegram" width="20" height="20" class="opacity-8">
                             </a>
                         </li>
                         <li class="nav-item">
                             <a
                                     class="nav-link pe-1"
-                                    href="https://www.youtube.com/channel/UCVyTG4sCw-rOvB9oHkzZD1w"
+                                    href="https://t.me/corefitgym"
                                     target="_blank"
                             >
-                                <i class="fab fa-youtube text-lg opacity-8"></i>
+                                <img src="./assets/svg/icons8-zalo.svg" alt="Zalo" width="20" height="20" class="opacity-8">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                    class="nav-link pe-1"
+                                    href="https://t.me/corefitgym"
+                                    target="_blank"
+                            >
+                                <img src="./assets/svg/icons8-youtube.svg" alt="Youtube" width="20" height="20" class="opacity-8">
                             </a>
                         </li>
                     </ul>
@@ -3777,42 +3557,38 @@
             </div>
             <div class="col-md-2 col-sm-6 col-6 mb-4">
                 <div>
-                    <h6 class="text-gradient text-primary text-sm">Company</h6>
+                    <h6 class="text-gradient text-primary text-sm">Thông tin</h6>
                     <ul class="flex-column ms-n3 nav">
                         <li class="nav-item">
                             <a
                                     class="nav-link"
-                                    href="https://www.creative-tim.com/presentation"
-                                    target="_blank"
+                                    href="#"
                             >
-                                About Us
+                                Về chúng tôi
                             </a>
                         </li>
                         <li class="nav-item">
                             <a
                                     class="nav-link"
-                                    href="https://www.creative-tim.com/templates/free"
-                                    target="_blank"
+                                    href="#"
                             >
-                                Freebies
+                                Gói tập
                             </a>
                         </li>
                         <li class="nav-item">
                             <a
                                     class="nav-link"
-                                    href="https://www.creative-tim.com/templates/premium"
-                                    target="_blank"
+                                    href="#"
                             >
-                                Premium Tools
+                                Huấn luyện viên
                             </a>
                         </li>
                         <li class="nav-item">
                             <a
                                     class="nav-link"
-                                    href="https://www.creative-tim.com/blog"
-                                    target="_blank"
+                                    href="#"
                             >
-                                Blog
+                                Thiết bị
                             </a>
                         </li>
                     </ul>
@@ -3820,33 +3596,42 @@
             </div>
             <div class="col-md-2 col-sm-6 col-6 mb-4">
                 <div>
-                    <h6 class="text-gradient text-primary text-sm">Resources</h6>
-                    <ul class="flex-column ms-n3 nav">
+                    <h6 class="text-gradient text-primary text-sm ps-0">Liên hệ</h6>
+                    <ul class="flex-column nav">
                         <li class="nav-item">
-                            <a
-                                    class="nav-link"
-                                    href="https://iradesign.io/"
-                                    target="_blank"
-                            >
-                                Illustrations
+                            <div class="nav-link d-flex align-items-start ps-0">
+                                <div class="me-3 mt-1" style="min-width: 20px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16px" height="16px" fill="currentColor">
+                                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                    </svg>
+                                </div>
+                                <div style="flex: 1;">
+                                    <span style="font-size: 0.8rem; line-height: 1.4; word-wrap: break-word;">
+                                        600 Nguyễn Văn Cừ, An Bình, Ninh Kiều, Cần Thơ
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center ps-0" href="tel:+84292383333">
+                                <div class="me-3" style="min-width: 20px;">
+                                    <img src="./assets/svg/icons8-phone.svg" alt="Phone" width="16" height="16">
+                                </div>
+                                <span style="font-size: 0.8rem;">+84 292 383 333</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a
-                                    class="nav-link"
-                                    href="https://www.creative-tim.com/bits"
-                                    target="_blank"
-                            >
-                                Bits & Snippets
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a
-                                    class="nav-link"
-                                    href="https://www.creative-tim.com/affiliates/new"
-                                    target="_blank"
-                            >
-                                Affiliate Program
+                            <a class="nav-link d-flex align-items-center ps-0" href="mailto:info@corefitgym.com">
+                                <div class="me-3" style="min-width: 20px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="16px" height="16px">
+                                        <path fill="#4caf50" d="M45,16.2l-5,2.75l-5,4.75L35,40h7c1.657,0,3-1.343,3-3V16.2z"/>
+                                        <path fill="#1e88e5" d="M3,16.2l3.614,1.71L13,23.7V40H6c-1.657,0-3-1.343-3-3V16.2z"/>
+                                        <polygon fill="#e53935" points="35,11.2 24,19.45 13,11.2 12,17 13,23.7 24,31.95 35,23.7 36,17"/>
+                                        <path fill="#c62828" d="M3,12.298V16.2l10,7.5V11.2L9.876,8.859C9.132,8.301,8.228,8,7.298,8h0C4.924,8,3,9.924,3,12.298z"/>
+                                        <path fill="#fbc02d" d="M45,12.298V16.2l-10,7.5V11.2l3.124-2.341C38.868,8.301,39.772,8,40.702,8h0 C43.076,8,45,9.924,45,12.298z"/>
+                                    </svg>
+                                </div>
+                                <span style="font-size: 0.8rem;">info@corefitgym.com</span>
                             </a>
                         </li>
                     </ul>
@@ -3854,79 +3639,44 @@
             </div>
             <div class="col-md-2 col-sm-6 col-6 mb-4">
                 <div>
-                    <h6 class="text-gradient text-primary text-sm">Help & Support</h6>
-                    <ul class="flex-column ms-n3 nav">
+                    <h6 class="text-gradient text-primary text-sm ps-0">Giờ hoạt động</h6>
+                    <ul class="flex-column nav">
                         <li class="nav-item">
-                            <a
-                                    class="nav-link"
-                                    href="https://www.creative-tim.com/contact-us"
-                                    target="_blank"
-                            >
-                                Contact Us
-                            </a>
+                            <div class="nav-link ps-0">
+                                <strong style="font-size: 0.8rem;">Thứ 2 - Thứ 7:</strong><br>
+                                <span style="font-size: 0.8rem;">7:00 - 22:00</span>
+                            </div>
                         </li>
                         <li class="nav-item">
-                            <a
-                                    class="nav-link"
-                                    href="https://www.creative-tim.com/knowledge-center"
-                                    target="_blank"
-                            >
-                                Knowledge Center
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a
-                                    class="nav-link"
-                                    href="https://services.creative-tim.com/?ref=ct-soft-ui-footer"
-                                    target="_blank"
-                            >
-                                Custom Development
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a
-                                    class="nav-link"
-                                    href="https://www.creative-tim.com/sponsorships"
-                                    target="_blank"
-                            >
-                                Sponsorships
-                            </a>
+                            <div class="nav-link ps-0">
+                                <strong style="font-size: 0.8rem;">Chủ nhật:</strong><br>
+                                <span style="font-size: 0.8rem;">Nghỉ</span>
+                            </div>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="col-md-2 col-sm-6 col-6 mb-4 me-auto">
                 <div>
-                    <h6 class="text-gradient text-primary text-sm">Legal</h6>
-                    <ul class="flex-column ms-n3 nav">
-                        <li class="nav-item">
-                            <a
-                                    class="nav-link"
-                                    href="https://www.creative-tim.com/terms"
-                                    target="_blank"
-                            >
-                                Terms &amp; Conditions
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a
-                                    class="nav-link"
-                                    href="https://www.creative-tim.com/privacy"
-                                    target="_blank"
-                            >
-                                Privacy Policy
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a
-                                    class="nav-link"
-                                    href="https://www.creative-tim.com/license"
-                                    target="_blank"
-                            >
-                                Licenses (EULA)
-                            </a>
-                        </li>
-                    </ul>
+                    <h6 class="text-gradient text-primary text-sm">Bản đồ</h6>
+                    <div class="mt-3">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.6409837889733!2d105.7295125!3d10.0135881!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0882139720a77%3A0x3916a227d0b95a64!2sFPT+University!5e0!3m2!1svi!2s!4v1699123456789!5m2!1svi!2s" 
+                            width="100%" 
+                            height="120" 
+                            style="border:0; border-radius: 8px;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                    <a class="btn btn-primary btn-sm mt-2 w-100" 
+                       href="https://www.google.com/maps/place/FPT+University/@10.0135881,105.7295125,19.25z/data=!4m6!3m5!1s0x31a0882139720a77:0x3916a227d0b95a64!8m2!3d10.0124518!4d105.7324316!16s%2Fg%2F11c6w2mjqm"
+                       target="_blank"
+                       style="border-radius: 8px; font-size: 0.75rem; padding: 6px 12px;">
+                        <i class="fas fa-directions me-1"></i>
+                        Chỉ đường
+                    </a>
                 </div>
             </div>
             <div class="col-12">
@@ -3942,7 +3692,7 @@
             </div>
         </div>
     </div>
-</footer>
+</footer> 
 <!--   Core JS Files   -->
 <script
         src="./assets/js/core/popper.min.js"
