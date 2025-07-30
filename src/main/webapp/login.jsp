@@ -13,7 +13,7 @@ import="Utilities.ConfigUtil" %>
       sizes="76x76"
       href="assets/img/apple-icon.png"
     />
-    <link rel="icon" type="image/png" href="assets/img/favicon.png" />
+    <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png" />
     <title>Đăng nhập - CoreFit Gym Management System</title>
     <!-- Fonts and icons -->
     <link
