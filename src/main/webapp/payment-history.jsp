@@ -307,10 +307,6 @@
                                          '<p><strong>Thời hạn:</strong> ' + (pkg.duration || 'N/A') + ' tháng</p>' +
                                          '<p><strong>Giá gốc:</strong> ' + formatter.format(pkg.price || 0) + '</p>';
                                          
-                            // Thêm thông tin tổng giá nếu có
-                            if (pkg.totalPrice) {
-                                packageHtml += '<p><strong>Tổng giá sau giảm giá:</strong> ' + formatter.format(pkg.totalPrice) + '</p>';
-                            }
                         } else {
                             packageHtml = '<p>Không có thông tin gói tập</p>';
                         }

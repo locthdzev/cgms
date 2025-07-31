@@ -34,7 +34,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Lịch sử đơn hàng - CGMS</title>
+    <title>Đơn hàng của tôi - CGMS</title>
     <link rel="stylesheet" href="assets/css/argon-dashboard.css?v=2.1.0"/>
     <link
             rel="stylesheet"
@@ -125,7 +125,7 @@
                     <div class="card-header pb-0">
                         <div class="d-lg-flex">
                             <div>
-                                <h5 class="mb-0">Lịch sử đơn hàng</h5>
+                                <h5 class="mb-0">Đơn hàng của tôi</h5>
                                 <p class="text-sm mb-0">
                                     Quản lý và theo dõi các đơn hàng của bạn
                                 </p>
@@ -268,7 +268,7 @@
                             <div class="col-lg-2">
                                 <div class="text-end">
                                     <a
-                                            href="order?action=details&id=<%= order.getId() %>"
+                                            href="my-order?action=details&id=<%= order.getId() %>"
                                             class="btn btn-outline-primary btn-sm mb-1"
                                     >
                                         <i class="fas fa-eye me-1"></i>Chi tiết
@@ -376,6 +376,3 @@
 </script>
 </body>
 </html>
-</Order
-></Order
->
