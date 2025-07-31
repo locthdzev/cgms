@@ -12,7 +12,7 @@
       sizes="76x76"
       href="assets/img/apple-icon.png"
     />
-    <link rel="icon" type="image/png" href="assets/img/favicon.png" />
+    <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png" />
     <title>Quên mật khẩu - CoreFit Gym Management System</title>
     <!-- Fonts and icons -->
     <link
@@ -51,9 +51,6 @@
                   <% if (request.getAttribute("success") != null) { %>
                   <div class="alert alert-success text-white" role="alert">
                     <%= request.getAttribute("success") %>
-                  </div>
-                  <div class="text-center">
-                    <a href="/login" class="btn btn-lg bg-gradient-primary w-100 mt-4 mb-0">Quay lại đăng nhập</a>
                   </div>
                   <% } else if (request.getAttribute("error") != null) { %>
                   <div class="alert alert-danger text-white" role="alert">
@@ -117,27 +114,14 @@
               class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 end-0 text-center justify-content-center flex-column"
             >
               <div
-                class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center"
-              >
-                <img
-                  src="assets/img/shapes/pattern-lines.svg"
-                  alt="pattern-lines"
-                  class="position-absolute opacity-4 start-0"
-                />
-                <div class="position-relative">
-                  <img
-                    class="max-width-500 w-100 position-relative z-index-2"
-                    src="assets/img/illustrations/chat.png"
-                    alt="chat-img"
-                  />
-                </div>
-                <h4 class="mt-5 text-white font-weight-bolder">
-                  CoreFit Gym Management System
-                </h4>
-                <p class="text-white">
-                  Hệ thống quản lý phòng tập thể hình hiện đại
-                </p>
-              </div>
+                class="position-relative h-100 m-3 border-radius-lg d-flex flex-column justify-content-center"
+                style="
+                  background: url('assets/img/login-bg-gym.jpg');
+                  background-size: cover;
+                  background-position: center;
+                  background-repeat: no-repeat;
+                "
+              ></div>
             </div>
           </div>
         </div>
@@ -150,4 +134,4 @@
       type="text/javascript"
     ></script>
   </body>
-</html> 
+</html>

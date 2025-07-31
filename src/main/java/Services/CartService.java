@@ -6,6 +6,7 @@ import Models.Cart;
 import java.util.List;
 
 public class CartService {
+
     private final CartDAO cartDAO = new CartDAO();
 
     public List<Cart> getCartByMemberId(int memberId) {
@@ -19,8 +20,21 @@ public class CartService {
     public void removeItem(int cartId) {
         cartDAO.removeItem(cartId);
     }
-    public void changeQuantity(int cartId, int diff) {
-    cartDAO.changeQuantity(cartId, diff);
-}
 
+    public int changeQuantity(int cartId, int diff) {
+        return cartDAO.changeQuantity(cartId, diff);
+    }
+
+    public long getCartTotal(int memberId) {
+        List<Cart> items = getCartByMemberId(memberId);
+        long total = 0;
+        for (Cart c : items) {
+            total += c.getProduct().getPrice().longValue() * c.getQuantity();
+        }
+        return total;
+    }
+
+    public int setQuantity(int cartId, int quantity) {
+        return cartDAO.setQuantity(cartId, quantity);
+    }
 }
