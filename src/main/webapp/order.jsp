@@ -45,8 +45,8 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <link rel="apple-touch-icon" sizes="76x76" href="${pageContext.request.contextPath}/assets/img/weightlifting.png" />
-        <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/assets/img/weightlifting.png" />
+        <link rel="apple-touch-icon" sizes="76x76" href="${pageContext.request.contextPath}/assets/img/icons8-gym-96.png" />
+        <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/assets/img/icons8-gym-96.png" />
         <title>Quản lý Đơn hàng - CGMS</title>
 
         <!-- Fonts and icons -->
