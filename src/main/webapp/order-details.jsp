@@ -280,8 +280,6 @@
     if ("Member".equals(currentUser.getRole())) {
 %>
 <%@ include file="member_sidebar.jsp" %>
-<% } else if ("PT".equals(currentUser.getRole())) { %>
-<%@ include file="pt_sidebar.jsp" %>
 <% } else { %>
 <%@ include file="sidebar.jsp" %>
 <% } %>

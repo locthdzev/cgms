@@ -62,10 +62,6 @@ public class OrderController extends HttpServlet {
                 } else {
                     showAdminOrderList(req, resp);
                 }
-            } else if (pathInfo.equals("/payment/success")) {
-                handlePayOSSuccess(req, resp);
-            } else if (pathInfo.equals("/payment/cancel")) {
-                handlePayOSCancel(req, resp);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,8 +108,8 @@ public class OrderController extends HttpServlet {
 
     private void showCheckoutPage(HttpServletRequest req, HttpServletResponse resp, User user)
             throws ServletException, IOException {
-        // Kiểm tra quyền (Member hoặc PT)
-        if (!"Member".equals(user.getRole()) && !"PT".equals(user.getRole())) {
+        // Kiểm tra quyền (chỉ Member)
+        if (!"Member".equals(user.getRole())) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
@@ -127,11 +123,16 @@ public class OrderController extends HttpServlet {
 
     private void showOrderHistory(HttpServletRequest req, HttpServletResponse resp, User user)
             throws ServletException, IOException {
+        // Chỉ cho phép Member truy cập
+        if (!"Member".equals(user.getRole())) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
         List<Order> orders = orderService.getOrdersByMemberId(user.getId());
         req.setAttribute("orders", orders);
 
-        String jspPage = "Member".equals(user.getRole()) ? "member-order-history.jsp" : "pt-order-history.jsp";
-        req.getRequestDispatcher(jspPage).forward(req, resp);
+        req.getRequestDispatcher("member-order-history.jsp").forward(req, resp);
     }
 
     private void showOrderDetails(HttpServletRequest req, HttpServletResponse resp, User user)
@@ -269,60 +270,5 @@ public class OrderController extends HttpServlet {
         // For now, redirect back to admin page
         req.getSession().setAttribute("errorMessage", "Chức năng này đang được phát triển");
         resp.sendRedirect("order/admin?action=create");
-    }
-
-    private void handlePayOSSuccess(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        try {
-            String orderCode = req.getParameter("orderCode");
-            if (orderCode != null) {
-                // Tìm đơn hàng theo PayOS order code
-                Order order = orderDAO.getOrderByPayOSCode("ORDER-" + orderCode);
-                if (order != null) {
-                    // Cập nhật trạng thái đơn hàng thành CONFIRMED (đã thanh toán)
-                    orderService.updateOrderStatus(order.getId(), OrderService.OrderConstants.STATUS_CONFIRMED);
-
-                    req.getSession().setAttribute("successMessage",
-                            "Thanh toán thành công! Đơn hàng #" + order.getId() + " đã được xác nhận.");
-                    resp.sendRedirect("order?action=details&id=" + order.getId());
-                } else {
-                    req.getSession().setAttribute("errorMessage", "Không tìm thấy đơn hàng.");
-                    resp.sendRedirect("order?action=history");
-                }
-            } else {
-                req.getSession().setAttribute("errorMessage", "Thông tin thanh toán không hợp lệ.");
-                resp.sendRedirect("order?action=history");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            req.getSession().setAttribute("errorMessage", "Có lỗi xảy ra khi xử lý thanh toán.");
-            resp.sendRedirect("order?action=history");
-        }
-    }
-
-    private void handlePayOSCancel(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        try {
-            String orderCode = req.getParameter("orderCode");
-            if (orderCode != null) {
-                Order order = orderDAO.getOrderByPayOSCode("ORDER-" + orderCode);
-                if (order != null) {
-                    // Hủy đơn hàng
-                    orderService.cancelOrder(order.getId(), "Khách hàng hủy thanh toán PayOS");
-
-                    req.getSession().setAttribute("errorMessage",
-                            "Thanh toán đã bị hủy. Đơn hàng #" + order.getId() + " đã được hủy.");
-                } else {
-                    req.getSession().setAttribute("errorMessage", "Thanh toán đã bị hủy.");
-                }
-            } else {
-                req.getSession().setAttribute("errorMessage", "Thanh toán đã bị hủy.");
-            }
-            resp.sendRedirect("order?action=history");
-        } catch (Exception e) {
-            e.printStackTrace();
-            req.getSession().setAttribute("errorMessage", "Có lỗi xảy ra khi xử lý hủy thanh toán.");
-            resp.sendRedirect("order?action=history");
-        }
     }
 }

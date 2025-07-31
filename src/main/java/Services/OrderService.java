@@ -296,10 +296,30 @@ public class OrderService {
             }
         }
 
-        // Gửi email thông báo hủy đơn
-        sendOrderCancellationEmail(order.getMember(), order, reason);
+        // Gửi email bất đồng bộ để không làm chậm response
+        sendCancellationEmailsAsync(order.getMember(), order, reason);
 
         return true;
+    }
+
+    /**
+     * Gửi email hủy đơn hàng bất đồng bộ
+     */
+    private void sendCancellationEmailsAsync(User customer, Order order, String reason) {
+        // Tạo thread riêng để gửi email
+        new Thread(() -> {
+            try {
+                // Gửi email thông báo cho khách hàng
+                sendOrderCancellationEmail(customer, order, reason);
+
+                // Gửi email thông báo cho admin
+                sendOrderCancellationNotificationToAdmin(customer, order, reason);
+            } catch (Exception e) {
+                // Log lỗi nhưng không ảnh hưởng đến quá trình hủy đơn hàng
+                System.err.println("Lỗi khi gửi email hủy đơn hàng: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     /**
@@ -363,6 +383,22 @@ public class OrderService {
             String subject = "Đơn hàng #" + order.getId() + " đã được hủy - CGMS";
             String htmlContent = buildOrderCancellationEmailContent(user, order, reason);
             EmailSender.send(user.getEmail(), subject, htmlContent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Gửi email thông báo cho admin khi đơn hàng bị hủy
+     */
+    private void sendOrderCancellationNotificationToAdmin(User customer, Order order, String reason) {
+        try {
+            // Email admin cố định - có thể cấu hình từ database sau
+            String adminEmail = "locthdev@gmail.com"; // Thay đổi email admin thực tế
+
+            String subject = "Đơn hàng #" + order.getId() + " đã bị hủy - CGMS";
+            String htmlContent = buildOrderCancellationAdminEmailContent(customer, order, reason);
+            EmailSender.send(adminEmail, subject, htmlContent);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -435,6 +471,36 @@ public class OrderService {
                 +
                 "<p>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi.</p>" +
                 "<p>Trân trọng,<br>Đội ngũ CGMS</p>" +
+                "</div>";
+    }
+
+    private String buildOrderCancellationAdminEmailContent(User customer, Order order, String reason) {
+        return "<div style='max-width:600px;margin:0 auto;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05);padding:32px;'>"
+                +
+                "<h2 style='color:#2d3748;margin-bottom:24px;'>❌ Đơn hàng #" + order.getId() + " đã bị hủy</h2>" +
+                "<div style='background:#fff5f5;border-radius:8px;padding:20px;margin:20px 0;border-left:4px solid #f56565;'>"
+                +
+                "<h3 style='color:#c53030;margin-top:0;'>Thông tin đơn hàng bị hủy</h3>" +
+                "<p><strong>Mã đơn hàng:</strong> #" + order.getId() + "</p>" +
+                "<p><strong>Khách hàng:</strong> " + customer.getFullName() + " (" + customer.getEmail() + ")</p>" +
+                "<p><strong>Ngày đặt:</strong> " + order.getOrderDate() + "</p>" +
+                "<p><strong>Tổng tiền:</strong> " + String.format("%,.0f", order.getTotalAmount()) + " VNĐ</p>" +
+                "<p><strong>Phương thức thanh toán:</strong> "
+                + (OrderConstants.PAYMENT_CASH.equals(order.getPaymentMethod()) ? "Tiền mặt" : "PayOS") + "</p>" +
+                "<p><strong>Địa chỉ giao hàng:</strong> " + order.getShippingAddress() + "</p>" +
+                "<p><strong>Người nhận:</strong> " + order.getReceiverName() + " - " + order.getReceiverPhone() + "</p>"
+                +
+                (reason != null && !reason.trim().isEmpty()
+                        ? "<p><strong>Lý do hủy:</strong> " + reason + "</p>"
+                        : "<p><strong>Lý do hủy:</strong> Không có lý do cụ thể</p>")
+                +
+                "</div>" +
+                "<div style='background:#fef3c7;border-radius:8px;padding:15px;margin:20px 0;'>" +
+                "<p style='margin:0;'><strong>⚠️ Lưu ý:</strong></p>" +
+                "<p style='margin:5px 0 0 0;'>Đơn hàng này đã bị hủy bởi khách hàng. Vui lòng cập nhật kho hàng nếu cần thiết.</p>"
+                +
+                "</div>" +
+                "<p>Trân trọng,<br>Hệ thống CGMS</p>" +
                 "</div>";
     }
 
