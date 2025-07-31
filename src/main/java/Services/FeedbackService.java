@@ -20,11 +20,11 @@ public class FeedbackService {
     }
 
     public boolean sendFeedback(int userId, String guestEmail, String content) {
-        System.out.println("DEBUG - FeedbackService.sendFeedback called");
-        System.out.println("DEBUG - UserId: " + userId);
-        System.out.println("DEBUG - GuestEmail: " + guestEmail);
-        System.out.println("DEBUG - Content: " + content);
-        
+        if (feedbackDAO.hasSentGeneralFeedback(userId)) {
+            System.out.println("DEBUG - User đã gửi feedback chung");
+            return false;
+        }
+
         Feedback feedback = new Feedback();
         User user = new User();
         user.setId(userId);
@@ -32,48 +32,38 @@ public class FeedbackService {
         feedback.setGuestEmail(guestEmail);
         feedback.setContent(content);
         feedback.setStatus("Pending");
-        
-        boolean result = feedbackDAO.createFeedback(feedback);
-        System.out.println("DEBUG - Feedback creation result: " + result);
-        return result;
+
+        return feedbackDAO.createFeedback(feedback);
     }
 
     public boolean respondFeedback(int feedbackId, String response) {
         return feedbackDAO.respondFeedback(feedbackId, response);
     }
+    public boolean hasSentScheduleFeedback(int userId, int scheduleId) {
+    return feedbackDAO.hasSentScheduleFeedback(userId, scheduleId);
+}
+
 
     public List<Feedback> getFeedbacksByUser(int userId) {
         return feedbackDAO.getFeedbacksByUser(userId);
     }
 
     public boolean sendScheduleFeedback(int userId, String guestEmail, int scheduleId, String content) {
-        try {
-            System.out.println("DEBUG - FeedbackService.sendScheduleFeedback called");
-            System.out.println("DEBUG - UserId: " + userId);
-            System.out.println("DEBUG - ScheduleId: " + scheduleId);
-            System.out.println("DEBUG - Content: " + content);
-            
-            // Add schedule info to content
-            String enhancedContent = "Feedback cho buổi tập #" + scheduleId + ": " + content;
-            
-            Feedback feedback = new Feedback();
-            
-            // Set user
-            User user = new User();
-            user.setId(userId);
-            feedback.setUser(user);
-            
-            feedback.setGuestEmail(guestEmail);
-            feedback.setContent(enhancedContent);
-            feedback.setStatus("Pending");
-            
-            boolean result = feedbackDAO.createFeedback(feedback);
-            System.out.println("DEBUG - Schedule feedback DAO result: " + result);
-            return result;
-        } catch (Exception e) {
-            System.out.println("DEBUG - Exception in sendScheduleFeedback: " + e.getMessage());
-            e.printStackTrace();
+        if (feedbackDAO.hasSentScheduleFeedback(userId, scheduleId)) {
+            System.out.println("DEBUG - User đã gửi feedback cho buổi #" + scheduleId);
             return false;
         }
+
+        String enhancedContent = "Feedback cho buổi tập #" + scheduleId + ": " + content;
+
+        Feedback feedback = new Feedback();
+        User user = new User();
+        user.setId(userId);
+        feedback.setUser(user);
+        feedback.setGuestEmail(guestEmail);
+        feedback.setContent(enhancedContent);
+        feedback.setStatus("Pending");
+
+        return feedbackDAO.createFeedback(feedback);
     }
 }
