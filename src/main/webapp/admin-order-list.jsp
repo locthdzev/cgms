@@ -7,8 +7,10 @@
 <%@ page import="java.time.format.DateTimeFormatter" %>
 
 <%
-    User loggedInUser = (User) session.getAttribute("loggedInUser");
-    if (loggedInUser == null || !"Admin".equals(loggedInUser.getRole())) {
+    // Không khai báo lại loggedInUser vì navbar.jsp đã khai báo
+    // User loggedInUser = (User) session.getAttribute("loggedInUser");
+    if (session.getAttribute("loggedInUser") == null || 
+        !"Admin".equals(((User) session.getAttribute("loggedInUser")).getRole())) {
         response.sendRedirect("login");
         return;
     }
@@ -136,6 +138,9 @@
                             </div>
                             <div class="ms-auto my-auto mt-lg-0 mt-4">
                                 <div class="ms-auto my-auto">
+                                    <a href="admin-orders?action=create" class="btn bg-gradient-success btn-sm mb-0 me-2">
+                                        <i class="fas fa-plus me-2"></i>Tạo đơn hàng
+                                    </a>
                                     <button
                                             class="btn bg-gradient-primary btn-sm mb-0"
                                             onclick="refreshOrders()"
@@ -415,7 +420,7 @@
                             <div class="col-lg-2">
                                 <div class="text-end">
                                     <a
-                                            href="order?action=details&id=<%= order.getId() %>"
+                                            href="admin-orders?action=details&id=<%= order.getId() %>"
                                             class="btn btn-outline-primary btn-sm mb-1"
                                     >
                                         <i class="fas fa-eye me-1"></i>Chi tiết
@@ -430,6 +435,14 @@
                                             data-current-status="<%= order.getStatus() %>"
                                     >
                                         <i class="fas fa-edit me-1"></i>Cập nhật
+                                    </button>
+
+                                    <button
+                                            type="button"
+                                            class="btn btn-outline-danger btn-sm mb-1 cancel-order-btn"
+                                            data-order-id="<%= order.getId() %>"
+                                    >
+                                        <i class="fas fa-times me-1"></i>Hủy
                                     </button>
                                     <% } %>
                                 </div>
@@ -529,6 +542,45 @@
     </div>
 </div>
 
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hủy đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="order" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="admin-cancel">
+                    <input type="hidden" name="orderId" id="cancelOrderId">
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!
+                    </div>
+                    
+                    <p>Bạn có chắc chắn muốn hủy đơn hàng này không?</p>
+                    
+                    <div class="form-group">
+                        <label class="form-control-label">Lý do hủy đơn hàng *</label>
+                        <textarea class="form-control" name="reason" rows="3" required
+                            placeholder="Nhập lý do hủy đơn hàng"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Đóng
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        Hủy đơn hàng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Core JS Files -->
 <script src="assets/js/core/popper.min.js"></script>
 <script src="assets/js/core/bootstrap.min.js"></script>
@@ -545,14 +597,22 @@
         modal.show();
     }
 
+    function showCancelOrderModal(orderId) {
+        document.getElementById("cancelOrderId").value = orderId;
+        var modal = new bootstrap.Modal(
+            document.getElementById("cancelOrderModal")
+        );
+        modal.show();
+    }
+
     function refreshOrders() {
         window.location.reload();
     }
 
-    // Add event listeners for update status buttons
+    // Add event listeners for buttons
     document.addEventListener("DOMContentLoaded", function () {
-        const updateButtons =
-            document.querySelectorAll(".update-status-btn");
+        // Update status buttons
+        const updateButtons = document.querySelectorAll(".update-status-btn");
         updateButtons.forEach(function (button) {
             button.addEventListener("click", function () {
                 const orderId = this.getAttribute("data-order-id");
@@ -560,8 +620,16 @@
                 showUpdateStatusModal(orderId, currentStatus);
             });
         });
+
+        // Cancel order buttons
+        const cancelButtons = document.querySelectorAll(".cancel-order-btn");
+        cancelButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                const orderId = this.getAttribute("data-order-id");
+                showCancelOrderModal(orderId);
+            });
+        });
     });
 </script>
 </body>
 </html>
-</Order></Order>
