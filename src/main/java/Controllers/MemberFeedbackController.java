@@ -1,6 +1,7 @@
 package Controllers;
 
 import Models.Feedback;
+import Models.Schedule;
 import Models.User;
 import Services.FeedbackService;
 import jakarta.servlet.ServletException;
@@ -12,6 +13,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+import DAOs.ScheduleDAO;
+
 @WebServlet("/member-feedback")
 public class MemberFeedbackController extends HttpServlet {
 
@@ -22,17 +25,22 @@ public class MemberFeedbackController extends HttpServlet {
         // Get the logged-in user from the session
         User user = (User) req.getSession().getAttribute("loggedInUser");
 
-        // If user is not logged in, redirect to login page
+
         if (user == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-
-        // Retrieve all feedback for the logged-in user
         List<Feedback> memberFeedbacks = feedbackService.getFeedbacksByUser(user.getId());
 
-        // Set the feedback data to the request scope for display in the JSP
+        ScheduleDAO scheduleDAO = new ScheduleDAO();
+        List<Schedule> allSchedules = scheduleDAO.getSchedulesByMemberId(user.getId());
+        List<Schedule> completedSchedules = allSchedules.stream()
+            .filter(schedule -> "Completed".equals(schedule.getStatus()))
+            .filter(s -> !feedbackService.hasSentScheduleFeedback(user.getId(), s.getId()))
+            .collect(java.util.stream.Collectors.toList());
+
         req.setAttribute("memberFeedbacks", memberFeedbacks);
+        req.setAttribute("completedSchedules", completedSchedules);
 
         // Forward the request to the JSP for rendering
         req.getRequestDispatcher("/member-feedback.jsp").forward(req, resp);
@@ -59,7 +67,7 @@ public class MemberFeedbackController extends HttpServlet {
             if (success) {
                 req.getSession().setAttribute("successMessage", "Gửi phản hồi thành công!");
             } else {
-                req.getSession().setAttribute("errorMessage", "Gửi phản hồi thất bại!");
+                req.getSession().setAttribute("errorMessage", "Bạn đã gửi phản hồi chung trước đó.");
             }
 
             // Redirect back to the feedback page
