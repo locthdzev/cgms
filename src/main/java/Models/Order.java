@@ -1,5 +1,7 @@
 package Models;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
@@ -7,10 +9,15 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 
+@Getter
+@Setter
 @Entity
-@Table(name = "\"Order\"")
+@Table(name = "\"Order\"", indexes = {
+        @Index(name = "IX_Order_MemberId", columnList = "MemberId")
+})
 public class Order {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "OrderId", nullable = false)
     private Integer id;
 
@@ -29,8 +36,8 @@ public class Order {
     private LocalDate orderDate;
 
     @Nationalized
-    @Column(name = "Status", nullable = false, length = 20)
-    private String status;
+    @Column(name = "Status", nullable = false, length = 50)
+    private String status; // PENDING, CONFIRMED, SHIPPING, COMPLETED, CANCELLED
 
     @Column(name = "CreatedAt", nullable = false)
     private Instant createdAt;
@@ -38,68 +45,37 @@ public class Order {
     @Column(name = "UpdatedAt")
     private Instant updatedAt;
 
-    public Integer getId() {
-        return id;
-    }
+    // Thông tin địa chỉ giao hàng
+    @Nationalized
+    @Column(name = "ShippingAddress", length = 500)
+    private String shippingAddress;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    @Nationalized
+    @Column(name = "ReceiverName", length = 100)
+    private String receiverName;
 
-    public User getMember() {
-        return member;
-    }
+    @Nationalized
+    @Column(name = "ReceiverPhone", length = 20)
+    private String receiverPhone;
 
-    public void setMember(User member) {
-        this.member = member;
-    }
+    // Phương thức thanh toán
+    @Nationalized
+    @Column(name = "PaymentMethod", length = 50)
+    private String paymentMethod; // CASH, PAYOS
 
-    public Voucher getVoucher() {
-        return voucher;
-    }
+    // Ghi chú đơn hàng
+    @Nationalized
+    @Column(name = "Notes", length = 1000)
+    private String notes;
 
-    public void setVoucher(Voucher voucher) {
-        this.voucher = voucher;
-    }
+    // ID của admin tạo đơn (nếu admin tạo đơn cho member)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CreatedByAdminId")
+    private User createdByAdmin;
 
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public LocalDate getOrderDate() {
-        return orderDate;
-    }
-
-    public void setOrderDate(LocalDate orderDate) {
-        this.orderDate = orderDate;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+    // Mã đơn hàng PayOS (nếu có)
+    @Nationalized
+    @Column(name = "PayOSOrderCode", length = 100)
+    private String payOSOrderCode;
 
 }

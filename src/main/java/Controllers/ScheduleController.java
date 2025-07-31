@@ -90,8 +90,27 @@ public class ScheduleController extends HttpServlet {
             // Luôn truyền đầy đủ danh sách trainer và member
             req.setAttribute("scheduleList", list);
             req.setAttribute("formAction", "list");
-            req.setAttribute("trainers", service.getAllTrainers());
-            req.setAttribute("members", service.getAllMembers());
+            // Lấy trainer và member thực sự có trong lịch
+            java.util.Set<Integer> trainerIds = new java.util.HashSet<>();
+            java.util.Set<Integer> memberIds = new java.util.HashSet<>();
+            for (Schedule s : list) {
+                if (s.getTrainer() != null && s.getTrainer().getId() != null)
+                    trainerIds.add(s.getTrainer().getId());
+                if (s.getMember() != null && s.getMember().getId() != null)
+                    memberIds.add(s.getMember().getId());
+            }
+            java.util.List<User> filteredTrainers = new java.util.ArrayList<>();
+            java.util.List<User> filteredMembers = new java.util.ArrayList<>();
+            for (User t : service.getAllTrainers()) {
+                if (trainerIds.contains(t.getId()))
+                    filteredTrainers.add(t);
+            }
+            for (User m : service.getAllMembers()) {
+                if (memberIds.contains(m.getId()))
+                    filteredMembers.add(m);
+            }
+            req.setAttribute("trainers", filteredTrainers);
+            req.setAttribute("members", filteredMembers);
             req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
             return;
         }
@@ -106,10 +125,72 @@ public class ScheduleController extends HttpServlet {
 
         try {
             if ("create".equals(formAction)) {
-                // Xử lý tạo lịch tập mới (có thể nhiều lịch)
                 String trainerIdStr = req.getParameter("trainerId");
                 String memberIdStr = req.getParameter("memberId");
-                // Lấy các trường có thể là mảng
+                boolean createFullWeek = req.getParameter("createFullWeek") != null;
+                if (createFullWeek) {
+                    // Tạo lịch cho cả tuần (thứ 2 đến thứ 7)
+                    String weekStartDateStr = req.getParameter("weekStartDate");
+                    String scheduleTimeStr = req.getParameter("weekScheduleTime");
+                    String durationStr = req.getParameter("weekDurationHours");
+                    String status = req.getParameter("weekStatus");
+                    if (weekStartDateStr != null && !weekStartDateStr.trim().isEmpty()
+                            && scheduleTimeStr != null && !scheduleTimeStr.trim().isEmpty()
+                            && durationStr != null && !durationStr.trim().isEmpty()) {
+                        LocalDate weekStart = LocalDate.parse(weekStartDateStr);
+                        // Kiểm tra ngày bắt đầu phải là thứ 2
+                        if (weekStart.getDayOfWeek().getValue() != 1) { // 1 = MONDAY
+                            req.setAttribute("errorMessage", "Ngày bắt đầu tuần phải là thứ 2!");
+                            req.setAttribute("formAction", "create");
+                            req.setAttribute("trainers", service.getAllTrainers());
+                            req.setAttribute("members", service.getActiveMembersWithPackage());
+                            req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                            return;
+                        }
+                        LocalTime scheduleTime = LocalTime.parse(scheduleTimeStr);
+                        BigDecimal duration = new BigDecimal(durationStr);
+                        int successCount = 0;
+                        int total = 0;
+                        for (int i = 0; i < 6; i++) { // Thứ 2 đến thứ 7
+                            LocalDate date = weekStart.plusDays(i);
+                            if (date.getDayOfWeek().getValue() == 7)
+                                continue; // Bỏ qua Chủ Nhật
+                            Schedule sch = new Schedule();
+                            sch.setCreatedAt(Instant.now());
+                            if (trainerIdStr != null && !trainerIdStr.trim().isEmpty()) {
+                                User trainer = new User();
+                                trainer.setId(Integer.parseInt(trainerIdStr));
+                                sch.setTrainer(trainer);
+                            }
+                            if (memberIdStr != null && !memberIdStr.trim().isEmpty()) {
+                                User member = new User();
+                                member.setId(Integer.parseInt(memberIdStr));
+                                sch.setMember(member);
+                            }
+                            sch.setScheduleDate(date);
+                            sch.setScheduleTime(scheduleTime);
+                            sch.setDurationHours(duration);
+                            sch.setStatus(status != null && !status.trim().isEmpty() ? status : "Pending");
+                            try {
+                                service.saveSchedule(sch);
+                                successCount++;
+                            } catch (Exception ex) {
+                                req.setAttribute("errorMessage", "Lỗi ở ngày " + date + ": " + ex.getMessage());
+                                req.setAttribute("formAction", "create");
+                                req.setAttribute("trainers", service.getAllTrainers());
+                                req.setAttribute("members", service.getActiveMembersWithPackage());
+                                req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                                return;
+                            }
+                            total++;
+                        }
+                        session.setAttribute("successMessage",
+                                "Đã tạo thành công " + successCount + "/" + total + " lịch tập trong tuần!");
+                        resp.sendRedirect(req.getContextPath() + "/schedule");
+                        return;
+                    }
+                }
+                // Xử lý tạo lịch tập mới (có thể nhiều lịch)
                 String[] scheduleDates = req.getParameterValues("scheduleDate");
                 String[] scheduleTimes = req.getParameterValues("scheduleTime");
                 String[] durationHoursArr = req.getParameterValues("durationHours");
@@ -134,11 +215,50 @@ public class ScheduleController extends HttpServlet {
                     }
                     // Date
                     if (scheduleDates[i] != null && !scheduleDates[i].trim().isEmpty()) {
-                        sch.setScheduleDate(LocalDate.parse(scheduleDates[i]));
+                        LocalDate date = LocalDate.parse(scheduleDates[i]);
+                        // Kiểm tra nếu là Chủ Nhật
+                        if (date.getDayOfWeek().getValue() == 7) { // 7 = SUNDAY
+                            req.setAttribute("errorMessage",
+                                    "Không được tạo lịch vào Chủ Nhật! Phòng gym chỉ hoạt động từ thứ 2 đến thứ 7.");
+                            req.setAttribute("formAction", "create");
+                            req.setAttribute("trainers", service.getAllTrainers());
+                            req.setAttribute("members", service.getActiveMembersWithPackage());
+                            req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                            return;
+                        }
+                        sch.setScheduleDate(date);
                     }
                     // Time
                     if (scheduleTimes[i] != null && !scheduleTimes[i].trim().isEmpty()) {
-                        sch.setScheduleTime(LocalTime.parse(scheduleTimes[i]));
+                        LocalTime scheduleTime = LocalTime.parse(scheduleTimes[i]);
+                        // Kiểm tra điều kiện giờ bắt đầu
+                        LocalTime minTime = LocalTime.of(7, 0);
+                        LocalTime maxTime = LocalTime.of(22, 0);
+                        if (scheduleTime.isBefore(minTime) || scheduleTime.isAfter(maxTime)) {
+                            req.setAttribute("errorMessage", "Chỉ được tạo lịch từ 07:00 đến 22:00!");
+                            req.setAttribute("formAction", "create");
+                            req.setAttribute("trainers", service.getAllTrainers());
+                            req.setAttribute("members", service.getActiveMembersWithPackage());
+                            req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                            return;
+                        }
+                        // Kiểm tra thời gian kết thúc không vượt quá giờ đóng cửa
+                        if (durationHoursArr != null && durationHoursArr[i] != null
+                                && !durationHoursArr[i].trim().isEmpty()) {
+                            double duration = Double.parseDouble(durationHoursArr[i]);
+                            int minutes = (int) (duration * 60);
+                            LocalTime endTime = scheduleTime.plusMinutes(minutes);
+                            if (endTime.isAfter(maxTime)) {
+                                req.setAttribute("errorMessage",
+                                        "Thời gian tập vượt quá giờ đóng cửa (22:00). Vui lòng chọn giờ bắt đầu sớm hơn!");
+                                req.setAttribute("formAction", "create");
+                                req.setAttribute("trainers", service.getAllTrainers());
+                                req.setAttribute("members", service.getActiveMembersWithPackage());
+                                req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                                return;
+                            }
+                        }
+                        sch.setScheduleTime(scheduleTime);
                     }
                     // Duration
                     if (durationHoursArr[i] != null && !durationHoursArr[i].trim().isEmpty()) {
@@ -155,7 +275,12 @@ public class ScheduleController extends HttpServlet {
                         service.saveSchedule(sch);
                         successCount++;
                     } catch (Exception ex) {
-                        // Có thể log lỗi từng dòng nếu muốn
+                        req.setAttribute("errorMessage", ex.getMessage());
+                        req.setAttribute("formAction", "create");
+                        req.setAttribute("trainers", service.getAllTrainers());
+                        req.setAttribute("members", service.getActiveMembersWithPackage());
+                        req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                        return;
                     }
                 }
                 session.setAttribute("successMessage",
@@ -194,13 +319,55 @@ public class ScheduleController extends HttpServlet {
                 // Set schedule date
                 String scheduleDateStr = req.getParameter("scheduleDate");
                 if (scheduleDateStr != null && !scheduleDateStr.trim().isEmpty()) {
-                    schedule.setScheduleDate(LocalDate.parse(scheduleDateStr));
+                    LocalDate date = LocalDate.parse(scheduleDateStr);
+                    // Kiểm tra nếu là Chủ Nhật
+                    if (date.getDayOfWeek().getValue() == 7) { // 7 = SUNDAY
+                        req.setAttribute("errorMessage",
+                                "Không được tạo hoặc chỉnh sửa lịch vào Chủ Nhật! Phòng gym chỉ hoạt động từ thứ 2 đến thứ 7.");
+                        req.setAttribute("formAction", formAction);
+                        req.setAttribute("trainers", service.getAllTrainers());
+                        req.setAttribute("members", service.getActiveMembersWithPackage());
+                        req.setAttribute("schedule", schedule);
+                        req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                        return;
+                    }
+                    schedule.setScheduleDate(date);
                 }
 
                 // Set schedule time
                 String scheduleTimeStr = req.getParameter("scheduleTime");
                 if (scheduleTimeStr != null && !scheduleTimeStr.trim().isEmpty()) {
-                    schedule.setScheduleTime(LocalTime.parse(scheduleTimeStr));
+                    LocalTime scheduleTime = LocalTime.parse(scheduleTimeStr);
+                    // Kiểm tra điều kiện giờ bắt đầu
+                    LocalTime minTime = LocalTime.of(7, 0);
+                    LocalTime maxTime = LocalTime.of(22, 0);
+                    if (scheduleTime.isBefore(minTime) || scheduleTime.isAfter(maxTime)) {
+                        req.setAttribute("errorMessage", "Chỉ được đặt lịch từ 07:00 đến 22:00!");
+                        req.setAttribute("formAction", formAction);
+                        req.setAttribute("trainers", service.getAllTrainers());
+                        req.setAttribute("members", service.getActiveMembersWithPackage());
+                        req.setAttribute("schedule", schedule);
+                        req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                        return;
+                    }
+                    // Kiểm tra thời gian kết thúc không vượt quá giờ đóng cửa
+                    String durationStr = req.getParameter("durationHours");
+                    if (durationStr != null && !durationStr.trim().isEmpty()) {
+                        double duration = Double.parseDouble(durationStr);
+                        int minutes = (int) (duration * 60);
+                        LocalTime endTime = scheduleTime.plusMinutes(minutes);
+                        if (endTime.isAfter(maxTime)) {
+                            req.setAttribute("errorMessage",
+                                    "Thời gian tập vượt quá giờ đóng cửa (22:00). Vui lòng chọn giờ bắt đầu sớm hơn!");
+                            req.setAttribute("formAction", formAction);
+                            req.setAttribute("trainers", service.getAllTrainers());
+                            req.setAttribute("members", service.getActiveMembersWithPackage());
+                            req.setAttribute("schedule", schedule);
+                            req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                            return;
+                        }
+                    }
+                    schedule.setScheduleTime(scheduleTime);
                 }
 
                 // Set duration
@@ -215,10 +382,20 @@ public class ScheduleController extends HttpServlet {
                     schedule.setStatus(status);
                 }
 
-                service.updateSchedule(schedule);
-                session.setAttribute("successMessage", "Cập nhật lịch tập thành công!");
-                resp.sendRedirect(req.getContextPath() + "/schedule");
-                return;
+                try {
+                    service.updateSchedule(schedule);
+                    session.setAttribute("successMessage", "Cập nhật lịch tập thành công!");
+                    resp.sendRedirect(req.getContextPath() + "/schedule");
+                    return;
+                } catch (Exception ex) {
+                    req.setAttribute("errorMessage", ex.getMessage());
+                    req.setAttribute("formAction", formAction);
+                    req.setAttribute("trainers", service.getAllTrainers());
+                    req.setAttribute("members", service.getActiveMembersWithPackage());
+                    req.setAttribute("schedule", schedule);
+                    req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                    return;
+                }
             } else {
                 // Xử lý tạo lịch tập đơn lẻ (fallback)
                 Schedule schedule = new Schedule();
@@ -258,7 +435,18 @@ public class ScheduleController extends HttpServlet {
                 // Set schedule date
                 String scheduleDateStr = req.getParameter("scheduleDate");
                 if (scheduleDateStr != null && !scheduleDateStr.trim().isEmpty()) {
-                    schedule.setScheduleDate(LocalDate.parse(scheduleDateStr));
+                    LocalDate date = LocalDate.parse(scheduleDateStr);
+                    // Kiểm tra nếu là Chủ Nhật
+                    if (date.getDayOfWeek().getValue() == 7) { // 7 = SUNDAY
+                        req.setAttribute("errorMessage",
+                                "Không được tạo lịch vào Chủ Nhật! Phòng gym chỉ hoạt động từ thứ 2 đến thứ 7.");
+                        req.setAttribute("formAction", "create");
+                        req.setAttribute("trainers", service.getAllTrainers());
+                        req.setAttribute("members", service.getActiveMembersWithPackage());
+                        req.getRequestDispatcher("/schedule.jsp").forward(req, resp);
+                        return;
+                    }
+                    schedule.setScheduleDate(date);
                 } else {
                     schedule.setScheduleDate(null);
                 }

@@ -15,6 +15,12 @@ public class ProductService {
         return productDAO.getAllProducts();
     }
 
+    public List<Product> getAllActiveProducts() {
+        return productDAO.getAllProducts().stream()
+                .filter(product -> "Active".equals(product.getStatus()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     public Product getProductById(int id) {
         return productDAO.getProductById(id);
     }

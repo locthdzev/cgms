@@ -1,5 +1,7 @@
 package Models;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.Column;
@@ -9,6 +11,8 @@ import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "Member_Levels")
 public class MemberLevel {
@@ -39,69 +43,5 @@ public class MemberLevel {
     @Nationalized
     @Column(name = "Status", nullable = false, length = 20)
     private String status;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getLevelName() {
-        return levelName;
-    }
-
-    public void setLevelName(String levelName) {
-        this.levelName = levelName;
-    }
-
-    public Integer getMinPurchases() {
-        return minPurchases;
-    }
-
-    public void setMinPurchases(Integer minPurchases) {
-        this.minPurchases = minPurchases;
-    }
-
-    public BigDecimal getMinSpending() {
-        return minSpending;
-    }
-
-    public void setMinSpending(BigDecimal minSpending) {
-        this.minSpending = minSpending;
-    }
-
-    public String getBenefits() {
-        return benefits;
-    }
-
-    public void setBenefits(String benefits) {
-        this.benefits = benefits;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
 }

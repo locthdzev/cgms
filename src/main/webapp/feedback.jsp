@@ -40,8 +40,8 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
-        <link rel="icon" type="image/png" href="assets/img/weightlifting.png" />
+        <link rel="apple-touch-icon" sizes="76x76" href="assets/img/icons8-gym-96.png" />
+        <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png" />
         <title>Quản lý Feedback - CGMS</title>
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
         <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
@@ -71,6 +71,38 @@
                 max-height: 300px;
                 object-fit: cover;
                 border-radius: 10px;
+            }
+
+            /* Table responsive styles */
+            .table-responsive {
+                overflow-x: auto;
+            }
+
+            .table td {
+                vertical-align: middle;
+                max-width: 250px;
+                word-wrap: break-word;
+            }
+
+            /* Content card styles */
+            .content-card {
+                max-height: 120px;
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: #dee2e6 transparent;
+            }
+
+            .content-card::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .content-card::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .content-card::-webkit-scrollbar-thumb {
+                background-color: #dee2e6;
+                border-radius: 2px;
             }
         </style>
     </head>
@@ -139,9 +171,10 @@
                                                 <tr>
                                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
                                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Email</th>
+                                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nội dung</th>
+                                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Phản hồi</th>
                                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
                                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ngày tạo</th>
-                                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ngày phản hồi</th>
                                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thao tác</th>
                                                 </tr>
                                             </thead>
@@ -149,7 +182,49 @@
                                                 <c:forEach var="fb" items="${feedbacks}">
                                                     <tr>
                                                         <td class="text-center"><h6 class="mb-0 text-sm">${fb.id}</h6></td>
-                                                        <td class="text-center"><h6 class="mb-0 text-sm">${fb.guestEmail}</h6></td>
+                                                        <td class="text-center">
+                                                            <div class="d-flex align-items-center justify-content-center">
+                                                                <div class="avatar avatar-sm rounded-circle bg-gradient-primary me-2 d-flex align-items-center justify-content-center">
+                                                                    <i class="fas fa-user text-white text-xs"></i>
+                                                                </div>
+                                                                <h6 class="mb-0 text-sm">${fb.guestEmail}</h6>
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-center" style="max-width: 250px;">
+                                                            <div class="card border-0 bg-light p-2 content-card">
+                                                                <p class="mb-0 text-sm text-dark" style="word-wrap: break-word; word-break: break-word; white-space: pre-wrap;">${fb.content}</p>
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-center" style="max-width: 250px;">
+                                                            <c:choose>
+                                                                <c:when test="${not empty fb.response}">
+                                                                    <div class="card border-0 bg-gradient-light p-2 content-card">
+                                                                        <div class="d-flex align-items-center mb-1">
+                                                                            <div class="avatar avatar-xs rounded-circle bg-gradient-success me-2 d-flex align-items-center justify-content-center">
+                                                                                <i class="fas fa-comment-dots text-white" style="font-size: 8px;"></i>
+                                                                            </div>
+                                                                            <span class="text-xs text-uppercase font-weight-bold">CGMS</span>
+                                                                        </div>
+                                                                        <p class="mb-0 text-sm text-dark" style="word-wrap: break-word; word-break: break-word; white-space: pre-wrap;">${fb.response}</p>
+                                                                        <p class="text-xs text-secondary mb-0 mt-1">
+                                                                            <c:if test="${not empty fb.respondedAt}">
+                                                                                <%
+                                                                                    Models.Feedback currentFb = (Models.Feedback) pageContext.getAttribute("fb");
+                                                                                    if (currentFb != null && currentFb.getRespondedAt() != null) {
+                                                                                        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+                                                                                        String formattedDate = currentFb.getRespondedAt().atZone(java.time.ZoneId.systemDefault()).format(formatter);
+                                                                                        out.print(formattedDate);
+                                                                                    }
+                                                                                %>
+                                                                            </c:if>
+                                                                        </p>
+                                                                    </div>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="text-xs text-secondary">Chưa có phản hồi</span>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </td>
                                                         <td class="text-center">
                                                             <c:choose>
                                                                 <c:when test="${fb.status eq 'Pending'}">
@@ -170,23 +245,16 @@
                                                             </c:choose>
                                                         </td>
                                                         <td class="text-center">
-                                                            <h6 class="mb-0 text-sm">
+                                                            <h6 class="mb-0 text-xs text-secondary">
                                                                 <c:if test="${not empty fb.createdAt}">
-                                                                    <jsp:useBean id="createdDate" class="java.util.Date"/>
-                                                                    <jsp:setProperty name="createdDate" property="time" value="${fb.createdAt.toEpochMilli()}"/>
-                                                                    <fmt:formatDate value="${createdDate}" pattern="dd/MM/yyyy HH:mm:ss" />
-                                                                </c:if>
-                                                            </h6>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <h6 class="mb-0 text-sm">
-                                                                <c:if test="${not empty fb.respondedAt}">
-                                                                    <jsp:useBean id="respondedDate" class="java.util.Date"/>
-                                                                    <jsp:setProperty name="respondedDate" property="time" value="${fb.respondedAt.toEpochMilli()}"/>
-                                                                    <fmt:formatDate value="${respondedDate}" pattern="dd/MM/yyyy HH:mm:ss" />
-                                                                </c:if>
-                                                                <c:if test="${empty fb.respondedAt}">
-                                                                    <span class="text-xs text-secondary">Chưa phản hồi</span>
+                                                                    <%
+                                                                        Models.Feedback currentFb = (Models.Feedback) pageContext.getAttribute("fb");
+                                                                        if (currentFb != null && currentFb.getCreatedAt() != null) {
+                                                                            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+                                                                            String formattedDate = currentFb.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).format(formatter);
+                                                                            out.print(formattedDate);
+                                                                        }
+                                                                    %>
                                                                 </c:if>
                                                             </h6>
                                                         </td>
@@ -197,27 +265,16 @@
                                                                 </button>
                                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                                     <li>
-                                                                        <a class="dropdown-item view-feedback-btn" href="#" 
-                                                                           data-id="${fb.id}"
-                                                                           data-email="${fb.guestEmail}"
-                                                                           data-content="${fb.content}"
-                                                                           data-status="${fb.status}"
-                                                                           data-response="${fb.response}"
-                                                                           data-created-at="<c:if test="${not empty fb.createdAt}"><jsp:useBean id="modalCreatedDate" class="java.util.Date"/><jsp:setProperty name="modalCreatedDate" property="time" value="${fb.createdAt.toEpochMilli()}"/><fmt:formatDate value="${modalCreatedDate}" pattern="dd/MM/yyyy HH:mm:ss" /></c:if>"
-                                                                           data-responded-at="<c:if test="${not empty fb.respondedAt}"><jsp:useBean id="modalRespondedDate" class="java.util.Date"/><jsp:setProperty name="modalRespondedDate" property="time" value="${fb.respondedAt.toEpochMilli()}"/><fmt:formatDate value="${modalRespondedDate}" pattern="dd/MM/yyyy HH:mm:ss" /></c:if>">
-                                                                               <i class="fas fa-eye me-2"></i>Xem chi tiết
-                                                                           </a>
-                                                                        </li>
-                                                                        <li>
-                                                                            <a class="dropdown-item text-danger delete-feedback-btn" href="#" 
-                                                                               data-id="${fb.id}"
-                                                                            data-email="${fb.guestEmail}">
-                                                                            <i class="fas fa-trash me-2"></i>Xóa
-                                                                        </a>
-                                                                        <!-- Nút Respond -->
                                                                         <a class="dropdown-item text-primary respond-feedback-btn" href="#"
                                                                            data-id="${fb.id}" data-email="${fb.guestEmail}">
                                                                             <i class="fas fa-reply me-2"></i>Phản hồi
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item text-danger delete-feedback-btn" href="#" 
+                                                                           data-id="${fb.id}"
+                                                                           data-email="${fb.guestEmail}">
+                                                                           <i class="fas fa-trash me-2"></i>Xóa
                                                                         </a>
                                                                     </li>
                                                                 </ul>
@@ -230,71 +287,6 @@
                                     </c:if>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal xem chi tiết feedback -->
-            <div class="modal fade" id="viewFeedbackModal" tabindex="-1" aria-labelledby="viewFeedbackModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="viewFeedbackModalLabel">Chi tiết đánh giá</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <!-- Thông tin cơ bản -->
-                                <div class="col-md-12 mb-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-xl rounded-circle bg-gradient-primary me-3 d-flex align-items-center justify-content-center">
-                                            <i class="fas fa-user text-white"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-sm" id="feedbackEmail"></h6>
-                                            <span id="viewFeedbackStatus" class="badge mt-1"></span>
-                                        </div>
-                                        <div class="ms-auto text-end">
-                                            <p class="text-xs text-secondary mb-0">ID: <span id="feedbackId"></span></p>
-                                            <p class="text-xs text-secondary mb-0">Ngày tạo: <span id="feedbackCreatedAt"></span></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Nội dung đánh giá -->
-                                <div class="col-md-12 mb-4">
-                                    <div class="card border-0 bg-light">
-                                        <div class="card-body">
-                                            <h6 class="mb-3 text-sm text-uppercase">Nội dung đánh giá</h6>
-                                            <p id="feedbackContent" class="mb-0 text-dark"></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Phản hồi -->
-                                <div class="col-md-12 mb-3" id="responseSection">
-                                    <div class="card border-0 bg-gradient-light">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center mb-3">
-                                                <div class="avatar avatar-sm rounded-circle bg-gradient-success me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="fas fa-comment-dots text-white"></i>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-0 text-sm text-uppercase">Phản hồi từ CGMS</h6>
-                                                    <p class="text-xs text-secondary mb-0">Ngày phản hồi: <span id="feedbackRespondedAt"></span></p>
-                                                </div>
-                                            </div>
-                                            <p id="feedbackResponse" class="mb-0 text-dark ps-5"></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
                         </div>
                     </div>
                 </div>
@@ -354,10 +346,30 @@
             <script>
                 document.querySelectorAll('.respond-feedback-btn').forEach(btn => {
                     btn.addEventListener('click', e => {
+                        e.preventDefault();
                         const id = btn.getAttribute('data-id');
                         document.getElementById('respondId').value = id;
                         new bootstrap.Modal(document.getElementById('respondModal')).show();
                     });
+                });
+
+                // Xử lý xóa feedback
+                document.querySelectorAll('.delete-feedback-btn').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        const id = this.getAttribute('data-id');
+                        const email = this.getAttribute('data-email');
+
+                        document.getElementById('deleteFeedbackId').value = id;
+                        document.getElementById('deleteEmail').textContent = email;
+
+                        var deleteModal = new bootstrap.Modal(document.getElementById('deleteFeedbackModal'));
+                        deleteModal.show();
+                    });
+                });
+
+                // Xử lý nút xác nhận xóa
+                document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+                    document.getElementById('deleteFeedbackForm').submit();
                 });
             </script>
 

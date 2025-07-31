@@ -28,8 +28,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Lịch sử thanh toán - CGMS</title>
-    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/weightlifting.png" />
-    <link rel="icon" type="image/png" href="assets/img/weightlifting.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/icons8-gym-96.png" />
+    <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
@@ -307,10 +307,6 @@
                                          '<p><strong>Thời hạn:</strong> ' + (pkg.duration || 'N/A') + ' tháng</p>' +
                                          '<p><strong>Giá gốc:</strong> ' + formatter.format(pkg.price || 0) + '</p>';
                                          
-                            // Thêm thông tin tổng giá nếu có
-                            if (pkg.totalPrice) {
-                                packageHtml += '<p><strong>Tổng giá sau giảm giá:</strong> ' + formatter.format(pkg.totalPrice) + '</p>';
-                            }
                         } else {
                             packageHtml = '<p>Không có thông tin gói tập</p>';
                         }

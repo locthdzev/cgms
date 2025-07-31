@@ -13,7 +13,7 @@ import="Utilities.ConfigUtil" %>
       sizes="76x76"
       href="assets/img/apple-icon.png"
     />
-    <link rel="icon" type="image/png" href="assets/img/favicon.png" />
+    <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png" />
     <title>Đăng nhập - CoreFit Gym Management System</title>
     <!-- Fonts and icons -->
     <link
@@ -80,16 +80,11 @@ import="Utilities.ConfigUtil" %>
                   <% } %>
                   <form role="form" method="post" action="/login">
                     <div class="mb-3">
-                      <input
-                        type="text"
-                        name="username"
-                        class="form-control form-control-lg"
-                        placeholder="Tên đăng nhập"
-                        aria-label="Username"
-                        aria-describedby="username-addon"
-                        value="<%= request.getAttribute("username") != null ? request.getAttribute("username") : "" %>"
-                        required
-                      />
+                      <input type="text" name="username" class="form-control
+                      form-control-lg" placeholder="Tên đăng nhập"
+                      aria-label="Username" aria-describedby="username-addon"
+                      value="<%= request.getAttribute("username") != null ?
+                      request.getAttribute("username") : "" %>" required />
                     </div>
                     <div class="mb-3 password-container">
                       <input
@@ -102,8 +97,15 @@ import="Utilities.ConfigUtil" %>
                         aria-describedby="password-addon"
                         required
                       />
-                      <span class="password-toggle" onclick="togglePassword('password')">
-                        <img src="assets/svg/eye-show-svgrepo-com.svg" id="password-toggle-icon" alt="Show/Hide Password">
+                      <span
+                        class="password-toggle"
+                        onclick="togglePassword('password')"
+                      >
+                        <img
+                          src="assets/svg/eye-show-svgrepo-com.svg"
+                          id="password-toggle-icon"
+                          alt="Show/Hide Password"
+                        />
                       </span>
                     </div>
                     <div class="form-check form-switch">
@@ -170,27 +172,14 @@ import="Utilities.ConfigUtil" %>
               class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 end-0 text-center justify-content-center flex-column"
             >
               <div
-                class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center"
-              >
-                <img
-                  src="assets/img/shapes/pattern-lines.svg"
-                  alt="pattern-lines"
-                  class="position-absolute opacity-4 start-0"
-                />
-                <div class="position-relative">
-                  <img
-                    class="max-width-500 w-100 position-relative z-index-2"
-                    src="assets/img/illustrations/chat.png"
-                    alt="chat-img"
-                  />
-                </div>
-                <h4 class="mt-5 text-white font-weight-bolder">
-                  CoreFit Gym Management System
-                </h4>
-                <p class="text-white">
-                  Hệ thống quản lý phòng tập thể hình hiện đại
-                </p>
-              </div>
+                class="position-relative h-100 m-3 border-radius-lg d-flex flex-column justify-content-center"
+                style="
+                  background: url('assets/img/login-bg-gym.jpg');
+                  background-size: cover;
+                  background-position: center;
+                  background-repeat: no-repeat;
+                "
+              ></div>
             </div>
           </div>
         </div>
@@ -205,14 +194,14 @@ import="Utilities.ConfigUtil" %>
     <script>
       function togglePassword(inputId) {
         const passwordInput = document.getElementById(inputId);
-        const toggleIcon = document.getElementById(inputId + '-toggle-icon');
-        
-        if (passwordInput.type === 'password') {
-          passwordInput.type = 'text';
-          toggleIcon.src = 'assets/svg/eye-off-svgrepo-com.svg';
+        const toggleIcon = document.getElementById(inputId + "-toggle-icon");
+
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          toggleIcon.src = "assets/svg/eye-off-svgrepo-com.svg";
         } else {
-          passwordInput.type = 'password';
-          toggleIcon.src = 'assets/svg/eye-show-svgrepo-com.svg';
+          passwordInput.type = "password";
+          toggleIcon.src = "assets/svg/eye-show-svgrepo-com.svg";
         }
       }
     </script>

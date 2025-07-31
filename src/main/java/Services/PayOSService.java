@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import Models.Order;
+import Models.OrderDetail;
 
 public class PayOSService {
     private static final Logger LOGGER = Logger.getLogger(PayOSService.class.getName());
@@ -150,14 +152,83 @@ public class PayOSService {
                     responseData.getCheckoutUrl(),
                     Instant.now().plus(24, ChronoUnit.HOURS));
 
-            // Không cần cập nhật mã QR vào database nữa
-            if (paymentLink != null && responseData.getQrCode() != null) {
-                // Chỉ cập nhật đối tượng trong bộ nhớ
-                paymentLink.setQrCode(responseData.getQrCode());
-            }
+            // // Không cần cập nhật mã QR vào database nữa
+            // if (paymentLink != null && responseData.getQrCode() != null) {
+            // // Chỉ cập nhật đối tượng trong bộ nhớ
+            // paymentLink.setQrCode(responseData.getQrCode());
+            // }
 
             return paymentLink;
         } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Tạo payment link cho đơn hàng sản phẩm
+     */
+    public String createPaymentLinkForOrder(Order order, List<Models.OrderDetail> orderDetails) {
+        try {
+            System.out.println("Creating payment link for order ID: " + order.getId());
+            System.out.println("Order amount: " + order.getTotalAmount());
+
+            // Sử dụng mã đơn hàng PayOS đã có
+            String orderCode = order.getPayOSOrderCode();
+            if (orderCode == null) {
+                orderCode = "ORDER-" + System.currentTimeMillis();
+            }
+
+            // Chuyển đổi orderCode thành long để gửi cho PayOS
+            long orderCodeLong = Long.parseLong(orderCode.replace("ORDER-", ""));
+            System.out.println("Generated order code: " + orderCode);
+
+            // Tạo danh sách items từ order details
+            List<ItemData> items = new ArrayList<>();
+            for (Models.OrderDetail detail : orderDetails) {
+                ItemData itemData = ItemData.builder()
+                        .name(detail.getProduct().getName())
+                        .quantity(detail.getQuantity())
+                        .price(detail.getUnitPrice().intValue())
+                        .build();
+                items.add(itemData);
+            }
+
+            // Giới hạn mô tả không quá 25 ký tự
+            String description = "Thanh toan don hang";
+            if (description.length() > 25) {
+                description = description.substring(0, 22) + "...";
+            }
+
+            long expiredAt = Instant.now().plus(15, ChronoUnit.MINUTES).getEpochSecond();
+
+            // Tạo dữ liệu thanh toán
+            PaymentData paymentData = PaymentData.builder()
+                    .orderCode(orderCodeLong)
+                    .amount(order.getTotalAmount().intValue())
+                    .expiredAt(expiredAt)
+                    .description(description)
+                    .returnUrl(baseUrl + "/order/payment/success")
+                    .cancelUrl(baseUrl + "/order/payment/cancel")
+                    .items(items)
+                    .build();
+
+            System.out.println("PayOS payment data amount: " + order.getTotalAmount().intValue());
+            System.out.println("PayOS payment data: " + objectMapper.writeValueAsString(paymentData));
+
+            // Gọi API tạo link thanh toán
+            CheckoutResponseData responseData = payOS.createPaymentLink(paymentData);
+            System.out.println("PayOS response: " + objectMapper.writeValueAsString(responseData));
+
+            if (responseData == null) {
+                System.out.println("PayOS returned null response");
+                return null;
+            }
+
+            return responseData.getCheckoutUrl();
+
+        } catch (Exception e) {
+            System.out.println("Error creating PayOS payment link for order: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
