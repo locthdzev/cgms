@@ -135,6 +135,12 @@ public class UserService {
         return userDAO.getAllUsers();
     }
 
+    public java.util.List<User> getAllMembers() {
+        return userDAO.getAllUsers().stream()
+                .filter(user -> "Member".equals(user.getRole()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     public User getUserById(int id) {
         return userDAO.getUserById(id);
     }

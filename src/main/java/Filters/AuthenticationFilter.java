@@ -23,7 +23,7 @@ public class AuthenticationFilter implements Filter {
     private static final List<String> ADMIN_URLS = Arrays.asList(
             "/dashboard", "/user", "/addUser", "/editUser", "/trainer", "/addTrainer", "/editTrainer",
             "/listPackage", "/addPackage", "/editPackage", "/product", "/voucher", "/inventory", "/feedback",
-            "/order/admin");
+            "/admin-orders");
 
     // Các URL chỉ dành cho Personal Trainer
     private static final List<String> PT_URLS = Arrays.asList(
@@ -32,7 +32,7 @@ public class AuthenticationFilter implements Filter {
     // Các URL chỉ dành cho Member
     private static final List<String> MEMBER_URLS = Arrays.asList(
             "/member-dashboard", "/member-packages-controller", "/all-packages-controller", "/all-packages",
-            "/member-schedule.jsp", "/member-shop.jsp", "/member-cart.jsp", "/member-feedback.jsp", "/order");
+            "/member-schedule.jsp", "/member-shop.jsp", "/member-cart.jsp", "/member-feedback.jsp");
 
     // Các URL chung cho Member và PT (có thể truy cập bởi cả hai role)
     private static final List<String> MEMBER_PT_URLS = Arrays.asList(

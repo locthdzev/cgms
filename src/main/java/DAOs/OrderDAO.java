@@ -119,6 +119,14 @@ public class OrderDAO {
                     member.setEmail(rs.getString("MemberEmail"));
                     order.setMember(member);
 
+                    // Set admin info if exists
+                    if (rs.getObject("CreatedByAdminId") != null) {
+                        User admin = new User();
+                        admin.setId(rs.getInt("CreatedByAdminId"));
+                        admin.setFullName(rs.getString("AdminName"));
+                        order.setCreatedByAdmin(admin);
+                    }
+
                     return order;
                 }
             }
@@ -130,11 +138,12 @@ public class OrderDAO {
 
     public List<Order> getOrdersByMemberId(int memberId) {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.*, u.FullName as MemberName, u.Email as MemberEmail " +
+        String sql = "SELECT o.*, u.FullName as MemberName, u.Email as MemberEmail, " +
+                "admin.FullName as AdminName " +
                 "FROM [Order] o " +
                 "JOIN Users u ON o.MemberId = u.UserId " +
-                "WHERE o.MemberId = ? " +
-                "ORDER BY o.CreatedAt DESC";
+                "LEFT JOIN Users admin ON o.CreatedByAdminId = admin.UserId " +
+                "WHERE o.MemberId = ? ORDER BY o.CreatedAt DESC";
 
         try (Connection conn = DbConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -163,6 +172,14 @@ public class OrderDAO {
                     member.setFullName(rs.getString("MemberName"));
                     member.setEmail(rs.getString("MemberEmail"));
                     order.setMember(member);
+
+                    // Set admin info if exists
+                    if (rs.getObject("CreatedByAdminId") != null) {
+                        User admin = new User();
+                        admin.setId(rs.getInt("CreatedByAdminId"));
+                        admin.setFullName(rs.getString("AdminName"));
+                        order.setCreatedByAdmin(admin);
+                    }
 
                     orders.add(order);
                 }
@@ -279,9 +296,11 @@ public class OrderDAO {
     }
 
     public Order getOrderByPayOSCode(String payOSOrderCode) {
-        String sql = "SELECT o.*, u.FullName as MemberName, u.Email as MemberEmail " +
+        String sql = "SELECT o.*, u.FullName as MemberName, u.Email as MemberEmail, " +
+                "admin.FullName as AdminName " +
                 "FROM [Order] o " +
                 "JOIN Users u ON o.MemberId = u.UserId " +
+                "LEFT JOIN Users admin ON o.CreatedByAdminId = admin.UserId " +
                 "WHERE o.PayOSOrderCode = ?";
 
         try (Connection conn = DbConnection.getConnection();
@@ -306,11 +325,20 @@ public class OrderDAO {
                     order.setNotes(rs.getString("Notes"));
                     order.setPayOSOrderCode(rs.getString("PayOSOrderCode"));
 
+                    // Set member info
                     User member = new User();
                     member.setId(rs.getInt("MemberId"));
                     member.setFullName(rs.getString("MemberName"));
                     member.setEmail(rs.getString("MemberEmail"));
                     order.setMember(member);
+
+                    // Set admin info if exists
+                    if (rs.getObject("CreatedByAdminId") != null) {
+                        User admin = new User();
+                        admin.setId(rs.getInt("CreatedByAdminId"));
+                        admin.setFullName(rs.getString("AdminName"));
+                        order.setCreatedByAdmin(admin);
+                    }
 
                     return order;
                 }
