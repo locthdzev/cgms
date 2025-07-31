@@ -92,6 +92,45 @@ public class UserService {
         return "fail";
     }
 
+    // Phương thức đăng ký Google user và gửi email thông tin tài khoản
+    public String registerGoogleUserWithEmail(User user, String rawPassword) {
+        // Tạo salt và hash password
+        String salt = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16);
+        String hashedPassword = hashPassword(rawPassword, salt);
+        user.setSalt(salt);
+        user.setPassword(hashedPassword);
+
+        // Đảm bảo MemberLevel được thiết lập
+        if (user.getLevel() == null) {
+            Models.MemberLevel defaultLevel = new Models.MemberLevel();
+            defaultLevel.setId(1); // Level mặc định
+            user.setLevel(defaultLevel);
+        }
+
+        // Người dùng Google đã được xác thực qua Google OAuth
+        user.setCreatedAt(java.time.Instant.now());
+        boolean created = userDAO.createUser(user);
+
+        if (created) {
+            try {
+                // Gửi email với thông tin tài khoản
+                String subject = "Thông tin tài khoản CGMS - Chào mừng bạn!";
+                String content = EmailSender.buildAccountCredentialsEmail(
+                        user.getFullName(),
+                        user.getUserName(),
+                        rawPassword);
+                EmailSender.send(user.getEmail(), subject, content);
+                return "success";
+            } catch (Exception e) {
+                // Nếu có lỗi khi gửi email, vẫn trả về success vì tài khoản đã được tạo
+                e.printStackTrace();
+                System.err.println("Lỗi khi gửi email thông tin tài khoản: " + e.getMessage());
+                return "success";
+            }
+        }
+        return "fail";
+    }
+
     public java.util.List<User> getAllUsers() {
         return userDAO.getAllUsers();
     }
@@ -239,36 +278,25 @@ public class UserService {
 
     // Phương thức tạo nội dung email đặt lại mật khẩu
     private String buildPasswordResetEmail(String name, String resetLink) {
-        return "<!DOCTYPE html>"
-                + "<html>"
-                + "<head>"
-                + "<style>"
-                + "body { font-family: Arial, sans-serif; line-height: 1.6; }"
-                + ".container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; }"
-                + ".header { background-color: #4a6cf7; color: white; padding: 20px; text-align: center; }"
-                + ".content { padding: 20px; background-color: #f9f9f9; }"
-                + ".button { display: inline-block; padding: 10px 20px; background-color: #4a6cf7; color: white; text-decoration: none; border-radius: 5px; }"
-                + ".footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }"
-                + "</style>"
-                + "</head>"
-                + "<body>"
-                + "<div class='container'>"
-                + "<div class='header'><h2>Đặt lại mật khẩu</h2></div>"
-                + "<div class='content'>"
-                + "<p>Xin chào " + name + ",</p>"
-                + "<p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại CoreFit Gym Management System.</p>"
-                + "<p>Để đặt lại mật khẩu, vui lòng nhấp vào liên kết dưới đây:</p>"
-                + "<p style='text-align: center;'><a class='button' href='" + resetLink + "'>Đặt lại mật khẩu</a></p>"
-                + "<p>Liên kết này sẽ hết hạn sau 24 giờ.</p>"
-                + "<p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>"
+        return "<div style='background:#f4f4f7;padding:40px 0;font-family:Arial,sans-serif;'>"
+                + "<div style='max-width:480px;margin:0 auto;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05);padding:32px;'>"
+                + "<h2 style='color:#2d3748;text-align:center;margin-bottom:24px;'>Đặt lại mật khẩu CGMS</h2>"
+                + "<p style='font-size:16px;color:#4a5568;text-align:center;'>Xin chào <b>" + name + "</b>,</p>"
+                + "<p style='font-size:16px;color:#4a5568;text-align:center;'>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại <b>CoreFit Gym Management System</b>.</p>"
+                + "<p style='font-size:16px;color:#4a5568;text-align:center;'>Để đặt lại mật khẩu, vui lòng nhấp vào nút bên dưới:</p>"
+                + "<div style='text-align:center;margin:30px 0;'>"
+                + "<a href='" + resetLink
+                + "' style='display:inline-block;padding:12px 30px;background:#4299e1;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;'>Đặt lại mật khẩu</a>"
                 + "</div>"
-                + "<div class='footer'>"
-                + "<p>© " + java.time.Year.now().getValue()
-                + " CoreFit Gym Management System. Tất cả các quyền được bảo lưu.</p>"
+                + "<div style='background:#fff5f5;border-radius:8px;padding:20px;margin:20px 0;border-left:4px solid #f56565;'>"
+                + "<p style='margin:0;font-size:14px;color:#742a2a;'><strong>Lưu ý quan trọng:</strong></p>"
+                + "<p style='margin:8px 0 0 0;font-size:14px;color:#742a2a;'>• Liên kết này sẽ hết hạn sau 24 giờ</p>"
+                + "<p style='margin:4px 0 0 0;font-size:14px;color:#742a2a;'>• Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này</p>"
                 + "</div>"
-                + "</div>"
-                + "</body>"
-                + "</html>";
+                + "<p style='font-size:14px;color:#718096;text-align:center;margin-top:20px;'>Để đảm bảo bảo mật tài khoản, chúng tôi khuyến nghị bạn sử dụng mật khẩu mạnh bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</p>"
+                + "<hr style='border:none;border-top:1px solid #e2e8f0;margin:32px 0;'>"
+                + "<p style='font-size:12px;color:#a0aec0;text-align:center;'>© 2024 CoreFit Gym Management System</p>"
+                + "</div></div>";
     }
 
     // Phương thức đổi mật khẩu cho người dùng đã đăng nhập

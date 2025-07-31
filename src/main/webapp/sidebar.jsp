@@ -19,6 +19,37 @@
     boolean isScheduler = currentPath.contains("scheduler") || currentPath.contains("Scheduler") || currentPath.contains("/admin/scheduler");
 %>
 
+<style>
+/* Fix sidebar scroll issue - CSS được include từ sidebar.jsp */
+.navbar-vertical.navbar-expand-xs .navbar-collapse,
+.navbar-vertical.navbar-expand-sm .navbar-collapse,
+.navbar-vertical.navbar-expand-md .navbar-collapse,
+.navbar-vertical.navbar-expand-lg .navbar-collapse,
+.navbar-vertical.navbar-expand-xl .navbar-collapse,
+.navbar-vertical.navbar-expand-xxl .navbar-collapse {
+    height: calc(100vh - 120px) !important;
+    overflow-y: auto;
+}
+
+/* Custom scrollbar styling */
+.sidenav .navbar-collapse::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidenav .navbar-collapse::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidenav .navbar-collapse::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.sidenav .navbar-collapse::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+</style>
+
 <aside
         class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4"
         id="sidenav-main"
@@ -34,7 +65,7 @@
                 href="${pageContext.request.contextPath}/dashboard"
         >
             <img
-                    src="${pageContext.request.contextPath}/assets/img/weightlifting.png"
+                    src="${pageContext.request.contextPath}/assets/img/icons8-gym-96.png"
                     width="26px"
                     height="26px"
                     class="navbar-brand-img h-100"
