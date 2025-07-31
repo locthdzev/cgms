@@ -23,7 +23,7 @@ public class CartController extends HttpServlet {
         User user = (User) req.getSession().getAttribute("loggedInUser");
         String action = req.getParameter("action");
 
-        if (user == null || !"Member".equals(user.getRole())) {
+        if (user == null || (!"Member".equals(user.getRole()) && !"PT".equals(user.getRole()))) {
             resp.sendRedirect("login");
             return;
         }

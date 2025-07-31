@@ -60,12 +60,23 @@
                     <span class="nav-link-text ms-1">Cửa hàng</span>
                 </a>
             </li>
+            <li class="nav-item mt-3">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Mua sắm</h6>
+            </li>
             <li class="nav-item">
                 <a class="nav-link <%= "member-cart.jsp".equals(pageName) ? "active" : "" %>" href="member-cart">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fas fa-shopping-cart text-info text-sm opacity-10"></i>
+                        <i class="fas fa-shopping-cart text-success text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Giỏ hàng</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= "member-order-history.jsp".equals(pageName) ? "active" : "" %>" href="order?action=history">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-shopping-bag text-warning text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Đơn hàng của tôi</span>
                 </a>
             </li>
             <li class="nav-item">
