@@ -178,7 +178,7 @@ public class AdminOrderController extends HttpServlet {
                 if (paymentUrl != null) {
                     req.getSession().setAttribute("successMessage",
                             "Đơn hàng #" + orderId
-                                    + " đã được tạo thành công! Đang chuyển hướng đến trang thanh toán...");
+                                    + " đã được tạo thành công!.");
                     resp.sendRedirect(paymentUrl);
                 } else {
                     req.getSession().setAttribute("errorMessage",
