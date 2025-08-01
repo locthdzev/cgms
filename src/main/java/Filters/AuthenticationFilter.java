@@ -22,7 +22,8 @@ public class AuthenticationFilter implements Filter {
     // Các URL chỉ dành cho Admin
     private static final List<String> ADMIN_URLS = Arrays.asList(
             "/dashboard", "/user", "/addUser", "/editUser", "/trainer", "/addTrainer", "/editTrainer",
-            "/listPackage", "/addPackage", "/editPackage", "/product", "/voucher", "/inventory", "/feedback", "/order");
+            "/listPackage", "/addPackage", "/editPackage", "/product", "/voucher", "/inventory", "/feedback",
+            "/admin-orders");
 
     // Các URL chỉ dành cho Personal Trainer
     private static final List<String> PT_URLS = Arrays.asList(
@@ -32,6 +33,10 @@ public class AuthenticationFilter implements Filter {
     private static final List<String> MEMBER_URLS = Arrays.asList(
             "/member-dashboard", "/member-packages-controller", "/all-packages-controller", "/all-packages",
             "/member-schedule.jsp", "/member-shop.jsp", "/member-cart.jsp", "/member-feedback.jsp");
+
+    // Các URL chung cho Member và PT (có thể truy cập bởi cả hai role)
+    private static final List<String> MEMBER_PT_URLS = Arrays.asList(
+            "/member-cart", "/order");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -74,14 +79,20 @@ public class AuthenticationFilter implements Filter {
             return;
         }
 
-        if (isPTURL(path) && !"Personal Trainer".equals(userRole)) {
+        if (isPTURL(path) && !"PT".equals(userRole)) {
             // Không phải PT nhưng cố truy cập trang PT
             redirectBasedOnRole(httpResponse, contextPath, userRole);
             return;
         }
 
-        if (isMemberURL(path) && !"Member".equals(userRole)) {
-            // Không phải Member nhưng cố truy cập trang Member
+        if (isMemberURL(path) && !"Member".equals(userRole) && !"PT".equals(userRole)) {
+            // Không phải Member hoặc PT nhưng cố truy cập trang Member
+            redirectBasedOnRole(httpResponse, contextPath, userRole);
+            return;
+        }
+
+        // Kiểm tra URL chung cho Member và PT
+        if (isMemberPTURL(path) && !"Member".equals(userRole) && !"PT".equals(userRole)) {
             redirectBasedOnRole(httpResponse, contextPath, userRole);
             return;
         }
@@ -136,10 +147,19 @@ public class AuthenticationFilter implements Filter {
         return false;
     }
 
+    private boolean isMemberPTURL(String path) {
+        for (String memberPTUrl : MEMBER_PT_URLS) {
+            if (path.startsWith(memberPTUrl)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void redirectBasedOnRole(HttpServletResponse response, String contextPath, String role) throws IOException {
         if ("Admin".equals(role)) {
             response.sendRedirect(contextPath + "/dashboard");
-        } else if ("Personal Trainer".equals(role)) {
+        } else if ("PT".equals(role)) {
             response.sendRedirect(contextPath + "/pt_dashboard.jsp");
         } else {
             response.sendRedirect(contextPath + "/member-dashboard");

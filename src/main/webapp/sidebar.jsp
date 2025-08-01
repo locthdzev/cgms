@@ -17,6 +17,7 @@
     boolean isFeedback = currentPath.contains("feedback") || currentPath.contains("Feedback");
     boolean isInventory = currentPath.contains("inventory") || currentPath.contains("Inventory");
     boolean isScheduler = currentPath.contains("scheduler") || currentPath.contains("Scheduler") || currentPath.contains("/admin/scheduler");
+    boolean isOrder = currentPath.contains("/admin-orders");
 %>
 
 <style>
@@ -141,6 +142,16 @@
                         <i class="fas fa-shopping-cart text-success text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Quản lý sản phẩm</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isOrder ? "active" : "" %>" href="${pageContext.request.contextPath}/admin-orders">
+                    <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                    >
+                        <i class="fas fa-shopping-bag text-info text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Quản lý đơn hàng</span>
                 </a>
             </li>
             <li class="nav-item">
