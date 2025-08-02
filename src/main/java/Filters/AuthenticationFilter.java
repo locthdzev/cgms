@@ -24,7 +24,7 @@ public class AuthenticationFilter implements Filter {
     private static final List<String> ADMIN_URLS = Arrays.asList(
             "/dashboard", "/user", "/addUser", "/editUser", "/trainer", "/addTrainer", "/editTrainer",
             "/listPackage", "/addPackage", "/editPackage", "/product", "/voucher", "/inventory", "/feedback",
-            "/admin-orders");
+            "/admin-orders", "/admin-membership-card", "/admin-member-packages");
 
     // Các URL chỉ dành cho Personal Trainer
     private static final List<String> PT_URLS = Arrays.asList(

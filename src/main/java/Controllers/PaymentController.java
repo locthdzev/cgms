@@ -8,15 +8,16 @@ import DAOs.MemberPurchaseHistoryDAO;
 import Models.MemberPackage;
 import Models.Payment;
 import Models.PaymentLink;
+import Models.User;
 import Models.Voucher;
 import Services.PayOSService;
+import Services.MembershipCardService;
+import Utilities.EmailSender;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import vn.payos.type.WebhookData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,8 +26,8 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import Models.User;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebServlet(name = "PaymentController", urlPatterns = { "/payment/*" })
 public class PaymentController extends HttpServlet {
@@ -37,6 +38,8 @@ public class PaymentController extends HttpServlet {
     private final MemberPurchaseHistoryDAO memberPurchaseHistoryDAO = new MemberPurchaseHistoryDAO();
     private final PayOSService payOSService = new PayOSService();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final MembershipCardService membershipCardService = new MembershipCardService();
+    private final EmailSender emailSender = new EmailSender();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -195,6 +198,25 @@ public class PaymentController extends HttpServlet {
 
                                             // Lưu lịch sử mua hàng
                                             memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
+
+                                            // Gửi email thông báo với thẻ tập (async)
+                                            final MemberPackage finalMemberPackage = memberPackage;
+                                            new Thread(() -> {
+                                                try {
+                                                    String subject = "🎉 Chúc mừng! Đăng ký gói tập thành công - CORE-FIT GYM";
+                                                    String emailContent = MembershipCardService
+                                                            .buildMembershipCardEmail(finalMemberPackage);
+                                                    EmailSender.send(finalMemberPackage.getMember().getEmail(), subject,
+                                                            emailContent);
+                                                    System.out.println("Đã gửi email thẻ tập cho member: "
+                                                            + finalMemberPackage.getMember().getEmail());
+                                                } catch (Exception emailEx) {
+                                                    System.err
+                                                            .println("Lỗi khi gửi email thẻ tập: "
+                                                                    + emailEx.getMessage());
+                                                    emailEx.printStackTrace();
+                                                }
+                                            }).start();
                                         }
                                     }
                                 }
@@ -364,6 +386,22 @@ public class PaymentController extends HttpServlet {
                         if (packageUpdated) {
                             // Lưu lịch sử mua hàng
                             memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
+
+                            // Gửi email thông báo với thẻ tập (webhook)
+                            final MemberPackage finalMemberPackage = memberPackage;
+                            new Thread(() -> {
+                                try {
+                                    String subject = "🎉 Chúc mừng! Đăng ký gói tập thành công - CORE-FIT GYM";
+                                    String emailContent = MembershipCardService
+                                            .buildMembershipCardEmail(finalMemberPackage);
+                                    EmailSender.send(finalMemberPackage.getMember().getEmail(), subject, emailContent);
+                                    System.out.println("Webhook: Đã gửi email thẻ tập cho member: "
+                                            + finalMemberPackage.getMember().getEmail());
+                                } catch (Exception emailEx) {
+                                    System.err.println("Webhook: Lỗi khi gửi email thẻ tập: " + emailEx.getMessage());
+                                    emailEx.printStackTrace();
+                                }
+                            }).start();
                         }
                     }
                 }
