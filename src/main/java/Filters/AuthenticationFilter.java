@@ -17,12 +17,14 @@ public class AuthenticationFilter implements Filter {
     private static final List<String> PUBLIC_URLS = Arrays.asList(
             "/login", "/GoogleLoginController", "/register", "/RegisterController", "/logout", "/verify-email",
             "/VerifyEmail",
-            "/forgot-password", "/reset-password", "/assets/", "/css/", "/js/", "/img/", "/svg/");
+            "/forgot-password", "/reset-password", "/assets/", "/css/", "/js/", "/img/", "/svg/",
+            "/order/payment/success", "/order/payment/cancel", "/payment/success", "/payment/cancel");
 
     // Các URL chỉ dành cho Admin
     private static final List<String> ADMIN_URLS = Arrays.asList(
             "/dashboard", "/user", "/addUser", "/editUser", "/trainer", "/addTrainer", "/editTrainer",
-            "/listPackage", "/addPackage", "/editPackage", "/product", "/voucher", "/inventory", "/feedback", "/order");
+            "/listPackage", "/addPackage", "/editPackage", "/product", "/voucher", "/inventory", "/feedback",
+            "/admin-orders");
 
     // Các URL chỉ dành cho Personal Trainer
     private static final List<String> PT_URLS = Arrays.asList(
@@ -31,7 +33,7 @@ public class AuthenticationFilter implements Filter {
     // Các URL chỉ dành cho Member
     private static final List<String> MEMBER_URLS = Arrays.asList(
             "/member-dashboard", "/member-packages-controller", "/all-packages-controller", "/all-packages",
-            "/member-schedule.jsp", "/member-shop.jsp", "/member-cart.jsp", "/member-feedback.jsp");
+            "/member-schedule.jsp", "/member-shop.jsp", "member-shop", "/member-cart.jsp", "/member-feedback.jsp");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -80,8 +82,8 @@ public class AuthenticationFilter implements Filter {
             return;
         }
 
-        if (isMemberURL(path) && !"Member".equals(userRole)) {
-            // Không phải Member nhưng cố truy cập trang Member
+        if (isMemberURL(path) && !"Member".equals(userRole) && !"Personal Trainer".equals(userRole)) {
+            // Không phải Member hoặc PT nhưng cố truy cập trang Member
             redirectBasedOnRole(httpResponse, contextPath, userRole);
             return;
         }

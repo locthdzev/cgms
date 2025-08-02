@@ -17,6 +17,7 @@ import java.time.LocalDate;
 })
 public class Order {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "OrderId", nullable = false)
     private Integer id;
 
@@ -35,13 +36,46 @@ public class Order {
     private LocalDate orderDate;
 
     @Nationalized
-    @Column(name = "Status", nullable = false, length = 20)
-    private String status;
+    @Column(name = "Status", nullable = false, length = 50)
+    private String status; // PENDING, CONFIRMED, SHIPPING, COMPLETED, CANCELLED
 
     @Column(name = "CreatedAt", nullable = false)
     private Instant createdAt;
 
     @Column(name = "UpdatedAt")
     private Instant updatedAt;
+
+    // Thông tin địa chỉ giao hàng
+    @Nationalized
+    @Column(name = "ShippingAddress", length = 500)
+    private String shippingAddress;
+
+    @Nationalized
+    @Column(name = "ReceiverName", length = 100)
+    private String receiverName;
+
+    @Nationalized
+    @Column(name = "ReceiverPhone", length = 20)
+    private String receiverPhone;
+
+    // Phương thức thanh toán
+    @Nationalized
+    @Column(name = "PaymentMethod", length = 50)
+    private String paymentMethod; // CASH, PAYOS
+
+    // Ghi chú đơn hàng
+    @Nationalized
+    @Column(name = "Notes", length = 1000)
+    private String notes;
+
+    // ID của admin tạo đơn (nếu admin tạo đơn cho member)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CreatedByAdminId")
+    private User createdByAdmin;
+
+    // Mã đơn hàng PayOS (nếu có)
+    @Nationalized
+    @Column(name = "PayOSOrderCode", length = 100)
+    private String payOSOrderCode;
 
 }
