@@ -361,4 +361,22 @@ public class OrderDAO {
             e.printStackTrace();
         }
     }
+
+    public void updatePayOSOrderCode(int orderId, String payOSOrderCode) {
+        String sql = "UPDATE [Order] SET PayOSOrderCode = ? WHERE OrderId = ?";
+
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, payOSOrderCode);
+            stmt.setInt(2, orderId);
+
+            int updatedRows = stmt.executeUpdate();
+            System.out.println("Updated PayOS order code for order " + orderId + ": " + updatedRows + " rows affected");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error updating PayOS order code: " + e.getMessage());
+        }
+    }
 }
