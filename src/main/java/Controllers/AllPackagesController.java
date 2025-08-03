@@ -61,6 +61,9 @@ public class AllPackagesController extends HttpServlet {
                 case "register_success":
                     successMessage = "Đăng ký gói tập thành công!";
                     break;
+                case "payment_cancelled":
+                    successMessage = "Thanh toán đã được hủy. Bạn có thể chọn gói tập khác.";
+                    break;
                 default:
                     successMessage = message;
                     break;
@@ -69,7 +72,31 @@ public class AllPackagesController extends HttpServlet {
         }
 
         if (error != null) {
-            request.setAttribute("errorMessage", error);
+            String errorMessage;
+            switch (error) {
+                case "package_not_found":
+                    errorMessage = "Không tìm thấy gói tập. Vui lòng chọn gói tập khác.";
+                    break;
+                case "invalid_session":
+                    errorMessage = "Phiên làm việc không hợp lệ. Vui lòng thử lại.";
+                    break;
+                case "checkout_error":
+                    errorMessage = "Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.";
+                    break;
+                case "payment_process_error":
+                    errorMessage = "Lỗi xử lý thanh toán. Vui lòng thử lại sau.";
+                    break;
+                case "payment_creation_failed":
+                    errorMessage = "Không thể tạo thanh toán. Vui lòng thử lại.";
+                    break;
+                case "payment_link_creation_failed":
+                    errorMessage = "Không thể tạo liên kết thanh toán. Vui lòng thử lại.";
+                    break;
+                default:
+                    errorMessage = error;
+                    break;
+            }
+            request.setAttribute("errorMessage", errorMessage);
         }
 
         // Chuyển đến trang hiển thị tất cả các gói tập

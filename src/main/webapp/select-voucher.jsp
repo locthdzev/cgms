@@ -34,7 +34,7 @@
     // Lấy memberPackageId từ session
     Integer memberPackageId = (Integer) session.getAttribute("checkoutMemberPackageId");
     if (memberPackageId == null) {
-        response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=invalid_session");
+        response.sendRedirect(request.getContextPath() + "/all-packages?error=invalid_session");
         return;
     }
     
@@ -42,7 +42,7 @@
     MemberPackageDAO memberPackageDAO = new MemberPackageDAO();
     MemberPackage memberPackage = memberPackageDAO.getMemberPackageById(memberPackageId);
     if (memberPackage == null) {
-        response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=package_not_found");
+        response.sendRedirect(request.getContextPath() + "/all-packages?error=package_not_found");
         return;
     }
     
@@ -415,7 +415,7 @@
                             <% } %>
                             
                             <div class="d-flex justify-content-between mt-4">
-                                <a href="<%= request.getContextPath() %>/member-packages-controller" class="btn btn-outline-secondary">
+                                <a href="<%= request.getContextPath() %>/all-packages" class="btn btn-outline-secondary">
                                     <i class="fas fa-arrow-left me-1"></i>Quay lại
                                 </a>
                                 <button type="submit" class="btn btn-primary">

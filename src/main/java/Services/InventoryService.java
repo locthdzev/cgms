@@ -37,8 +37,8 @@ public class InventoryService {
         inventoryDAO.deleteInventory(inventoryId);
     }
 
-    public boolean addProductToInventory(int productId, int quantity, String supplierName, 
-                                       String taxCode, String status, Instant importedDate) {
+    public boolean addProductToInventory(int productId, int quantity, String supplierName,
+            String taxCode, String status, Instant importedDate) {
         try {
             Product product = productDAO.getProductById(productId);
             if (product == null) {
@@ -125,5 +125,3 @@ public class InventoryService {
         return inventoryDAO.isProductInInventory(productId);
     }
 }
-
-

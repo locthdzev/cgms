@@ -24,7 +24,7 @@ public class AuthenticationFilter implements Filter {
     private static final List<String> ADMIN_URLS = Arrays.asList(
             "/dashboard", "/user", "/addUser", "/editUser", "/trainer", "/addTrainer", "/editTrainer",
             "/listPackage", "/addPackage", "/editPackage", "/product", "/voucher", "/inventory", "/feedback",
-            "/admin-orders");
+            "/admin-orders", "/admin-membership-card", "/admin-member-packages");
 
     // Các URL chỉ dành cho Personal Trainer
     private static final List<String> PT_URLS = Arrays.asList(
@@ -33,7 +33,8 @@ public class AuthenticationFilter implements Filter {
     // Các URL chỉ dành cho Member
     private static final List<String> MEMBER_URLS = Arrays.asList(
             "/member-dashboard", "/member-packages-controller", "/all-packages-controller", "/all-packages",
-            "/member-schedule.jsp", "/member-shop.jsp", "member-shop", "/member-cart.jsp", "/member-feedback.jsp");
+            "/member-schedule.jsp", "/member-shop.jsp", "member-shop", "/member-cart.jsp", "/member-feedback.jsp",
+            "/select-voucher");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
