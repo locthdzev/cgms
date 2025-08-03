@@ -108,7 +108,7 @@ public class PaymentController extends HttpServlet {
             session.setAttribute("checkoutMemberPackageId", memberPackageId);
 
             // Chuyển hướng đến trang chọn voucher
-            response.sendRedirect(request.getContextPath() + "/select-voucher.jsp");
+            response.sendRedirect(request.getContextPath() + "/select-voucher");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/all-packages?error=checkout_error");
@@ -468,21 +468,21 @@ public class PaymentController extends HttpServlet {
 
                 // Kiểm tra voucher có hợp lệ không
                 if (voucher == null) {
-                    response.sendRedirect(request.getContextPath() + "/select-voucher.jsp?error=invalid_voucher");
+                    response.sendRedirect(request.getContextPath() + "/select-voucher?error=invalid_voucher");
                     return;
                 }
 
                 // Kiểm tra trạng thái voucher (Active thay vì ACTIVE)
                 if (!"Active".equals(voucher.getStatus())
                         || voucher.getExpiryDate().isBefore(java.time.LocalDate.now())) {
-                    response.sendRedirect(request.getContextPath() + "/select-voucher.jsp?error=expired_voucher");
+                    response.sendRedirect(request.getContextPath() + "/select-voucher?error=expired_voucher");
                     return;
                 }
 
                 // Kiểm tra voucher có phải của member này hoặc là voucher dùng chung không
                 User member = (User) session.getAttribute("loggedInUser");
                 if (voucher.getMember() != null && !voucher.getMember().getId().equals(member.getId())) {
-                    response.sendRedirect(request.getContextPath() + "/select-voucher.jsp?error=unauthorized_voucher");
+                    response.sendRedirect(request.getContextPath() + "/select-voucher?error=unauthorized_voucher");
                     return;
                 }
 
@@ -490,7 +490,7 @@ public class PaymentController extends HttpServlet {
                 if (voucher.getMinPurchase() != null
                         && memberPackage.getTotalPrice().compareTo(voucher.getMinPurchase()) < 0) {
                     response.sendRedirect(request.getContextPath()
-                            + "/select-voucher.jsp?error=min_purchase_not_met&min=" + voucher.getMinPurchase());
+                            + "/select-voucher?error=min_purchase_not_met&min=" + voucher.getMinPurchase());
                     return;
                 }
             }
