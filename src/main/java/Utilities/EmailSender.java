@@ -6,7 +6,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeUtility;
 
-public class EmailSender {
+public class    EmailSender {
     public static void send(String to, String subject, String content) {
         final String username = "academix.verify@gmail.com";
         final String password = "ntwk imbk eqbs fsht";
