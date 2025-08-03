@@ -318,12 +318,6 @@
                         Đặt hàng lúc: <%= order.getCreatedAt().atZone(ZoneId.systemDefault()).format(dateFormatter) %>
                     </p>
                 </div>
-                <div class="text-end">
-                    <h3 class="mb-0 price-highlight" style="color: white !important;">
-                        <%= formatter.format(order.getTotalAmount().longValue()) %> VNĐ
-                    </h3>
-                    <small class="opacity-8">Tổng giá trị</small>
-                </div>
             </div>
         </div>
 

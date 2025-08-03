@@ -101,6 +101,17 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link <%= currentPath.contains("admin-member-packages") ? "active" : "" %>"
+                   href="${pageContext.request.contextPath}/admin-member-packages">
+                    <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
+                    >
+                        <i class="fas fa-id-card text-primary text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Quản lý gói thành viên</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link <%= isUserManagement ? "active" : "" %>" href="#" data-bs-toggle="collapse"
                    data-bs-target="#userManagementCollapse" aria-expanded="<%= isUserManagement ? "true" : "false" %>">
                     <div
