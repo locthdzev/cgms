@@ -128,7 +128,7 @@
                     </svg>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li><a class="dropdown-item" href="profile.jsp">Hồ sơ</a></li>
+                    <li><a class="dropdown-item" href="profile">Hồ sơ</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item logout" href="logout">Đăng xuất</a></li>
                 </ul>

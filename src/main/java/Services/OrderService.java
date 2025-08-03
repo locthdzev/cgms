@@ -132,7 +132,7 @@ public class OrderService {
 
             order.setId(orderId);
 
-            // Tạo chi tiết đơn hàng
+            // Tạo chi tiết đơn hàng và trừ inventory
             for (Cart cartItem : cartItems) {
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setOrder(order);
@@ -145,6 +145,9 @@ public class OrderService {
                 orderDetail.setStatus("ACTIVE");
 
                 orderDAO.createOrderDetail(orderDetail);
+
+                // TRỪ INVENTORY NGAY KHI MEMBER ĐẶT HÀNG
+                inventoryDAO.updateQuantity(cartItem.getProduct().getId(), -cartItem.getQuantity());
             }
 
             // Xóa giỏ hàng
@@ -209,12 +212,8 @@ public class OrderService {
             order.setTotalAmount(totalAmount);
             order.setOrderDate(LocalDate.now());
 
-            // Admin tạo order với Cash = CONFIRMED, PayOS = PENDING
-            if (OrderConstants.PAYMENT_CASH.equals(paymentMethod)) {
-                order.setStatus(OrderConstants.STATUS_CONFIRMED);
-            } else {
-                order.setStatus(OrderConstants.STATUS_PENDING);
-            }
+            // *** ADMIN TẠO ORDER LUÔN LÀ CONFIRMED (KỂ CẢ PAYOS) ***
+            order.setStatus(OrderConstants.STATUS_CONFIRMED);
 
             order.setCreatedAt(Instant.now());
             order.setShippingAddress(shippingAddress);
@@ -224,7 +223,7 @@ public class OrderService {
             order.setNotes(notes);
 
             if (OrderConstants.PAYMENT_PAYOS.equals(paymentMethod)) {
-                String payOSOrderCode = "ORDER-" + System.currentTimeMillis();
+                String payOSOrderCode = "ADMIN-ORDER-" + System.currentTimeMillis();
                 order.setPayOSOrderCode(payOSOrderCode);
             }
 
@@ -235,33 +234,26 @@ public class OrderService {
 
             order.setId(orderId);
 
-            // Tạo chi tiết đơn hàng với product details đầy đủ
+            // Tạo chi tiết đơn hàng và trừ inventory
             for (OrderItem item : orderItems) {
-                OrderDetail orderDetail = new OrderDetail();
-                orderDetail.setOrder(order);
-
-                // Load full product details for PayOS
                 Product product = productService.getProductById(item.getProductId());
                 if (product == null) {
                     throw new RuntimeException("Không tìm thấy sản phẩm ID: " + item.getProductId());
                 }
-                orderDetail.setProduct(product);
 
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setOrder(order);
+                orderDetail.setProduct(product);
                 orderDetail.setQuantity(item.getQuantity());
                 orderDetail.setUnitPrice(item.getUnitPrice());
-                orderDetail.setTotalPrice(item.getUnitPrice()
-                        .multiply(BigDecimal.valueOf(item.getQuantity())));
+                orderDetail.setTotalPrice(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
                 orderDetail.setCreatedAt(Instant.now());
                 orderDetail.setStatus("ACTIVE");
 
                 orderDAO.createOrderDetail(orderDetail);
 
-                // Update inventory
-                Inventory inventory = inventoryDAO.getInventoryByProductId(item.getProductId());
-                if (inventory != null) {
-                    inventory.setQuantity(inventory.getQuantity() - item.getQuantity());
-                    inventoryDAO.updateInventory(inventory);
-                }
+                // *** TRỪ INVENTORY NGAY KHI ADMIN TẠO CONFIRMED ORDER ***
+                inventoryDAO.updateQuantity(item.getProductId(), -item.getQuantity());
             }
 
             // Gửi email xác nhận bất đồng bộ
@@ -316,6 +308,14 @@ public class OrderService {
         if (OrderConstants.STATUS_SHIPPING.equals(order.getStatus()) ||
                 OrderConstants.STATUS_COMPLETED.equals(order.getStatus())) {
             return false;
+        }
+
+        // *** TRẢ LẠI INVENTORY KHI HỦY ĐƠN HÀNG ***
+        // Lấy chi tiết đơn hàng để biết số lượng cần trả về kho
+        List<OrderDetail> orderDetails = orderDAO.getOrderDetailsByOrderId(orderId);
+        for (OrderDetail detail : orderDetails) {
+            // Trả lại số lượng vào kho
+            inventoryDAO.updateQuantity(detail.getProduct().getId(), detail.getQuantity());
         }
 
         orderDAO.updateOrderStatus(orderId, OrderConstants.STATUS_CANCELLED);

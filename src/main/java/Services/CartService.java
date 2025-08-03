@@ -37,4 +37,8 @@ public class CartService {
     public int setQuantity(int cartId, int quantity) {
         return cartDAO.setQuantity(cartId, quantity);
     }
+
+    public Cart getCartById(int cartId) {
+        return cartDAO.getCartById(cartId);
+    }
 }
