@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "AdminOrderController", urlPatterns = { "/admin-orders", "/admin-orders/*" })
 public class AdminOrderController extends HttpServlet {
@@ -85,8 +86,25 @@ public class AdminOrderController extends HttpServlet {
 
     private void showAdminOrderList(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        List<Order> orders = orderService.getAllOrders();
-        req.setAttribute("orders", orders);
+        // Lấy tất cả đơn hàng
+        List<Order> allOrders = orderService.getAllOrders();
+
+        // Lấy tham số filter từ request
+        String statusFilter = req.getParameter("status");
+
+        // Filter đơn hàng theo trạng thái nếu có
+        List<Order> filteredOrders = allOrders;
+        if (statusFilter != null && !statusFilter.trim().isEmpty() && !"ALL".equals(statusFilter)) {
+            filteredOrders = allOrders.stream()
+                    .filter(order -> statusFilter.equals(order.getStatus()))
+                    .collect(Collectors.toList());
+        }
+
+        // Set attributes cho JSP
+        req.setAttribute("orders", filteredOrders);
+        req.setAttribute("allOrders", allOrders); // Để tính statistics
+        req.setAttribute("currentFilter", statusFilter != null ? statusFilter : "ALL");
+
         req.getRequestDispatcher("admin-order-list.jsp").forward(req, resp);
     }
 

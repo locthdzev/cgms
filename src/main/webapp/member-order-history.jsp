@@ -14,6 +14,10 @@
     }
 
     List<Order> orders = (List<Order>) request.getAttribute("orders");
+    List<Order> allOrders = (List<Order>) request.getAttribute("allOrders");
+    String currentFilter = (String) request.getAttribute("currentFilter");
+    
+    if (currentFilter == null) currentFilter = "ALL";
 
     String errorMessage = (String) session.getAttribute("errorMessage");
     boolean hasErrorMessage = (errorMessage != null);
@@ -87,6 +91,63 @@
             margin-bottom: 0;
         }
 
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .filter-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #718096;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-btn:hover {
+            background: #f8fafc;
+            color: #4a5568;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn.active:hover {
+            color: white;
+        }
+
         /* Order Cards */
         .order-card {
             background: white;
@@ -110,7 +171,7 @@
 
         .order-meta {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
@@ -336,6 +397,18 @@
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .stat-card.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
 
         .stat-icon {
@@ -366,6 +439,10 @@
             background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
         }
 
+        .stat-card.active .stat-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
         .stat-number {
             font-size: 2rem;
             font-weight: 700;
@@ -373,11 +450,64 @@
             margin-bottom: 0.5rem;
         }
 
+        .stat-card.active .stat-number {
+            color: white;
+        }
+
         .stat-label {
             color: #718096;
             font-size: 0.875rem;
             text-transform: uppercase;
             font-weight: 600;
+        }
+
+        .stat-card.active .stat-label {
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Cancel Modal */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            border-bottom: none;
+        }
+
+        .modal-title {
+            font-weight: 700;
+        }
+
+        .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-footer {
+            border-top: none;
+            padding-top: 0;
         }
 
         /* Responsive */
@@ -400,6 +530,15 @@
             .btn-modern {
                 flex: 1;
                 justify-content: center;
+            }
+
+            .filter-buttons {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
             }
         }
     </style>
@@ -461,8 +600,8 @@
             <div class="stats-grid">
                 <%
                     int pendingCount = 0, confirmedCount = 0, deliveredCount = 0, cancelledCount = 0;
-                    if (orders != null) {
-                        for (Order order : orders) {
+                    if (allOrders != null) {
+                        for (Order order : allOrders) {
                             switch (order.getStatus()) {
                                 case "PENDING": pendingCount++; break;
                                 case "CONFIRMED": confirmedCount++; break;
@@ -472,33 +611,74 @@
                         }
                     }
                 %>
-                <div class="stat-card">
+                <a href="my-order?status=ALL" class="stat-card <%= "ALL".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="stat-number"><%= allOrders != null ? allOrders.size() : 0 %></div>
+                    <div class="stat-label">Tất cả</div>
+                </a>
+                
+                <a href="my-order?status=PENDING" class="stat-card <%= "PENDING".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
                     <div class="stat-icon pending">
                         <i class="fas fa-clock"></i>
                     </div>
                     <div class="stat-number"><%= pendingCount %></div>
                     <div class="stat-label">Chờ xác nhận</div>
-                </div>
-                <div class="stat-card">
+                </a>
+                
+                <a href="my-order?status=CONFIRMED" class="stat-card <%= "CONFIRMED".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
                     <div class="stat-icon confirmed">
                         <i class="fas fa-check"></i>
                     </div>
                     <div class="stat-number"><%= confirmedCount %></div>
                     <div class="stat-label">Đã xác nhận</div>
-                </div>
-                <div class="stat-card">
+                </a>
+                
+                <a href="my-order?status=DELIVERED" class="stat-card <%= "DELIVERED".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
                     <div class="stat-icon delivered">
                         <i class="fas fa-truck"></i>
                     </div>
                     <div class="stat-number"><%= deliveredCount %></div>
                     <div class="stat-label">Đã giao</div>
-                </div>
-                <div class="stat-card">
+                </a>
+                
+                <a href="my-order?status=CANCELLED" class="stat-card <%= "CANCELLED".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
                     <div class="stat-icon cancelled">
                         <i class="fas fa-times"></i>
                     </div>
                     <div class="stat-number"><%= cancelledCount %></div>
                     <div class="stat-label">Đã hủy</div>
+                </a>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-title">
+                    <i class="fas fa-filter"></i>
+                    Lọc theo trạng thái
+                </div>
+                <div class="filter-buttons">
+                    <a href="my-order?status=ALL" class="filter-btn <%= "ALL".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-list"></i>
+                        Tất cả (<%= allOrders != null ? allOrders.size() : 0 %>)
+                    </a>
+                    <a href="my-order?status=PENDING" class="filter-btn <%= "PENDING".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-clock"></i>
+                        Chờ xác nhận (<%= pendingCount %>)
+                    </a>
+                    <a href="my-order?status=CONFIRMED" class="filter-btn <%= "CONFIRMED".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-check"></i>
+                        Đã xác nhận (<%= confirmedCount %>)
+                    </a>
+                    <a href="my-order?status=DELIVERED" class="filter-btn <%= "DELIVERED".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-truck"></i>
+                        Đã giao (<%= deliveredCount %>)
+                    </a>
+                    <a href="my-order?status=CANCELLED" class="filter-btn <%= "CANCELLED".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-times"></i>
+                        Đã hủy (<%= cancelledCount %>)
+                    </a>
                 </div>
             </div>
 
@@ -562,15 +742,14 @@
                                 Chi tiết
                             </a>
                             <% if ("PENDING".equals(order.getStatus())) { %>
-                            <form method="post" action="my-order" style="display: inline;">
-                                <input type="hidden" name="action" value="cancel">
-                                <input type="hidden" name="orderId" value="<%= order.getId() %>">
-                                <button type="submit" class="btn-modern btn-danger-modern" 
-                                        onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
-                                    <i class="fas fa-times"></i>
-                                    Hủy đơn
-                                </button>
-                            </form>
+                            <button type="button" class="btn-modern btn-danger-modern" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#cancelModal" 
+                                    data-order-id="<%= order.getId() %>"
+                                    data-order-number="<%= order.getId() %>">
+                                <i class="fas fa-times"></i>
+                                Hủy đơn
+                            </button>
                             <% } %>
                         </div>
                     </div>
@@ -581,14 +760,25 @@
                 <div class="empty-icon">
                     <i class="fas fa-shopping-bag"></i>
                 </div>
-                <h3 class="empty-title">Chưa có đơn hàng nào</h3>
-                <p class="empty-description">
-                    Bạn chưa thực hiện đơn hàng nào. Hãy khám phá cửa hàng và mua sắm ngay!
-                </p>
-                <a href="member-shop" class="shop-now-btn">
-                    <i class="fas fa-store"></i>
-                    Mua sắm ngay
-                </a>
+                <% if ("ALL".equals(currentFilter)) { %>
+                    <h3 class="empty-title">Chưa có đơn hàng nào</h3>
+                    <p class="empty-description">
+                        Bạn chưa thực hiện đơn hàng nào. Hãy khám phá cửa hàng và mua sắm ngay!
+                    </p>
+                    <a href="member-shop" class="shop-now-btn">
+                        <i class="fas fa-store"></i>
+                        Mua sắm ngay
+                    </a>
+                <% } else { %>
+                    <h3 class="empty-title">Không có đơn hàng nào với trạng thái này</h3>
+                    <p class="empty-description">
+                        Không tìm thấy đơn hàng nào với trạng thái "<%= currentFilter.toLowerCase() %>". Hãy thử lọc theo trạng thái khác.
+                    </p>
+                    <a href="my-order?status=ALL" class="shop-now-btn">
+                        <i class="fas fa-list"></i>
+                        Xem tất cả đơn hàng
+                    </a>
+                <% } %>
             </div>
             <% } %>
         </div>
@@ -606,6 +796,61 @@
         </footer>
     </main>
 
+    <!-- Cancel Order Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Xác nhận hủy đơn hàng
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="my-order" id="cancelForm">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="cancel">
+                        <input type="hidden" name="orderId" id="cancelOrderId">
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Bạn có chắc chắn muốn hủy đơn hàng <strong>#<span id="orderNumberDisplay"></span></strong>?
+                            <br><small>Lý do hủy sẽ được gửi đến admin qua email.</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="cancelReason" class="form-label">
+                                <i class="fas fa-comment me-1"></i>
+                                Lý do hủy đơn hàng <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" 
+                                      id="cancelReason" 
+                                      name="reason" 
+                                      rows="4" 
+                                      placeholder="Vui lòng nhập lý do hủy đơn hàng (tối thiểu 10 ký tự)..."
+                                      required
+                                      minlength="10"
+                                      maxlength="500"></textarea>
+                            <div class="form-text">
+                                <span id="charCount">0</span>/500 ký tự
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>
+                            Đóng
+                        </button>
+                        <button type="submit" class="btn btn-danger" id="confirmCancelBtn">
+                            <i class="fas fa-trash me-1"></i>
+                            Xác nhận hủy đơn
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="assets/js/core/bootstrap.bundle.min.js"></script>
     <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
@@ -617,6 +862,70 @@
                 const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
                 toast.show();
                 return toast;
+            });
+
+            // Cancel Modal Logic
+            const cancelModal = document.getElementById('cancelModal');
+            const cancelForm = document.getElementById('cancelForm');
+            const cancelReason = document.getElementById('cancelReason');
+            const charCount = document.getElementById('charCount');
+            const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+
+            // Set up modal data when shown
+            cancelModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const orderId = button.getAttribute('data-order-id');
+                const orderNumber = button.getAttribute('data-order-number');
+
+                document.getElementById('cancelOrderId').value = orderId;
+                document.getElementById('orderNumberDisplay').textContent = orderNumber;
+                
+                // Reset form
+                cancelReason.value = '';
+                charCount.textContent = '0';
+                updateSubmitButton();
+            });
+
+            // Character counter and validation
+            cancelReason.addEventListener('input', function() {
+                const length = this.value.length;
+                charCount.textContent = length;
+                
+                // Update character counter color
+                if (length < 10) {
+                    charCount.className = 'text-danger';
+                } else if (length > 450) {
+                    charCount.className = 'text-warning';
+                } else {
+                    charCount.className = 'text-success';
+                }
+                
+                updateSubmitButton();
+            });
+
+            function updateSubmitButton() {
+                const reasonLength = cancelReason.value.trim().length;
+                confirmCancelBtn.disabled = reasonLength < 10;
+                
+                if (reasonLength < 10) {
+                    confirmCancelBtn.innerHTML = '<i class="fas fa-trash me-1"></i> Cần tối thiểu 10 ký tự';
+                } else {
+                    confirmCancelBtn.innerHTML = '<i class="fas fa-trash me-1"></i> Xác nhận hủy đơn';
+                }
+            }
+
+            // Form submission with confirmation
+            cancelForm.addEventListener('submit', function(e) {
+                const reason = cancelReason.value.trim();
+                if (reason.length < 10) {
+                    e.preventDefault();
+                    alert('Lý do hủy đơn phải có ít nhất 10 ký tự.');
+                    return;
+                }
+
+                // Show loading state (đã loại bỏ confirm dialog thừa)
+                confirmCancelBtn.disabled = true;
+                confirmCancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang xử lý...';
             });
         });
     </script>
