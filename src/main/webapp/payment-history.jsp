@@ -106,8 +106,11 @@
                                                     </td>
                                                     <td>
                                                         <div class="d-flex px-3 py-1">
-                                                            <span class="badge badge-sm bg-gradient-<%= "COMPLETED".equals(payment.getStatus()) ? "success" : "PENDING".equals(payment.getStatus()) ? "warning" : "danger" %>">
-                                                                <%= payment.getStatus() %>
+                                                            <span class="badge badge-sm bg-gradient-success">
+                                                                <%= "COMPLETED".equals(payment.getStatus()) ? "Đã hoàn thành" : 
+                                                                    "PENDING".equals(payment.getStatus()) ? "Đang chờ" : 
+                                                                    "FAILED".equals(payment.getStatus()) ? "Thất bại" : 
+                                                                    "CANCELLED".equals(payment.getStatus()) ? "Đã hủy" : payment.getStatus() %>
                                                             </span>
                                                         </div>
                                                     </td>
@@ -149,178 +152,121 @@
             </footer>
         </div>
     </main>
-    
-    <!-- Payment Detail Modal -->
-    <div class="modal fade" id="paymentDetailModal" tabindex="-1" role="dialog" aria-labelledby="paymentDetailModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="paymentDetailModalLabel">Chi tiết thanh toán</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="payment-details">
-                        <p><strong>ID:</strong> <span id="modal-payment-id"></span></p>
-                        <p><strong>Ngày thanh toán:</strong> <span id="modal-payment-date"></span></p>
-                        <p><strong>Số tiền:</strong> <span id="modal-payment-amount"></span></p>
-                        <p><strong>Phương thức:</strong> <span id="modal-payment-method"></span></p>
-                        <p><strong>Trạng thái:</strong> <span id="modal-payment-status"></span></p>
-                        <p><strong>Mã giao dịch:</strong> <span id="modal-transaction-id"></span></p>
-                        <hr>
-                        <p><strong>Thông tin gói tập:</strong></p>
-                        <div id="package-info">
-                            <p>Đang tải...</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Đóng</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+
     <!-- Core JS Files -->
     <script src="assets/js/core/popper.min.js"></script>
     <script src="assets/js/core/bootstrap.min.js"></script>
     <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
+    <script src="assets/js/plugins/chartjs.min.js"></script>
     
+    <!-- Payment Detail Modal -->
+    <div class="modal fade" id="paymentDetailModal" tabindex="-1" aria-labelledby="paymentDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentDetailModalLabel">Chi tiết thanh toán</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="paymentDetailContent">
+                    <!-- Payment details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Kiểm tra Font Awesome
-        document.addEventListener('DOMContentLoaded', function() {
-            // Kiểm tra xem Font Awesome đã được tải đúng chưa
-            if (typeof FontAwesome === 'undefined') {
-                console.log('Font Awesome not loaded properly, reloading...');
-                // Tải lại Font Awesome từ CDN
-                var fontAwesomeLink = document.createElement('link');
-                fontAwesomeLink.rel = 'stylesheet';
-                fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
-                fontAwesomeLink.integrity = 'sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==';
-                fontAwesomeLink.crossOrigin = 'anonymous';
-                fontAwesomeLink.referrerPolicy = 'no-referrer';
-                document.head.appendChild(fontAwesomeLink);
-                
-                // Tải lại script Font Awesome
-                var fontAwesomeScript = document.createElement('script');
-                fontAwesomeScript.src = 'https://kit.fontawesome.com/42d5adcbca.js';
-                fontAwesomeScript.crossOrigin = 'anonymous';
-                document.head.appendChild(fontAwesomeScript);
+        var win = navigator.platform.indexOf('Win') > -1;
+        if (win && document.querySelector('#sidenav-scrollbar')) {
+            var options = {
+                damping: '0.5'
             }
-            
-            // Thêm event listener cho tất cả các nút chi tiết
-            document.querySelectorAll('.btn-info[data-payment-id]').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    var paymentId = this.getAttribute('data-payment-id');
-                    showPaymentDetails(paymentId);
-                });
+            Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+        }
+
+        // Handle payment detail buttons
+        document.querySelectorAll('[data-payment-id]').forEach(button => {
+            button.addEventListener('click', function() {
+                const paymentId = this.getAttribute('data-payment-id');
+                
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('paymentDetailModal'));
+                modal.show();
+                
+                // Load payment details
+                fetch('payment-history/detail?id=' + paymentId)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(result => {
+                        console.log('Response:', result); // Debug log
+                        
+                        // Truy cập data từ result.payment
+                        const data = result.payment;
+                        
+                        if (!data) {
+                            throw new Error('No payment data found');
+                        }
+                        
+                        const content = document.getElementById('paymentDetailContent');
+                        
+                        // Format tiền tệ - kiểm tra data.amount có tồn tại không
+                        let formattedAmount = 'N/A';
+                        if (data.amount && !isNaN(data.amount)) {
+                            formattedAmount = new Intl.NumberFormat('vi-VN', {
+                                style: 'currency', 
+                                currency: 'VND'
+                            }).format(data.amount);
+                        }
+                        
+                        // Format ngày tháng - kiểm tra data.paymentDate có tồn tại không
+                        let formattedDate = 'N/A';
+                        if (data.paymentDate) {
+                            try {
+                                formattedDate = new Date(data.paymentDate).toLocaleString('vi-VN');
+                            } catch (e) {
+                                console.error('Date parsing error:', e);
+                                formattedDate = data.paymentDate; // Fallback to raw string
+                            }
+                        }
+                        
+                        // Tạo HTML content
+                        let html = '<div class="row">';
+                        html += '<div class="col-md-6">';
+                        html += '<p><strong>ID thanh toán:</strong> ' + (data.id || 'N/A') + '</p>';
+                        html += '<p><strong>Số tiền:</strong> ' + formattedAmount + '</p>';
+                        html += '<p><strong>Phương thức:</strong> ' + (data.paymentMethod || 'N/A') + '</p>';
+                        html += '<p><strong>Trạng thái:</strong> <span class="badge bg-success">Đã hoàn thành</span></p>';
+                        html += '</div>';
+                        html += '<div class="col-md-6">';
+                        html += '<p><strong>Ngày thanh toán:</strong> ' + formattedDate + '</p>';
+                        html += '<p><strong>Mã giao dịch:</strong> ' + (data.transactionId || 'N/A') + '</p>';
+                        
+                        // Kiểm tra memberPackage data
+                        if (data.memberPackage && data.memberPackage.packageName) {
+                            html += '<p><strong>Gói tập:</strong> ' + data.memberPackage.packageName + '</p>';
+                        }
+                        
+                        html += '</div>';
+                        html += '</div>';
+                        
+                        content.innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Error loading payment details:', error);
+                        document.getElementById('paymentDetailContent').innerHTML = 
+                            '<div class="alert alert-danger">Không thể tải thông tin chi tiết thanh toán: ' + error.message + '</div>';
+                    });
             });
         });
-        
-        function showPaymentDetails(paymentId) {
-            // Hiển thị modal trước để người dùng biết đang tải
-            var modal = new bootstrap.Modal(document.getElementById('paymentDetailModal'));
-            modal.show();
-            
-            // Đặt trạng thái đang tải
-            document.getElementById('package-info').innerHTML = '<p>Đang tải dữ liệu...</p>';
-            
-            // Sử dụng đường dẫn tuyệt đối
-            fetch(window.location.pathname + '/detail?id=' + paymentId)
-                .then(function(response) {
-                    console.log('Response status:', response.status);
-                    if (!response.ok) {
-                        return response.text().then(function(text) {
-                            try {
-                                // Thử phân tích JSON
-                                var jsonError = JSON.parse(text);
-                                throw new Error('Lỗi ' + response.status + ': ' + (jsonError.error || text));
-                            } catch (e) {
-                                // Nếu không phải JSON, trả về text
-                                throw new Error('Lỗi ' + response.status + ': ' + text);
-                            }
-                        });
-                    }
-                    return response.text().then(function(text) {
-                        console.log('Raw response text:', text);
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            console.error('JSON parse error:', e, text);
-                            throw new Error('Lỗi phân tích JSON: ' + e.message);
-                        }
-                    });
-                })
-                .then(function(data) {
-                    console.log('Data received:', data);
-                    var payment = data.payment;
-                    console.log('Payment object:', payment);
-                    
-                    // Populate modal with basic info
-                    document.getElementById('modal-payment-id').textContent = payment.id || 'N/A';
-                    document.getElementById('modal-payment-method').textContent = payment.paymentMethod || 'N/A';
-                    document.getElementById('modal-payment-status').textContent = payment.status || 'N/A';
-                    document.getElementById('modal-transaction-id').textContent = payment.transactionId || 'N/A';
-                    
-                    // Format date
-                    try {
-                        if (payment.paymentDate) {
-                            var paymentDate = new Date(payment.paymentDate);
-                            console.log('Payment date:', paymentDate);
-                            if (!isNaN(paymentDate.getTime())) {
-                                var formattedDate = paymentDate.toLocaleDateString('vi-VN') + ' ' + paymentDate.toLocaleTimeString('vi-VN');
-                                document.getElementById('modal-payment-date').textContent = formattedDate;
-                            } else {
-                                document.getElementById('modal-payment-date').textContent = 'Ngày không hợp lệ';
-                            }
-                        } else {
-                            document.getElementById('modal-payment-date').textContent = 'N/A';
-                        }
-                    } catch (e) {
-                        console.error('Error formatting date:', e);
-                        document.getElementById('modal-payment-date').textContent = 'Lỗi định dạng ngày';
-                    }
-                    
-                    // Format currency
-                    try {
-                        if (payment.amount) {
-                            var formatter = new Intl.NumberFormat('vi-VN', {
-                                style: 'currency',
-                                currency: 'VND'
-                            });
-                            document.getElementById('modal-payment-amount').textContent = formatter.format(payment.amount);
-                        } else {
-                            document.getElementById('modal-payment-amount').textContent = 'N/A';
-                        }
-                    } catch (e) {
-                        console.error('Error formatting amount:', e);
-                        document.getElementById('modal-payment-amount').textContent = 'Lỗi định dạng số tiền';
-                    }
-                    
-                    // Package info
-                    var packageHtml = '';
-                    console.log('Member package:', payment.memberPackage);
-                    try {
-                        if (payment.memberPackage) {
-                            var pkg = payment.memberPackage;
-                            packageHtml = '<p><strong>Tên gói:</strong> ' + (pkg.packageName || 'N/A') + '</p>' +
-                                         '<p><strong>Thời hạn:</strong> ' + (pkg.duration || 'N/A') + ' tháng</p>' +
-                                         '<p><strong>Giá gốc:</strong> ' + formatter.format(pkg.price || 0) + '</p>';
-                                         
-                        } else {
-                            packageHtml = '<p>Không có thông tin gói tập</p>';
-                        }
-                    } catch (e) {
-                        console.error('Error formatting package info:', e);
-                        packageHtml = '<p class="text-danger">Lỗi hiển thị thông tin gói tập: ' + e.message + '</p>';
-                    }
-                    document.getElementById('package-info').innerHTML = packageHtml;
-                })
-                .catch(function(error) {
-                    console.error('Error:', error);
-                    document.getElementById('package-info').innerHTML = '<p class="text-danger">Lỗi: ' + error.message + '</p>';
-                });
-        }
     </script>
+
+    <!-- Github buttons -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+    <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 </body>
-</html> 
+</html>

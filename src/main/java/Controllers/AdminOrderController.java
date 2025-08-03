@@ -92,6 +92,16 @@ public class AdminOrderController extends HttpServlet {
 
     private void showAdminCreateOrderPage(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+        // Load products
+        ProductService productService = new ProductService();
+        List<Product> products = productService.getAllActiveProducts();
+        req.setAttribute("products", products);
+
+        // Load members for customer selection
+        UserService userService = new UserService();
+        List<User> members = userService.getAllMembers();
+        req.setAttribute("members", members);
+
         req.getRequestDispatcher("admin-create-order.jsp").forward(req, resp);
     }
 

@@ -20,11 +20,20 @@
     InventoryService inventoryService = new InventoryService();
     List<Product> allProducts = productService.getAllProducts();
     List<Product> products = new ArrayList<>();
-    for (Product product : allProducts) {
-        if ("Active".equalsIgnoreCase(product.getStatus())) {
-            products.add(product);
+    
+    // Debug: Log số lượng products
+    System.out.println("Total products from database: " + (allProducts != null ? allProducts.size() : 0));
+    
+    if (allProducts != null) {
+        for (Product product : allProducts) {
+            System.out.println("Product: " + product.getName() + " - Status: " + product.getStatus());
+            if ("Active".equalsIgnoreCase(product.getStatus())) {
+                products.add(product);
+            }
         }
     }
+    
+    System.out.println("Active products: " + products.size());
 
     NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
     
@@ -334,6 +343,48 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             border: none;
         }
+
+        /* Empty State */
+        .empty-products {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #718096;
+        }
+
+        .empty-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .empty-description {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body class="g-sidenav-show bg-gray-100">
@@ -405,9 +456,10 @@
                         int stockQuantity = (inventory != null && inventory.getQuantity() != null) ? inventory.getQuantity() : 0;
                         String stockBadgeClass = stockQuantity <= 0 ? "out-of-stock" : (stockQuantity <= 10 ? "low-stock" : "in-stock");
                         
-                        String productName = product.getName().replace("'", "\\'").replace("\"", "&quot;");
-                        String productDesc = product.getDescription() != null ? product.getDescription().replace("'", "\\'").replace("\"", "&quot;") : "";
-                        String productImage = product.getImageUrl() != null ? product.getImageUrl() : "";
+                        // Escape strings properly for JavaScript
+                        String productName = product.getName().replace("'", "\\'").replace("\"", "\\\"").replace("\r", "").replace("\n", "");
+                        String productDesc = (product.getDescription() != null ? product.getDescription() : "Sản phẩm chất lượng cao").replace("'", "\\'").replace("\"", "\\\"").replace("\r", "").replace("\n", "");
+                        String productImage = (product.getImageUrl() != null ? product.getImageUrl() : "").replace("'", "\\'").replace("\"", "\\\"");
                 %>
                 <div class="product-card" data-product-name="<%= product.getName().toLowerCase() %>">
                     <div class="product-image-container">
@@ -453,7 +505,21 @@
                         </button>
                     </div>
                 </div>
-                <% } } %>
+                <% } 
+                } else { %>
+                <div class="empty-products">
+                    <div class="empty-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3 class="empty-title">Chưa có sản phẩm</h3>
+                    <p class="empty-description">
+                        Hiện tại chưa có sản phẩm nào trong cửa hàng. 
+                        <% if (allProducts != null && !allProducts.isEmpty()) { %>
+                        <br><strong>Lưu ý:</strong> Có <%= allProducts.size() %> sản phẩm trong database nhưng không có sản phẩm nào có status "Active".
+                        <% } %>
+                    </p>
+                </div>
+                <% } %>
             </div>
         </div>
     </main>
@@ -518,22 +584,22 @@
             return new Intl.NumberFormat('vi-VN').format(num);
         }
 
-        // Show toast notification
+        // Show toast notification với hỗ trợ warning
         function showToast(type, message) {
             const toastContainer = document.querySelector('.toast-container');
             const toast = document.createElement('div');
-            toast.className = 'toast align-items-center text-white bg-' + (type === 'success' ? 'success' : 'danger') + ' border-0';
+            toast.className = 'toast align-items-center text-white bg-' + (type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'danger') + ' border-0';
             toast.setAttribute('role', 'alert');
             toast.innerHTML = 
                 '<div class="d-flex">' +
                     '<div class="toast-body">' +
-                        '<i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + ' me-2"></i>' + message +
+                        '<i class="fas fa-' + (type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle') + ' me-2"></i>' + message +
                     '</div>' +
                     '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>' +
                 '</div>';
             
             toastContainer.appendChild(toast);
-            const bsToast = new bootstrap.Toast(toast);
+            const bsToast = new bootstrap.Toast(toast, { delay: type === 'warning' ? 5000 : 3000 });
             bsToast.show();
             
             toast.addEventListener('hidden.bs.toast', function() {
@@ -657,20 +723,25 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showToast('success', data.message);
+                    // Kiểm tra nếu là partial add (chỉ thêm được một phần)
+                    if (data.isPartial) {
+                        showToast('warning', data.message);
+                    } else {
+                        showToast('success', data.message);
+                    }
                     updateCartBadge();
                     
                     // Close modal after short delay
                     setTimeout(() => {
                         bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
-                    }, 1000);
+                    }, 1500);
                 } else {
-                    showToast('error', 'Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng!');
+                    showToast('error', data.message || 'Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng!');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('error', 'Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng!');
+                showToast('error', 'Có lỗi kết nối. Vui lòng thử lại!');
             })
             .finally(() => {
                 btn.innerHTML = originalHTML;

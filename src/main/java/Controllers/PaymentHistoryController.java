@@ -49,9 +49,18 @@ public class PaymentHistoryController extends HttpServlet {
         }
 
         if (pathInfo == null || pathInfo.equals("/")) {
-            // Hiển thị trang lịch sử thanh toán
-            List<Payment> payments = paymentDAO.getPaymentsByUserId(loggedInUser.getId());
-            request.setAttribute("payments", payments);
+            // Hiển thị trang lịch sử thanh toán - chỉ lấy payments đã hoàn thành
+            List<Payment> allPayments = paymentDAO.getPaymentsByUserId(loggedInUser.getId());
+            List<Payment> completedPayments = new java.util.ArrayList<>();
+
+            // Lọc chỉ lấy payments có status COMPLETED
+            for (Payment payment : allPayments) {
+                if ("COMPLETED".equals(payment.getStatus())) {
+                    completedPayments.add(payment);
+                }
+            }
+
+            request.setAttribute("payments", completedPayments);
             request.getRequestDispatcher("/payment-history.jsp").forward(request, response);
         } else if (pathInfo.equals("/detail")) {
             try {

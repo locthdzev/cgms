@@ -41,6 +41,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* CSS styles remain the same as before */
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
@@ -1020,7 +1021,7 @@
                         updateSelectedTotal();
                     }
                     
-                    showToast('success', 'Cập nhật số lượng thành công');
+                    // Không hiển thị thông báo "Cập nhật số lượng thành công" nữa
                 } else {
                     // Revert on failure
                     const oldQty = parseInt(inputElement.getAttribute('data-old-value') || '1');
