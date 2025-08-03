@@ -45,11 +45,40 @@ public class PayOSCallbackController extends HttpServlet {
                 Order order = orderDAO.getOrderByPayOSCode(fullOrderCode);
 
                 if (order != null) {
-                    req.getSession().setAttribute("successMessage",
-                            "Thanh toán thành công! Đơn hàng #" + order.getId() + " đang chờ xác nhận từ admin.");
+                    // Debug logging để kiểm tra order
+                    System.out.println("=== PayOS Success Debug ===");
+                    System.out.println("Order ID: " + order.getId());
+                    System.out.println("Order Member: " + order.getMember().getFullName());
+                    System.out.println("Order CreatedByAdmin: " + order.getCreatedByAdmin());
+                    System.out.println("Is Admin Order: " + (order.getCreatedByAdmin() != null));
+                    System.out.println("Order Status: " + order.getStatus());
+                    System.out.println("Order PayOS Code: " + order.getPayOSOrderCode());
+                    System.out.println("============================");
 
-                    System.out.println("Payment successful for order: " + order.getId());
-                    resp.sendRedirect(req.getContextPath() + "/my-order");
+                    // Kiểm tra xem order được tạo bởi admin hay member
+                    boolean isAdminOrder = (order.getCreatedByAdmin() != null);
+
+                    if (isAdminOrder) {
+                        // Admin order: Tự động xác nhận
+                        System.out.println("PROCESSING ADMIN ORDER - Updating status to CONFIRMED");
+                        orderService.updateOrderStatus(order.getId(), OrderService.OrderConstants.STATUS_CONFIRMED);
+
+                        req.getSession().setAttribute("successMessage",
+                                "Thanh toán thành công! Đơn hàng #" + order.getId() + " đã được xác nhận.");
+
+                        System.out.println("Admin order payment successful and confirmed: " + order.getId());
+                        System.out.println("REDIRECTING TO: /admin-orders");
+                        resp.sendRedirect(req.getContextPath() + "/admin-orders");
+                    } else {
+                        // Member order: Chờ admin xác nhận
+                        System.out.println("PROCESSING MEMBER ORDER - Keeping PENDING status");
+                        req.getSession().setAttribute("successMessage",
+                                "Thanh toán thành công! Đơn hàng #" + order.getId() + " đang chờ xác nhận từ admin.");
+
+                        System.out.println("Member order payment successful: " + order.getId());
+                        System.out.println("REDIRECTING TO: /my-order");
+                        resp.sendRedirect(req.getContextPath() + "/my-order");
+                    }
                 } else {
                     System.out.println("Order not found: " + fullOrderCode);
                     req.getSession().setAttribute("errorMessage", "Không tìm thấy đơn hàng với mã: " + fullOrderCode);
@@ -80,15 +109,25 @@ public class PayOSCallbackController extends HttpServlet {
                     // Hủy đơn hàng (email sẽ được gửi bất đồng bộ)
                     orderService.cancelOrder(order.getId(), "Khách hàng hủy thanh toán PayOS");
 
+                    // Kiểm tra xem order được tạo bởi admin hay member để redirect đúng
+                    boolean isAdminOrder = (order.getCreatedByAdmin() != null);
+
                     req.getSession().setAttribute("errorMessage",
                             "Thanh toán đã bị hủy. Đơn hàng #" + order.getId() + " đã được hủy.");
+
+                    if (isAdminOrder) {
+                        resp.sendRedirect(req.getContextPath() + "/admin-orders");
+                    } else {
+                        resp.sendRedirect(req.getContextPath() + "/my-order");
+                    }
                 } else {
                     req.getSession().setAttribute("errorMessage", "Thanh toán đã bị hủy.");
+                    resp.sendRedirect(req.getContextPath() + "/my-order");
                 }
             } else {
                 req.getSession().setAttribute("errorMessage", "Thanh toán đã bị hủy.");
+                resp.sendRedirect(req.getContextPath() + "/my-order");
             }
-            resp.sendRedirect(req.getContextPath() + "/my-order");
         } catch (Exception e) {
             e.printStackTrace();
             req.getSession().setAttribute("errorMessage", "Có lỗi xảy ra khi xử lý hủy thanh toán.");

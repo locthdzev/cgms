@@ -7,6 +7,8 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.WebServlet;
 
 import java.io.IOException;
+import java.util.List;
+import Models.Cart;
 
 @WebServlet("/member-cart")
 public class CartController extends HttpServlet {
@@ -30,9 +32,63 @@ public class CartController extends HttpServlet {
 
         if ("add".equals(action)) {
             int productId = Integer.parseInt(req.getParameter("id"));
-            cartService.addToCart(user.getId(), productId);
-            req.getSession().setAttribute("successMessage", "Đã thêm vào giỏ hàng!");
-            resp.sendRedirect("member-shop.jsp");
+            String quantityParam = req.getParameter("quantity");
+            int quantity = 1;
+            if (quantityParam != null && !quantityParam.isEmpty()) {
+                try {
+                    quantity = Integer.parseInt(quantityParam);
+                    if (quantity < 1)
+                        quantity = 1;
+                } catch (NumberFormatException e) {
+                    quantity = 1;
+                }
+            }
+
+            // Check if product already exists in cart
+            List<Cart> cartItems = cartService.getCartByMemberId(user.getId());
+            Cart existingItem = null;
+            for (Cart item : cartItems) {
+                if (item.getProduct().getId().equals(productId)) {
+                    existingItem = item;
+                    break;
+                }
+            }
+
+            if (existingItem != null) {
+                // Product exists, add to existing quantity
+                int newQuantity = existingItem.getQuantity() + quantity;
+                cartService.setQuantity(existingItem.getId(), newQuantity);
+            } else {
+                // New product, add to cart
+                cartService.addToCart(user.getId(), productId);
+                if (quantity > 1) {
+                    // Update quantity if more than 1
+                    cartItems = cartService.getCartByMemberId(user.getId());
+                    for (Cart item : cartItems) {
+                        if (item.getProduct().getId().equals(productId)) {
+                            cartService.setQuantity(item.getId(), quantity);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Get updated cart info
+            long cartTotal = cartService.getCartTotal(user.getId());
+            int cartItemCount = cartService.getCartByMemberId(user.getId()).size();
+
+            if (isAjax(req)) {
+                resp.setContentType("application/json");
+                resp.setCharacterEncoding("UTF-8");
+                String json = "{\"success\": true, \"message\": \"Đã thêm " + quantity
+                        + " sản phẩm vào giỏ hàng!\", \"cartTotal\": " + cartTotal + ", \"cartItemCount\": "
+                        + cartItemCount + "}";
+                resp.getWriter().write(json);
+                return;
+            } else {
+                req.getSession().setAttribute("successMessage", "Đã thêm " + quantity + " sản phẩm vào giỏ hàng!");
+                resp.sendRedirect("member-shop.jsp");
+            }
         } else if ("remove".equals(action)) {
             int cartId = Integer.parseInt(req.getParameter("id"));
             cartService.removeItem(cartId);
@@ -83,6 +139,17 @@ public class CartController extends HttpServlet {
             } else {
                 resp.sendRedirect("member-cart");
             }
+        } else if ("count".equals(action)) {
+            // API endpoint to get cart count
+            int cartItemCount = cartService.getCartByMemberId(user.getId()).size();
+            long cartTotal = cartService.getCartTotal(user.getId());
+
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+            String json = "{\"success\": true, \"cartItemCount\": " + cartItemCount + ", \"cartTotal\": " + cartTotal
+                    + "}";
+            resp.getWriter().write(json);
+            return;
         } else {
             req.setAttribute("cartItems", cartService.getCartByMemberId(user.getId()));
             req.getRequestDispatcher("member-cart.jsp").forward(req, resp);
