@@ -187,7 +187,8 @@ public class OrderService {
             String shippingAddress, String receiverName, String receiverPhone,
             String paymentMethod, String notes) {
         try {
-            // Kiểm tra tồn kho
+            // Kiểm tra tồn kho và load product details
+            ProductService productService = new ProductService();
             for (OrderItem item : orderItems) {
                 Inventory inventory = inventoryDAO.getInventoryByProductId(item.getProductId());
                 if (inventory == null || inventory.getQuantity() < item.getQuantity()) {
@@ -207,7 +208,14 @@ public class OrderService {
             order.setCreatedByAdmin(admin);
             order.setTotalAmount(totalAmount);
             order.setOrderDate(LocalDate.now());
-            order.setStatus(OrderConstants.STATUS_PENDING);
+
+            // Admin tạo order với Cash = CONFIRMED, PayOS = PENDING
+            if (OrderConstants.PAYMENT_CASH.equals(paymentMethod)) {
+                order.setStatus(OrderConstants.STATUS_CONFIRMED);
+            } else {
+                order.setStatus(OrderConstants.STATUS_PENDING);
+            }
+
             order.setCreatedAt(Instant.now());
             order.setShippingAddress(shippingAddress);
             order.setReceiverName(receiverName);
@@ -216,7 +224,7 @@ public class OrderService {
             order.setNotes(notes);
 
             if (OrderConstants.PAYMENT_PAYOS.equals(paymentMethod)) {
-                String payOSOrderCode = "ADMIN-ORDER-" + System.currentTimeMillis();
+                String payOSOrderCode = "ORDER-" + System.currentTimeMillis();
                 order.setPayOSOrderCode(payOSOrderCode);
             }
 
@@ -227,13 +235,16 @@ public class OrderService {
 
             order.setId(orderId);
 
-            // Tạo chi tiết đơn hàng
+            // Tạo chi tiết đơn hàng với product details đầy đủ
             for (OrderItem item : orderItems) {
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setOrder(order);
 
-                Product product = new Product();
-                product.setId(item.getProductId());
+                // Load full product details for PayOS
+                Product product = productService.getProductById(item.getProductId());
+                if (product == null) {
+                    throw new RuntimeException("Không tìm thấy sản phẩm ID: " + item.getProductId());
+                }
                 orderDetail.setProduct(product);
 
                 orderDetail.setQuantity(item.getQuantity());
@@ -244,6 +255,13 @@ public class OrderService {
                 orderDetail.setStatus("ACTIVE");
 
                 orderDAO.createOrderDetail(orderDetail);
+
+                // Update inventory
+                Inventory inventory = inventoryDAO.getInventoryByProductId(item.getProductId());
+                if (inventory != null) {
+                    inventory.setQuantity(inventory.getQuantity() - item.getQuantity());
+                    inventoryDAO.updateInventory(inventory);
+                }
             }
 
             // Gửi email xác nhận bất đồng bộ
@@ -262,11 +280,27 @@ public class OrderService {
     public void updateOrderStatus(int orderId, String newStatus) {
         orderDAO.updateOrderStatus(orderId, newStatus);
 
-        // Gửi email thông báo cập nhật trạng thái
+        // Gửi email thông báo cập nhật trạng thái bất đồng bộ
         Order order = orderDAO.getOrderById(orderId);
         if (order != null) {
-            sendOrderStatusUpdateEmail(order.getMember(), order, newStatus);
+            sendOrderStatusUpdateEmailAsync(order.getMember(), order, newStatus);
         }
+    }
+
+    /**
+     * Gửi email cập nhật trạng thái bất đồng bộ
+     */
+    private void sendOrderStatusUpdateEmailAsync(User customer, Order order, String newStatus) {
+        // Tạo thread riêng để gửi email
+        new Thread(() -> {
+            try {
+                sendOrderStatusUpdateEmail(customer, order, newStatus);
+            } catch (Exception e) {
+                // Log lỗi nhưng không ảnh hưởng đến quá trình cập nhật
+                System.err.println("Lỗi khi gửi email cập nhật trạng thái: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     /**
