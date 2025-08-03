@@ -47,7 +47,7 @@ public class PaymentController extends HttpServlet {
         String pathInfo = request.getPathInfo();
 
         if (pathInfo == null) {
-            response.sendRedirect(request.getContextPath() + "/member-packages-controller");
+            response.sendRedirect(request.getContextPath() + "/all-packages");
             return;
         }
 
@@ -65,7 +65,7 @@ public class PaymentController extends HttpServlet {
                 checkPaymentStatus(request, response);
                 break;
             default:
-                response.sendRedirect(request.getContextPath() + "/member-packages-controller");
+                response.sendRedirect(request.getContextPath() + "/all-packages");
                 break;
         }
     }
@@ -99,7 +99,7 @@ public class PaymentController extends HttpServlet {
             MemberPackage memberPackage = memberPackageDAO.getMemberPackageById(memberPackageId);
 
             if (memberPackage == null) {
-                response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=package_not_found");
+                response.sendRedirect(request.getContextPath() + "/all-packages?error=package_not_found");
                 return;
             }
 
@@ -111,7 +111,7 @@ public class PaymentController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/select-voucher.jsp");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=checkout_error");
+            response.sendRedirect(request.getContextPath() + "/all-packages?error=checkout_error");
         }
     }
 
@@ -232,7 +232,7 @@ public class PaymentController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/profile?message=payment_success");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=payment_process_error");
+            response.sendRedirect(request.getContextPath() + "/all-packages?error=payment_process_error");
         }
     }
 
@@ -241,7 +241,7 @@ public class PaymentController extends HttpServlet {
         // Xử lý khi thanh toán bị hủy
         HttpSession session = request.getSession();
         session.setAttribute("paymentStatus", "cancelled");
-        response.sendRedirect(request.getContextPath() + "/member-packages-controller?message=payment_cancelled");
+        response.sendRedirect(request.getContextPath() + "/all-packages?message=payment_cancelled");
     }
 
     private void createPayment(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -441,7 +441,7 @@ public class PaymentController extends HttpServlet {
                 } else {
                     System.out.println("memberPackageId not found in form or session");
                     response.sendRedirect(
-                            request.getContextPath() + "/member-packages-controller?error=invalid_request");
+                            request.getContextPath() + "/all-packages?error=invalid_request");
                     return;
                 }
             }
@@ -454,7 +454,7 @@ public class PaymentController extends HttpServlet {
             // Lấy thông tin gói tập
             MemberPackage memberPackage = memberPackageDAO.getMemberPackageById(memberPackageId);
             if (memberPackage == null) {
-                response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=package_not_found");
+                response.sendRedirect(request.getContextPath() + "/all-packages?error=package_not_found");
                 return;
             }
 
@@ -545,7 +545,7 @@ public class PaymentController extends HttpServlet {
                 payment = paymentDAO.createPayment(memberPackage, finalPrice, "PAYOS");
                 if (payment == null) {
                     response.sendRedirect(
-                            request.getContextPath() + "/member-packages-controller?error=payment_creation_failed");
+                            request.getContextPath() + "/all-packages?error=payment_creation_failed");
                     return;
                 }
             }
@@ -559,7 +559,7 @@ public class PaymentController extends HttpServlet {
             if (paymentLink == null) {
                 System.out.println("Failed to create payment link");
                 response.sendRedirect(request.getContextPath()
-                        + "/member-packages-controller?error=payment_link_creation_failed");
+                        + "/all-packages?error=payment_link_creation_failed");
                 return;
             }
 
@@ -571,7 +571,7 @@ public class PaymentController extends HttpServlet {
             response.sendRedirect(paymentLink.getPaymentLinkUrl());
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=payment_process_error");
+            response.sendRedirect(request.getContextPath() + "/all-packages?error=payment_process_error");
         }
     }
 }
