@@ -503,7 +503,7 @@
                             </div>
                             <div class="text-end">
                                 <h5 class="mb-0 price-highlight">
-                                    <%= formatter.format(detail.getTotalPrice().longValue() * detail.getQuantity()) %> VNĐ
+                                    <%= formatter.format(detail.getTotalPrice().longValue()) %> VNĐ
                                 </h5>
                             </div>
                         </div>
