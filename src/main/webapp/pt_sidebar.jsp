@@ -37,11 +37,11 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <%= "pt_clients.jsp".equals(sidebarPageName) ? "active" : "" %>" href="pt_clients.jsp">
+                <a class="nav-link <%= sidebarCurrentURI.contains("pt-availability") ? "active" : "" %>" href="pt-availability">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fas fa-users text-success text-sm opacity-10"></i>
+                        <i class="fas fa-calendar-plus text-success text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Khách hàng</span>
+                    <span class="nav-link-text ms-1">Lịch sẵn sàng</span>
                 </a>
             </li>
             

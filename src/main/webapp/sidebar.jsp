@@ -21,6 +21,7 @@
     boolean isInventory = currentPath.contains("inventory") || currentPath.contains("Inventory");
     boolean isSchedule = currentPath.contains("schedule") || currentPath.contains("Schedule") || currentPath.contains("/schedule");
     boolean isCheckin = currentPath.contains("checkin-history.jsp") || currentPath.contains("checkinHistory");
+    boolean isPTAvailability = currentPath.contains("admin-pt-availability");
     boolean isVoucher = currentPath.contains("voucher") || currentPath.contains("Voucher");
     boolean isFeedback = currentPath.contains("feedback") || currentPath.contains("Feedback");
     boolean isScheduler = currentPath.contains("scheduler") || currentPath.contains("Scheduler") || currentPath.contains("/admin/scheduler");
@@ -163,6 +164,14 @@
                         <i class="fas fa-history text-info text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Lịch sử Check-In</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isPTAvailability ? "active" : "" %>" href="${pageContext.request.contextPath}/admin-pt-availability">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-calendar-check text-success text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Lịch sẵn sàng PT</span>
                 </a>
             </li>
 
