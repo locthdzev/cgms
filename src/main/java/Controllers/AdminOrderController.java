@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "AdminOrderController", urlPatterns = { "/admin-orders", "/admin-orders/*" })
 public class AdminOrderController extends HttpServlet {
@@ -45,6 +46,8 @@ public class AdminOrderController extends HttpServlet {
         try {
             if ("create".equals(action)) {
                 showAdminCreateOrderPage(req, resp);
+            } else if ("details".equals(action)) {
+                showOrderDetails(req, resp);
             } else {
                 // Default: show order list
                 showAdminOrderList(req, resp);
@@ -85,8 +88,25 @@ public class AdminOrderController extends HttpServlet {
 
     private void showAdminOrderList(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        List<Order> orders = orderService.getAllOrders();
-        req.setAttribute("orders", orders);
+        // Lấy tất cả đơn hàng
+        List<Order> allOrders = orderService.getAllOrders();
+
+        // Lấy tham số filter từ request
+        String statusFilter = req.getParameter("status");
+
+        // Filter đơn hàng theo trạng thái nếu có
+        List<Order> filteredOrders = allOrders;
+        if (statusFilter != null && !statusFilter.trim().isEmpty() && !"ALL".equals(statusFilter)) {
+            filteredOrders = allOrders.stream()
+                    .filter(order -> statusFilter.equals(order.getStatus()))
+                    .collect(Collectors.toList());
+        }
+
+        // Set attributes cho JSP
+        req.setAttribute("orders", filteredOrders);
+        req.setAttribute("allOrders", allOrders); // Để tính statistics
+        req.setAttribute("currentFilter", statusFilter != null ? statusFilter : "ALL");
+
         req.getRequestDispatcher("admin-order-list.jsp").forward(req, resp);
     }
 
@@ -105,6 +125,24 @@ public class AdminOrderController extends HttpServlet {
         req.getRequestDispatcher("admin-create-order.jsp").forward(req, resp);
     }
 
+    private void showOrderDetails(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        int orderId = Integer.parseInt(req.getParameter("id"));
+        Order order = orderService.getOrderWithDetails(orderId);
+
+        // Admin có thể xem tất cả đơn hàng
+        if (order == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        List<OrderDetail> orderDetails = orderDAO.getOrderDetailsByOrderId(orderId);
+        req.setAttribute("order", order);
+        req.setAttribute("orderDetails", orderDetails);
+
+        req.getRequestDispatcher("order-details.jsp").forward(req, resp);
+    }
+
     private void createOrderByAdmin(HttpServletRequest req, HttpServletResponse resp, User admin)
             throws ServletException, IOException {
         try {
@@ -115,6 +153,15 @@ public class AdminOrderController extends HttpServlet {
             String receiverPhone = req.getParameter("receiverPhone");
             String paymentMethod = req.getParameter("paymentMethod");
             String notes = req.getParameter("notes");
+
+            // *** DEBUG PAYMENT METHOD ***
+            System.out.println("=== CREATE ORDER DEBUG ===");
+            System.out.println("Payment method received: '" + paymentMethod + "'");
+            System.out.println(
+                    "Payment method equals PAYOS: " + OrderService.OrderConstants.PAYMENT_PAYOS.equals(paymentMethod));
+            System.out.println("PAYMENT_PAYOS constant: '" + OrderService.OrderConstants.PAYMENT_PAYOS + "'");
+            System.out.println("Customer ID: " + customerId);
+            System.out.println("===========================");
 
             // Validate basic info
             if (shippingAddress == null || receiverName == null || receiverPhone == null || paymentMethod == null) {
@@ -180,17 +227,28 @@ public class AdminOrderController extends HttpServlet {
 
             if (OrderService.OrderConstants.PAYMENT_PAYOS.equals(paymentMethod)) {
                 // Redirect to PayOS payment
+                System.out.println("=== ADMIN PAYOS ORDER DEBUG ===");
+                System.out.println("Payment method: " + paymentMethod);
+                System.out.println("Order ID: " + orderId);
+
                 Order order = orderService.getOrderWithDetails(orderId);
+                System.out.println("Order retrieved, PayOS code: " + order.getPayOSOrderCode());
+                System.out.println("Order status: " + order.getStatus());
+
                 List<OrderDetail> orderDetails = orderDAO.getOrderDetailsByOrderId(orderId);
+                System.out.println("Order details count: " + orderDetails.size());
 
                 String paymentUrl = payOSService.createPaymentLinkForOrder(order, orderDetails);
+                System.out.println("PayOS payment URL: " + paymentUrl);
 
                 if (paymentUrl != null) {
-                    req.getSession().setAttribute("successMessage",
-                            "Đơn hàng #" + orderId
-                                    + " đã được tạo thành công!.");
+                    // Không set success message ở đây vì có thể user sẽ hủy
+                    // Success message sẽ được set trong PayOSCallbackController khi thanh toán
+                    // thành công
+                    System.out.println("Redirecting to PayOS: " + paymentUrl);
                     resp.sendRedirect(paymentUrl);
                 } else {
+                    System.out.println("PayOS URL is null - falling back to admin orders");
                     req.getSession().setAttribute("errorMessage",
                             "Không thể tạo link thanh toán PayOS. Đơn hàng đã được tạo với mã #" + orderId);
                     resp.sendRedirect("admin-orders");
@@ -198,7 +256,7 @@ public class AdminOrderController extends HttpServlet {
             } else {
                 // Cash payment - redirect to admin order list
                 req.getSession().setAttribute("successMessage",
-                        "Đơn hàng #" + orderId + " đã được tạo thành công!");
+                        "Đơn hàng #" + orderId + " đã hoàn thành thành công!");
                 resp.sendRedirect("admin-orders");
             }
 
