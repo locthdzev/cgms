@@ -494,8 +494,8 @@ public class MemberPackageDAO {
                 "ORDER BY u.FullName";
 
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 User user = createUserFromResultSet(rs);
@@ -552,8 +552,8 @@ public class MemberPackageDAO {
         System.out.println("Executing SQL: " + sql);
 
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 User user = new User();
@@ -566,12 +566,12 @@ public class MemberPackageDAO {
                 user.setGender(rs.getString("Gender"));
                 user.setRole(rs.getString("Role"));
                 user.setStatus(rs.getString("Status"));
-                
+
                 java.sql.Date dob = rs.getDate("DOB");
                 if (dob != null) {
                     user.setDob(dob.toLocalDate());
                 }
-                
+
                 members.add(user);
                 System.out.println("Found member: " + user.getFullName());
             }
@@ -583,5 +583,156 @@ public class MemberPackageDAO {
 
         System.out.println("Total members found: " + members.size());
         return members;
+    }
+
+    public List<MemberPackage> getAllMemberPackages() {
+        String sql = "SELECT mp.*, p.*, v.*, u.UserId, u.UserName, u.Email, u.FullName FROM Member_Packages mp "
+                + "LEFT JOIN Packages p ON mp.PackageId = p.PackageId "
+                + "LEFT JOIN Vouchers v ON mp.VoucherId = v.VoucherId "
+                + "LEFT JOIN Users u ON mp.MemberId = u.UserId "
+                + "ORDER BY mp.CreatedAt DESC";
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        List<MemberPackage> memberPackages = new ArrayList<>();
+
+        try {
+            conn = DbConnection.getConnection();
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                memberPackages.add(mapMemberPackageWithFullUser(rs));
+            }
+
+            return memberPackages;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    DbConnection.closeConnection(conn);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private MemberPackage mapMemberPackageWithFullUser(ResultSet rs) throws SQLException {
+        MemberPackage memberPackage = new MemberPackage();
+        memberPackage.setId(rs.getInt("MemberPackageId"));
+        memberPackage.setTotalPrice(rs.getBigDecimal("TotalPrice"));
+        memberPackage.setStartDate(rs.getDate("StartDate").toLocalDate());
+        memberPackage.setEndDate(rs.getDate("EndDate").toLocalDate());
+
+        Object remainingSessions = rs.getObject("RemainingSessions");
+        if (remainingSessions != null) {
+            memberPackage.setRemainingSessions(rs.getInt("RemainingSessions"));
+        }
+
+        memberPackage.setStatus(rs.getString("Status"));
+
+        Timestamp createdAt = rs.getTimestamp("CreatedAt");
+        if (createdAt != null) {
+            memberPackage.setCreatedAt(createdAt.toInstant());
+        }
+
+        Timestamp updatedAt = rs.getTimestamp("UpdatedAt");
+        if (updatedAt != null) {
+            memberPackage.setUpdatedAt(updatedAt.toInstant());
+        }
+
+        // Tạo User (member) với đầy đủ thông tin
+        int memberId = rs.getInt("MemberId");
+        if (!rs.wasNull()) {
+            User member = new User();
+            member.setId(memberId);
+            member.setUserName(rs.getString("UserName"));
+            member.setEmail(rs.getString("Email"));
+            member.setFullName(rs.getString("FullName"));
+            memberPackage.setMember(member);
+        }
+
+        // Tạo Package
+        int packageId = rs.getInt("PackageId");
+        if (!rs.wasNull()) {
+            Package packageField = new Package();
+            packageField.setId(packageId);
+            packageField.setName(rs.getString("Name"));
+            packageField.setPrice(rs.getBigDecimal("Price"));
+            packageField.setDuration(rs.getInt("Duration"));
+
+            Object sessions = rs.getObject("Sessions");
+            if (sessions != null) {
+                packageField.setSessions(rs.getInt("Sessions"));
+            }
+
+            packageField.setDescription(rs.getString("Description"));
+            packageField.setStatus(rs.getString("Status"));
+            memberPackage.setPackageField(packageField);
+        }
+
+        // Tạo Voucher nếu có
+        int voucherId = rs.getInt("VoucherId");
+        if (!rs.wasNull()) {
+            Voucher voucher = new Voucher();
+            voucher.setId(voucherId);
+            voucher.setCode(rs.getString("Code"));
+            voucher.setDiscountValue(rs.getBigDecimal("DiscountValue"));
+            voucher.setDiscountType(rs.getString("DiscountType"));
+            memberPackage.setVoucher(voucher);
+        }
+
+        return memberPackage;
+    }
+
+    /**
+     * Lấy danh sách gói tập đang hoạt động của member
+     */
+    public List<MemberPackage> getActiveMemberPackagesByMemberId(int memberId) {
+        String sql = "SELECT mp.*, p.*, v.*, u.UserId, u.UserName, u.Email, u.FullName FROM Member_Packages mp "
+                + "LEFT JOIN Packages p ON mp.PackageId = p.PackageId "
+                + "LEFT JOIN Vouchers v ON mp.VoucherId = v.VoucherId "
+                + "LEFT JOIN Users u ON mp.MemberId = u.UserId "
+                + "WHERE mp.MemberId = ? AND mp.Status = 'ACTIVE' "
+                + "ORDER BY mp.CreatedAt DESC";
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        List<MemberPackage> memberPackages = new ArrayList<>();
+
+        try {
+            conn = DbConnection.getConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, memberId);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                memberPackages.add(mapMemberPackageWithFullUser(rs));
+            }
+
+            return memberPackages;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+                if (stmt != null)
+                    stmt.close();
+                if (conn != null)
+                    DbConnection.closeConnection(conn);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

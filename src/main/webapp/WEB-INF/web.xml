@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="5.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd">
+<web-app version="5.0" xmlns="https://jakarta.ee/xml/ns/jakartaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd">
     <!-- UTF-8 Encoding Filter -->
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
@@ -94,14 +96,6 @@
         <url-pattern>/dashboard</url-pattern>
     </servlet-mapping>
     <servlet>
-        <servlet-name>member-dashboard</servlet-name>
-        <jsp-file>/member-dashboard.jsp</jsp-file>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>member-dashboard</servlet-name>
-        <url-pattern>/member-dashboard</url-pattern>
-    </servlet-mapping>
-    <servlet>
         <servlet-name>AddPackageServlet</servlet-name>
         <servlet-class>Controllers.AddPackageServlet</servlet-class>
     </servlet>
@@ -170,6 +164,24 @@
     <servlet-mapping>
         <servlet-name>member-schedule</servlet-name>
         <url-pattern>/member-schedule</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>member-shop</servlet-name>
+        <jsp-file>/member-shop.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>member-shop</servlet-name>
+        <url-pattern>/member-shop</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>select-voucher</servlet-name>
+        <jsp-file>/select-voucher.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>select-voucher</servlet-name>
+        <url-pattern>/select-voucher</url-pattern>
     </servlet-mapping>
 
     <!-- Removing member-cart servlet and servlet-mapping to resolve conflict with CartController -->

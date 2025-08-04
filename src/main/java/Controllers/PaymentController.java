@@ -8,15 +8,16 @@ import DAOs.MemberPurchaseHistoryDAO;
 import Models.MemberPackage;
 import Models.Payment;
 import Models.PaymentLink;
+import Models.User;
 import Models.Voucher;
 import Services.PayOSService;
+import Services.MembershipCardService;
+import Utilities.EmailSender;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import vn.payos.type.WebhookData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,8 +26,8 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import Models.User;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebServlet(name = "PaymentController", urlPatterns = { "/payment/*" })
 public class PaymentController extends HttpServlet {
@@ -37,6 +38,8 @@ public class PaymentController extends HttpServlet {
     private final MemberPurchaseHistoryDAO memberPurchaseHistoryDAO = new MemberPurchaseHistoryDAO();
     private final PayOSService payOSService = new PayOSService();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final MembershipCardService membershipCardService = new MembershipCardService();
+    private final EmailSender emailSender = new EmailSender();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -44,7 +47,7 @@ public class PaymentController extends HttpServlet {
         String pathInfo = request.getPathInfo();
 
         if (pathInfo == null) {
-            response.sendRedirect(request.getContextPath() + "/member-packages-controller");
+            response.sendRedirect(request.getContextPath() + "/all-packages");
             return;
         }
 
@@ -62,7 +65,7 @@ public class PaymentController extends HttpServlet {
                 checkPaymentStatus(request, response);
                 break;
             default:
-                response.sendRedirect(request.getContextPath() + "/member-packages-controller");
+                response.sendRedirect(request.getContextPath() + "/all-packages");
                 break;
         }
     }
@@ -96,7 +99,7 @@ public class PaymentController extends HttpServlet {
             MemberPackage memberPackage = memberPackageDAO.getMemberPackageById(memberPackageId);
 
             if (memberPackage == null) {
-                response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=package_not_found");
+                response.sendRedirect(request.getContextPath() + "/all-packages?error=package_not_found");
                 return;
             }
 
@@ -105,10 +108,10 @@ public class PaymentController extends HttpServlet {
             session.setAttribute("checkoutMemberPackageId", memberPackageId);
 
             // Chuyển hướng đến trang chọn voucher
-            response.sendRedirect(request.getContextPath() + "/select-voucher.jsp");
+            response.sendRedirect(request.getContextPath() + "/select-voucher");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=checkout_error");
+            response.sendRedirect(request.getContextPath() + "/all-packages?error=checkout_error");
         }
     }
 
@@ -195,6 +198,25 @@ public class PaymentController extends HttpServlet {
 
                                             // Lưu lịch sử mua hàng
                                             memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
+
+                                            // Gửi email thông báo với thẻ tập (async)
+                                            final MemberPackage finalMemberPackage = memberPackage;
+                                            new Thread(() -> {
+                                                try {
+                                                    String subject = "🎉 Chúc mừng! Đăng ký gói tập thành công - CORE-FIT GYM";
+                                                    String emailContent = MembershipCardService
+                                                            .buildMembershipCardEmail(finalMemberPackage);
+                                                    EmailSender.send(finalMemberPackage.getMember().getEmail(), subject,
+                                                            emailContent);
+                                                    System.out.println("Đã gửi email thẻ tập cho member: "
+                                                            + finalMemberPackage.getMember().getEmail());
+                                                } catch (Exception emailEx) {
+                                                    System.err
+                                                            .println("Lỗi khi gửi email thẻ tập: "
+                                                                    + emailEx.getMessage());
+                                                    emailEx.printStackTrace();
+                                                }
+                                            }).start();
                                         }
                                     }
                                 }
@@ -210,7 +232,7 @@ public class PaymentController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/profile?message=payment_success");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=payment_process_error");
+            response.sendRedirect(request.getContextPath() + "/all-packages?error=payment_process_error");
         }
     }
 
@@ -219,7 +241,7 @@ public class PaymentController extends HttpServlet {
         // Xử lý khi thanh toán bị hủy
         HttpSession session = request.getSession();
         session.setAttribute("paymentStatus", "cancelled");
-        response.sendRedirect(request.getContextPath() + "/member-packages-controller?message=payment_cancelled");
+        response.sendRedirect(request.getContextPath() + "/all-packages?message=payment_cancelled");
     }
 
     private void createPayment(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -364,6 +386,22 @@ public class PaymentController extends HttpServlet {
                         if (packageUpdated) {
                             // Lưu lịch sử mua hàng
                             memberPurchaseHistoryDAO.createPurchaseHistory(memberPackage, payment);
+
+                            // Gửi email thông báo với thẻ tập (webhook)
+                            final MemberPackage finalMemberPackage = memberPackage;
+                            new Thread(() -> {
+                                try {
+                                    String subject = "🎉 Chúc mừng! Đăng ký gói tập thành công - CORE-FIT GYM";
+                                    String emailContent = MembershipCardService
+                                            .buildMembershipCardEmail(finalMemberPackage);
+                                    EmailSender.send(finalMemberPackage.getMember().getEmail(), subject, emailContent);
+                                    System.out.println("Webhook: Đã gửi email thẻ tập cho member: "
+                                            + finalMemberPackage.getMember().getEmail());
+                                } catch (Exception emailEx) {
+                                    System.err.println("Webhook: Lỗi khi gửi email thẻ tập: " + emailEx.getMessage());
+                                    emailEx.printStackTrace();
+                                }
+                            }).start();
                         }
                     }
                 }
@@ -403,7 +441,7 @@ public class PaymentController extends HttpServlet {
                 } else {
                     System.out.println("memberPackageId not found in form or session");
                     response.sendRedirect(
-                            request.getContextPath() + "/member-packages-controller?error=invalid_request");
+                            request.getContextPath() + "/all-packages?error=invalid_request");
                     return;
                 }
             }
@@ -416,7 +454,7 @@ public class PaymentController extends HttpServlet {
             // Lấy thông tin gói tập
             MemberPackage memberPackage = memberPackageDAO.getMemberPackageById(memberPackageId);
             if (memberPackage == null) {
-                response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=package_not_found");
+                response.sendRedirect(request.getContextPath() + "/all-packages?error=package_not_found");
                 return;
             }
 
@@ -430,21 +468,21 @@ public class PaymentController extends HttpServlet {
 
                 // Kiểm tra voucher có hợp lệ không
                 if (voucher == null) {
-                    response.sendRedirect(request.getContextPath() + "/select-voucher.jsp?error=invalid_voucher");
+                    response.sendRedirect(request.getContextPath() + "/select-voucher?error=invalid_voucher");
                     return;
                 }
 
                 // Kiểm tra trạng thái voucher (Active thay vì ACTIVE)
                 if (!"Active".equals(voucher.getStatus())
                         || voucher.getExpiryDate().isBefore(java.time.LocalDate.now())) {
-                    response.sendRedirect(request.getContextPath() + "/select-voucher.jsp?error=expired_voucher");
+                    response.sendRedirect(request.getContextPath() + "/select-voucher?error=expired_voucher");
                     return;
                 }
 
                 // Kiểm tra voucher có phải của member này hoặc là voucher dùng chung không
                 User member = (User) session.getAttribute("loggedInUser");
                 if (voucher.getMember() != null && !voucher.getMember().getId().equals(member.getId())) {
-                    response.sendRedirect(request.getContextPath() + "/select-voucher.jsp?error=unauthorized_voucher");
+                    response.sendRedirect(request.getContextPath() + "/select-voucher?error=unauthorized_voucher");
                     return;
                 }
 
@@ -452,7 +490,7 @@ public class PaymentController extends HttpServlet {
                 if (voucher.getMinPurchase() != null
                         && memberPackage.getTotalPrice().compareTo(voucher.getMinPurchase()) < 0) {
                     response.sendRedirect(request.getContextPath()
-                            + "/select-voucher.jsp?error=min_purchase_not_met&min=" + voucher.getMinPurchase());
+                            + "/select-voucher?error=min_purchase_not_met&min=" + voucher.getMinPurchase());
                     return;
                 }
             }
@@ -507,7 +545,7 @@ public class PaymentController extends HttpServlet {
                 payment = paymentDAO.createPayment(memberPackage, finalPrice, "PAYOS");
                 if (payment == null) {
                     response.sendRedirect(
-                            request.getContextPath() + "/member-packages-controller?error=payment_creation_failed");
+                            request.getContextPath() + "/all-packages?error=payment_creation_failed");
                     return;
                 }
             }
@@ -521,7 +559,7 @@ public class PaymentController extends HttpServlet {
             if (paymentLink == null) {
                 System.out.println("Failed to create payment link");
                 response.sendRedirect(request.getContextPath()
-                        + "/member-packages-controller?error=payment_link_creation_failed");
+                        + "/all-packages?error=payment_link_creation_failed");
                 return;
             }
 
@@ -533,7 +571,7 @@ public class PaymentController extends HttpServlet {
             response.sendRedirect(paymentLink.getPaymentLinkUrl());
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/member-packages-controller?error=payment_process_error");
+            response.sendRedirect(request.getContextPath() + "/all-packages?error=payment_process_error");
         }
     }
 }

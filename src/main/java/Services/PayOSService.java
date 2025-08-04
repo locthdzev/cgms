@@ -180,8 +180,15 @@ public class PayOSService {
             }
 
             // Chuyển đổi orderCode thành long để gửi cho PayOS
-            long orderCodeLong = Long.parseLong(orderCode.replace("ORDER-", ""));
-            System.out.println("Generated order code: " + orderCode);
+            long orderCodeLong;
+            if (orderCode.startsWith("ORDER-")) {
+                orderCodeLong = Long.parseLong(orderCode.replace("ORDER-", ""));
+            } else {
+                // Fallback: sử dụng timestamp hiện tại
+                orderCodeLong = System.currentTimeMillis();
+            }
+
+            System.out.println("Generated order code: " + orderCode + " -> " + orderCodeLong);
 
             // Tạo danh sách items từ order details
             List<ItemData> items = new ArrayList<>();
@@ -267,7 +274,7 @@ public class PayOSService {
     public boolean cancelPaymentLink(String orderCode, String reason) {
         try {
             // Chuyển đổi orderCode từ String sang Long
-            String numericPart = orderCode.replace("CGMS-", "");
+            String numericPart = orderCode.replace("ORDER-", "");
             long orderCodeLong = Long.parseLong(numericPart);
             PaymentLinkData data = payOS.cancelPaymentLink(orderCodeLong, reason);
             return data != null;

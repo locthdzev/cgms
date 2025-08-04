@@ -14,13 +14,13 @@ public class InventoryDAO {
     public List<Inventory> getAllInventory() {
         List<Inventory> inventoryList = new ArrayList<>();
         String sql = "SELECT i.*, p.Name, p.Description, p.Price, p.ImageUrl, p.Status as ProductStatus " +
-                    "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
-                    "ORDER BY i.LastUpdated DESC";
-        
+                "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
+                "ORDER BY i.LastUpdated DESC";
+
         try (Connection conn = DbConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
                 Inventory inventory = mapResultSetToInventory(rs);
                 inventoryList.add(inventory);
@@ -33,19 +33,27 @@ public class InventoryDAO {
 
     public Inventory getInventoryById(int inventoryId) {
         String sql = "SELECT i.*, p.Name, p.Description, p.Price, p.ImageUrl, p.Status as ProductStatus " +
-                    "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
-                    "WHERE i.InventoryId = ?";
-        
+                "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
+                "WHERE i.InventoryId = ?";
+
+        System.out.println("DEBUG DAO: Searching for inventory ID: " + inventoryId);
+        System.out.println("DEBUG DAO: SQL Query: " + sql);
+
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            System.out.println("DEBUG DAO: Database connection established");
             stmt.setInt(1, inventoryId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    System.out.println("DEBUG DAO: Found inventory record");
                     return mapResultSetToInventory(rs);
+                } else {
+                    System.out.println("DEBUG DAO: No inventory record found");
                 }
             }
         } catch (Exception e) {
+            System.out.println("DEBUG DAO: Exception occurred: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -53,12 +61,12 @@ public class InventoryDAO {
 
     public Inventory getInventoryByProductId(int productId) {
         String sql = "SELECT i.*, p.Name, p.Description, p.Price, p.ImageUrl, p.Status as ProductStatus " +
-                    "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
-                    "WHERE i.ProductId = ?";
-        
+                "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
+                "WHERE i.ProductId = ?";
+
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, productId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -72,28 +80,29 @@ public class InventoryDAO {
     }
 
     public void saveInventory(Inventory inventory) {
-        String sql = "INSERT INTO Inventory (ProductId, Quantity, SupplierName, TaxCode, ImportedDate, LastUpdated, Status) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        
+        String sql = "INSERT INTO Inventory (ProductId, Quantity, SupplierName, TaxCode, ImportedDate, LastUpdated, Status) "
+                +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, inventory.getProduct().getId());
             stmt.setInt(2, inventory.getQuantity());
             stmt.setString(3, inventory.getSupplierName());
             stmt.setString(4, inventory.getTaxCode());
-            
+
             if (inventory.getImportedDate() == null) {
                 inventory.setImportedDate(Instant.now());
             }
             stmt.setTimestamp(5, Timestamp.from(inventory.getImportedDate()));
-            
+
             if (inventory.getLastUpdated() == null) {
                 inventory.setLastUpdated(Instant.now());
             }
             stmt.setTimestamp(6, Timestamp.from(inventory.getLastUpdated()));
             stmt.setString(7, inventory.getStatus());
-            
+
             stmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,22 +112,22 @@ public class InventoryDAO {
 
     public void updateInventory(Inventory inventory) {
         String sql = "UPDATE Inventory SET ProductId = ?, Quantity = ?, SupplierName = ?, TaxCode = ?, " +
-                    "ImportedDate = ?, LastUpdated = ?, Status = ? WHERE InventoryId = ?";
-        
+                "ImportedDate = ?, LastUpdated = ?, Status = ? WHERE InventoryId = ?";
+
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, inventory.getProduct().getId());
             stmt.setInt(2, inventory.getQuantity());
             stmt.setString(3, inventory.getSupplierName());
             stmt.setString(4, inventory.getTaxCode());
             stmt.setTimestamp(5, Timestamp.from(inventory.getImportedDate()));
-            
+
             inventory.setLastUpdated(Instant.now());
             stmt.setTimestamp(6, Timestamp.from(inventory.getLastUpdated()));
             stmt.setString(7, inventory.getStatus());
             stmt.setInt(8, inventory.getId());
-            
+
             stmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,10 +137,10 @@ public class InventoryDAO {
 
     public void deleteInventory(int inventoryId) {
         String sql = "DELETE FROM Inventory WHERE InventoryId = ?";
-        
+
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, inventoryId);
             stmt.executeUpdate();
         } catch (Exception e) {
@@ -143,12 +152,12 @@ public class InventoryDAO {
     public List<Inventory> getLowStockInventory(int threshold) {
         List<Inventory> inventoryList = new ArrayList<>();
         String sql = "SELECT i.*, p.Name, p.Description, p.Price, p.ImageUrl, p.Status as ProductStatus " +
-                    "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
-                    "WHERE i.Quantity <= ? ORDER BY i.Quantity ASC";
-        
+                "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
+                "WHERE i.Quantity <= ? ORDER BY i.Quantity ASC";
+
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, threshold);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -165,16 +174,16 @@ public class InventoryDAO {
     public List<Inventory> searchInventory(String keyword) {
         List<Inventory> inventoryList = new ArrayList<>();
         String sql = "SELECT i.*, p.Name, p.Description, p.Price, p.ImageUrl, p.Status as ProductStatus " +
-                    "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
-                    "WHERE i.SupplierName LIKE ? OR p.Name LIKE ? ORDER BY i.LastUpdated DESC";
-        
+                "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
+                "WHERE i.SupplierName LIKE ? OR p.Name LIKE ? ORDER BY i.LastUpdated DESC";
+
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             String searchPattern = "%" + keyword + "%";
             stmt.setString(1, searchPattern);
             stmt.setString(2, searchPattern);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Inventory inventory = mapResultSetToInventory(rs);
@@ -189,10 +198,10 @@ public class InventoryDAO {
 
     public boolean isProductInInventory(int productId) {
         String sql = "SELECT COUNT(*) FROM Inventory WHERE ProductId = ?";
-        
+
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, productId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -205,6 +214,31 @@ public class InventoryDAO {
         return false;
     }
 
+    /**
+     * Cập nhật số lượng inventory (cộng hoặc trừ)
+     * 
+     * @param productId      ID sản phẩm
+     * @param quantityChange Số lượng thay đổi (âm để trừ, dương để cộng)
+     * @return true nếu thành công, false nếu thất bại
+     */
+    public boolean updateQuantity(int productId, int quantityChange) {
+        String sql = "UPDATE Inventory SET Quantity = Quantity + ?, LastUpdated = ? WHERE ProductId = ?";
+
+        try (Connection conn = DbConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, quantityChange);
+            stmt.setTimestamp(2, Timestamp.from(Instant.now()));
+            stmt.setInt(3, productId);
+
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error updating inventory quantity for product " + productId, e);
+        }
+    }
+
     private Inventory mapResultSetToInventory(ResultSet rs) throws SQLException {
         Inventory inventory = new Inventory();
         inventory.setId(rs.getInt("InventoryId"));
@@ -212,17 +246,17 @@ public class InventoryDAO {
         inventory.setSupplierName(rs.getString("SupplierName"));
         inventory.setTaxCode(rs.getString("TaxCode"));
         inventory.setStatus(rs.getString("Status"));
-        
+
         Timestamp importedTimestamp = rs.getTimestamp("ImportedDate");
         if (importedTimestamp != null) {
             inventory.setImportedDate(importedTimestamp.toInstant());
         }
-        
+
         Timestamp lastUpdatedTimestamp = rs.getTimestamp("LastUpdated");
         if (lastUpdatedTimestamp != null) {
             inventory.setLastUpdated(lastUpdatedTimestamp.toInstant());
         }
-        
+
         // Map Product với đầy đủ thông tin
         Product product = new Product();
         product.setId(rs.getInt("ProductId"));
@@ -236,7 +270,7 @@ public class InventoryDAO {
             // Column not found, ignore
         }
         inventory.setProduct(product);
-        
+
         return inventory;
     }
 }

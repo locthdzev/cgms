@@ -14,13 +14,19 @@
     }
 
     List<Order> orders = (List<Order>) request.getAttribute("orders");
+    List<Order> allOrders = (List<Order>) request.getAttribute("allOrders");
+    String currentFilter = (String) request.getAttribute("currentFilter");
+    
+    if (currentFilter == null) currentFilter = "ALL";
 
     String errorMessage = (String) session.getAttribute("errorMessage");
+    boolean hasErrorMessage = (errorMessage != null);
     if (errorMessage != null) {
         session.removeAttribute("errorMessage");
     }
 
     String successMessage = (String) session.getAttribute("successMessage");
+    boolean hasSuccessMessage = (successMessage != null);
     if (successMessage != null) {
         session.removeAttribute("successMessage");
     }
@@ -49,232 +55,277 @@
             }
         }
 
+        /* Toast Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: none;
+        }
+
         /* Header Section */
         .page-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
             color: white;
-            position: relative;
-            overflow: hidden;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
-        .page-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transform: translate(50%, -50%);
-        }
-
-        .page-header h1 {
-            font-size: 2rem;
+        .page-title {
+            font-size: 1.75rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
 
-        .page-header p {
-            opacity: 0.9;
+        .page-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
             margin-bottom: 0;
         }
 
-        .stats-cards {
-            margin-bottom: 2rem;
-        }
-
-        .stats-card {
+        /* Filter Section */
+        .filter-section {
             background: white;
-            border-radius: 1rem;
+            border-radius: 15px;
             padding: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
 
-        .stats-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .stats-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
+        .filter-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 1.5rem;
+            gap: 0.5rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #718096;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-btn:hover {
+            background: #f8fafc;
+            color: #4a5568;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn.active:hover {
             color: white;
         }
 
-        .stats-pending { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
-        .stats-confirmed { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
-        .stats-completed { background: linear-gradient(135deg, #10b981, #34d399); }
-        .stats-cancelled { background: linear-gradient(135deg, #ef4444, #f87171); }
-
-        /* Modern Order Cards */
+        /* Order Cards */
         .order-card {
             background: white;
-            border-radius: 1rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             margin-bottom: 1.5rem;
-            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             overflow: hidden;
-            transition: all 0.3s ease;
-            position: relative;
         }
 
         .order-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-        }
-
-        .order-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
         }
 
         .order-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             padding: 1.5rem;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .order-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .order-id {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #667eea;
-            margin-bottom: 0.25rem;
+            color: #2d3748;
         }
 
         .order-date {
-            color: #6c757d;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .order-status {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
             font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fef3cd;
+            color: #856404;
+        }
+
+        .status-confirmed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .order-body {
             padding: 1.5rem;
         }
 
-        /* Status Badges */
-        .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.75rem;
+        .order-items {
+            margin-bottom: 1rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-details {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .item-total {
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .order-footer {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .order-total {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-modern {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .status-pending {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-            color: #92400e;
-        }
-
-        .status-confirmed {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            color: #1e40af;
-        }
-
-        .status-shipping {
-            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
-            color: #7c3aed;
-        }
-
-        .status-completed {
-            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-            color: #065f46;
-        }
-
-        .status-cancelled {
-            background: linear-gradient(135deg, #fee2e2, #fecaca);
-            color: #dc2626;
-        }
-
-        /* Payment Method Badges */
-        .payment-badge {
-            padding: 0.375rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
-        }
-
-        .payment-cash {
-            background: #f3f4f6;
-            color: #374151;
-        }
-
-        .payment-payos {
-            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        .btn-primary-modern {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
 
-        /* Action Buttons */
-        .btn-modern {
-            border-radius: 0.75rem;
-            padding: 0.5rem 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            font-size: 0.875rem;
-        }
-
-        .btn-details {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-details:hover {
-            background: linear-gradient(135deg, #5a67d8, #6b46c1);
-            color: white;
+        .btn-primary-modern:hover {
             transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
         }
 
-        .btn-cancel {
-            background: linear-gradient(135deg, #ef4444, #f87171);
+        .btn-outline-modern {
+            background: transparent;
+            color: #718096;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-outline-modern:hover {
+            background: #f8fafc;
+            color: #4a5568;
+            text-decoration: none;
+        }
+
+        .btn-danger-modern {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
             color: white;
         }
 
-        .btn-cancel:hover {
-            background: linear-gradient(135deg, #dc2626, #ef4444);
-            color: white;
+        .btn-danger-modern:hover {
             transform: translateY(-1px);
-        }
-
-        /* Price Display */
-        .price-display {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Address Display */
-        .address-info {
-            background: #f8f9fa;
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            border-left: 3px solid #667eea;
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+            color: white;
+            text-decoration: none;
         }
 
         /* Empty State */
@@ -282,335 +333,517 @@
             text-align: center;
             padding: 4rem 2rem;
             background: white;
-            border-radius: 1rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
 
         .empty-icon {
             width: 120px;
             height: 120px;
             margin: 0 auto 2rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .empty-icon i {
-            font-size: 3rem;
             color: white;
+            font-size: 3rem;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .empty-state h3 {
-            color: #374151;
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
             margin-bottom: 1rem;
         }
 
-        .empty-state p {
-            color: #6b7280;
+        .empty-description {
+            color: #718096;
+            font-size: 1rem;
             margin-bottom: 2rem;
+        }
+
+        .shop-now-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .shop-now-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .stat-card.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.pending {
+            background: linear-gradient(135deg, #FFB75E 0%, #ED8F03 100%);
+        }
+
+        .stat-icon.confirmed {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-icon.delivered {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stat-icon.cancelled {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+        }
+
+        .stat-card.active .stat-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card.active .stat-number {
+            color: white;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .stat-card.active .stat-label {
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Cancel Modal */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            border-bottom: none;
+        }
+
+        .modal-title {
+            font-weight: 700;
+        }
+
+        .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-footer {
+            border-top: none;
+            padding-top: 0;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .order-card .row > div {
-                margin-bottom: 1rem;
+            .order-meta {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            .page-header h1 {
-                font-size: 1.5rem;
+            .order-footer {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            .stats-card {
-                margin-bottom: 1rem;
+            .order-actions {
+                width: 100%;
+                justify-content: stretch;
             }
-        }
 
-        /* Loading Animation */
-        .loading-shimmer {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
+            .btn-modern {
+                flex: 1;
+                justify-content: center;
+            }
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+            .filter-buttons {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
         }
     </style>
 </head>
 <body class="g-sidenav-show bg-gray-100">
     <div class="min-height-300 bg-dark position-absolute w-100"></div>
 
-    <!-- Sidebar -->
+    <!-- Toast Container thay thế Alert -->
+    <div class="toast-container">
+        <% if (hasSuccessMessage) { %>
+        <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-check-circle me-2"></i> <%= successMessage %>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        <% } %>
+        <% if (hasErrorMessage) { %>
+        <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" id="errorToast">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-exclamation-circle me-2"></i> <%= errorMessage %>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        <% } %>
+    </div>
+
     <%@ include file="member_sidebar.jsp" %>
 
     <main class="main-content position-relative border-radius-lg">
-        <!-- Navbar -->
-        <%@ include file="navbar.jsp" %>
+        <jsp:include page="navbar.jsp">
+            <jsp:param name="pageTitle" value="Đơn hàng của tôi"/>
+            <jsp:param name="parentPage" value="Dashboard"/>
+            <jsp:param name="parentPageUrl" value="member-dashboard"/>
+            <jsp:param name="currentPage" value="Đơn hàng"/>
+        </jsp:include>
 
         <div class="container-fluid py-4">
-            <!-- Page Header -->
+            <!-- Header -->
             <div class="page-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1><i class="fas fa-shopping-bag me-3"></i>Đơn hàng của tôi</h1>
-                        <p>Quản lý và theo dõi tất cả đơn hàng của bạn một cách dễ dàng</p>
-                    </div>
-                    <div>
-                        <a href="member-shop.jsp" class="btn btn-light btn-lg">
-                            <i class="fas fa-plus me-2"></i>Mua sắm ngay
-                        </a>
+                <div class="container-fluid">
+                    <div class="text-center">
+                        <h1 class="page-title">
+                            <i class="fas fa-shopping-bag me-2"></i>
+                            Đơn hàng của tôi
+                        </h1>
+                        <p class="page-subtitle">
+                            Theo dõi trạng thái và lịch sử đơn hàng của bạn
+                        </p>
                     </div>
                 </div>
             </div>
-
-            <!-- Alert Messages -->
-            <% if (errorMessage != null) { %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span class="alert-icon"><i class="fas fa-exclamation-circle"></i></span>
-                <span class="alert-text"><%= errorMessage %></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <% } %>
-            <% if (successMessage != null) { %>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <span class="alert-icon"><i class="fas fa-check-circle"></i></span>
-                <span class="alert-text"><%= successMessage %></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <% } %>
 
             <!-- Statistics Cards -->
-            <% if (orders != null && !orders.isEmpty()) { %>
-            <%
-                int pendingCount = 0, confirmedCount = 0, completedCount = 0, cancelledCount = 0;
-                for (Order order : orders) {
-                    switch (order.getStatus()) {
-                        case "PENDING": pendingCount++; break;
-                        case "CONFIRMED": case "SHIPPING": case "DELIVERED": confirmedCount++; break;
-                        case "COMPLETED": completedCount++; break;
-                        case "CANCELLED": cancelledCount++; break;
+            <div class="stats-grid">
+                <%
+                    int pendingCount = 0, confirmedCount = 0, deliveredCount = 0, cancelledCount = 0;
+                    if (allOrders != null) {
+                        for (Order order : allOrders) {
+                            switch (order.getStatus()) {
+                                case "PENDING": pendingCount++; break;
+                                case "CONFIRMED": confirmedCount++; break;
+                                case "DELIVERED": deliveredCount++; break;
+                                case "CANCELLED": cancelledCount++; break;
+                            }
+                        }
                     }
-                }
-            %>
-            <div class="row stats-cards">
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card">
-                        <div class="stats-icon stats-pending">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h3 class="mb-1"><%= pendingCount %></h3>
-                        <p class="text-muted mb-0">Chờ xác nhận</p>
+                %>
+                <a href="my-order?status=ALL" class="stat-card <%= "ALL".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-list"></i>
                     </div>
+                    <div class="stat-number"><%= allOrders != null ? allOrders.size() : 0 %></div>
+                    <div class="stat-label">Tất cả</div>
+                </a>
+                
+                <a href="my-order?status=PENDING" class="stat-card <%= "PENDING".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-number"><%= pendingCount %></div>
+                    <div class="stat-label">Chờ xác nhận</div>
+                </a>
+                
+                <a href="my-order?status=CONFIRMED" class="stat-card <%= "CONFIRMED".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
+                    <div class="stat-icon confirmed">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="stat-number"><%= confirmedCount %></div>
+                    <div class="stat-label">Đã xác nhận</div>
+                </a>
+                
+                <a href="my-order?status=DELIVERED" class="stat-card <%= "DELIVERED".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
+                    <div class="stat-icon delivered">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="stat-number"><%= deliveredCount %></div>
+                    <div class="stat-label">Đã giao</div>
+                </a>
+                
+                <a href="my-order?status=CANCELLED" class="stat-card <%= "CANCELLED".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
+                    <div class="stat-icon cancelled">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <div class="stat-number"><%= cancelledCount %></div>
+                    <div class="stat-label">Đã hủy</div>
+                </a>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-title">
+                    <i class="fas fa-filter"></i>
+                    Lọc theo trạng thái
                 </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card">
-                        <div class="stats-icon stats-confirmed">
-                            <i class="fas fa-truck"></i>
-                        </div>
-                        <h3 class="mb-1"><%= confirmedCount %></h3>
-                        <p class="text-muted mb-0">Đang xử lý</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card">
-                        <div class="stats-icon stats-completed">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <h3 class="mb-1"><%= completedCount %></h3>
-                        <p class="text-muted mb-0">Hoàn thành</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card">
-                        <div class="stats-icon stats-cancelled">
-                            <i class="fas fa-times-circle"></i>
-                        </div>
-                        <h3 class="mb-1"><%= cancelledCount %></h3>
-                        <p class="text-muted mb-0">Đã hủy</p>
-                    </div>
+                <div class="filter-buttons">
+                    <a href="my-order?status=ALL" class="filter-btn <%= "ALL".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-list"></i>
+                        Tất cả (<%= allOrders != null ? allOrders.size() : 0 %>)
+                    </a>
+                    <a href="my-order?status=PENDING" class="filter-btn <%= "PENDING".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-clock"></i>
+                        Chờ xác nhận (<%= pendingCount %>)
+                    </a>
+                    <a href="my-order?status=CONFIRMED" class="filter-btn <%= "CONFIRMED".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-check"></i>
+                        Đã xác nhận (<%= confirmedCount %>)
+                    </a>
+                    <a href="my-order?status=DELIVERED" class="filter-btn <%= "DELIVERED".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-truck"></i>
+                        Đã giao (<%= deliveredCount %>)
+                    </a>
+                    <a href="my-order?status=CANCELLED" class="filter-btn <%= "CANCELLED".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-times"></i>
+                        Đã hủy (<%= cancelledCount %>)
+                    </a>
                 </div>
             </div>
-            <% } %>
 
             <!-- Orders List -->
-            <div class="row">
-                <div class="col-12">
-                    <% if (orders != null && !orders.isEmpty()) { %>
-                        <% for (Order order : orders) { %>
-                        <div class="card order-card">
-                            <div class="order-header">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="order-id">Đơn hàng #<%= order.getId() %></div>
-                                        <div class="order-date">
-                                            <i class="fas fa-calendar-alt me-1"></i>
-                                            <%= order.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).format(dateFormatter) %>
-                                        </div>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="price-display"><%= formatter.format(order.getTotalAmount().longValue()) %> VNĐ</div>
-                                        <div class="payment-badge <%= "CASH".equals(order.getPaymentMethod()) ? "payment-cash" : "payment-payos" %>">
-                                            <i class="fas <%= "CASH".equals(order.getPaymentMethod()) ? "fa-money-bill" : "fa-credit-card" %>"></i>
-                                            <%= "CASH".equals(order.getPaymentMethod()) ? "Tiền mặt" : "PayOS" %>
-                                        </div>
-                                    </div>
+            <% if (orders != null && !orders.isEmpty()) { %>
+                <% for (Order order : orders) { %>
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-meta">
+                            <div>
+                                <div class="order-id">Đơn hàng #<%= order.getId() %></div>
+                                <div class="order-date">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <%= order.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).format(dateFormatter) %>
                                 </div>
                             </div>
+                            <div class="order-status status-<%= order.getStatus().toLowerCase() %>">
+                                <% 
+                                    String statusText = "";
+                                    switch (order.getStatus()) {
+                                        case "PENDING": statusText = "Chờ xác nhận"; break;
+                                        case "CONFIRMED": statusText = "Đã xác nhận"; break;
+                                        case "DELIVERED": statusText = "Đã giao"; break;
+                                        case "CANCELLED": statusText = "Đã hủy"; break;
+                                        default: statusText = order.getStatus();
+                                    }
+                                %>
+                                <%= statusText %>
+                            </div>
+                        </div>
+                    </div>
 
-                            <div class="order-body">
-                                <div class="row align-items-center">
-                                    <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
-                                        <%
-                                            String statusClass = "";
-                                            String statusText = "";
-                                            String statusIcon = "";
-
-                                            switch (order.getStatus()) {
-                                                case "PENDING":
-                                                    statusClass = "status-pending";
-                                                    statusText = "Chờ xác nhận";
-                                                    statusIcon = "fa-clock";
-                                                    break;
-                                                case "CONFIRMED":
-                                                    statusClass = "status-confirmed";
-                                                    statusText = "Đã xác nhận";
-                                                    statusIcon = "fa-check";
-                                                    break;
-                                                case "SHIPPING":
-                                                    statusClass = "status-shipping";
-                                                    statusText = "Đang vận chuyển";
-                                                    statusIcon = "fa-truck";
-                                                    break;
-                                                case "DELIVERED":
-                                                    statusClass = "status-shipping";
-                                                    statusText = "Đã giao hàng";
-                                                    statusIcon = "fa-box";
-                                                    break;
-                                                case "COMPLETED":
-                                                    statusClass = "status-completed";
-                                                    statusText = "Hoàn thành";
-                                                    statusIcon = "fa-check-circle";
-                                                    break;
-                                                case "CANCELLED":
-                                                    statusClass = "status-cancelled";
-                                                    statusText = "Đã hủy";
-                                                    statusIcon = "fa-times-circle";
-                                                    break;
-                                                default:
-                                                    statusClass = "status-pending";
-                                                    statusText = order.getStatus();
-                                                    statusIcon = "fa-question";
-                                            }
-                                        %>
-                                        <span class="status-badge <%= statusClass %>">
-                                            <i class="fas <%= statusIcon %>"></i>
-                                            <%= statusText %>
-                                        </span>
+                    <div class="order-body">
+                        <div class="order-items">
+                            <!-- Hiển thị tóm tắt items từ orderDetails nếu có -->
+                            <div class="order-item">
+                                <div class="item-info">
+                                    <div class="item-name">
+                                        <%= order.getPaymentMethod() %> • 
+                                        <% if (order.getNotes() != null && !order.getNotes().trim().isEmpty()) { %>
+                                            <%= order.getNotes().length() > 50 ? order.getNotes().substring(0, 50) + "..." : order.getNotes() %>
+                                        <% } else { %>
+                                            Không có ghi chú
+                                        <% } %>
                                     </div>
-
-                                    <div class="col-lg-5 col-md-6 mb-3 mb-lg-0">
-                                        <div class="address-info">
-                                            <small class="text-muted d-block mb-1">
-                                                <i class="fas fa-user me-1"></i>
-                                                <%= order.getReceiverName() %>
-                                            </small>
-                                            <small class="text-muted d-block mb-1">
-                                                <i class="fas fa-phone me-1"></i>
-                                                <%= order.getReceiverPhone() %>
-                                            </small>
-                                            <small class="text-muted">
-                                                <i class="fas fa-map-marker-alt me-1"></i>
-                                                <%= order.getShippingAddress() %>
-                                            </small>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-lg-4 text-lg-end">
-                                        <div class="d-flex gap-2 justify-content-lg-end">
-                                            <a href="my-order?action=details&id=<%= order.getId() %>"
-                                               class="btn btn-details btn-modern">
-                                                <i class="fas fa-eye me-1"></i>Chi tiết
-                                            </a>
-
-                                            <% if ("PENDING".equals(order.getStatus()) || "CONFIRMED".equals(order.getStatus())) { %>
-                                            <button type="button"
-                                                    class="btn btn-cancel btn-modern"
-                                                    onclick="showCancelModal(<%= order.getId() %>)">
-                                                <i class="fas fa-times me-1"></i>Hủy
-                                            </button>
-                                            <% } %>
-                                        </div>
+                                    <div class="item-details">
+                                        Phương thức: <%= "CASH".equals(order.getPaymentMethod()) ? "Tiền mặt" : "PayOS" %>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <% } %>
-                    <% } else { %>
-                        <!-- Empty State -->
-                        <div class="empty-state">
-                            <div class="empty-icon">
-                                <i class="fas fa-shopping-bag"></i>
-                            </div>
-                            <h3>Chưa có đơn hàng nào</h3>
-                            <p>Bạn chưa thực hiện đơn hàng nào. Hãy khám phá các sản phẩm tuyệt vời của chúng tôi!</p>
-                            <a href="member-shop.jsp" class="btn btn-details btn-modern btn-lg">
-                                <i class="fas fa-shopping-cart me-2"></i>Bắt đầu mua sắm
+                    </div>
+
+                    <div class="order-footer">
+                        <div class="order-total">
+                            Tổng cộng: <%= formatter.format(order.getTotalAmount().longValue()) %> VNĐ
+                        </div>
+                        <div class="order-actions">
+                            <a href="my-order?action=details&id=<%= order.getId() %>" class="btn-modern btn-primary-modern">
+                                <i class="fas fa-eye"></i>
+                                Chi tiết
                             </a>
+                            <% if ("PENDING".equals(order.getStatus())) { %>
+                            <button type="button" class="btn-modern btn-danger-modern" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#cancelModal" 
+                                    data-order-id="<%= order.getId() %>"
+                                    data-order-number="<%= order.getId() %>">
+                                <i class="fas fa-times"></i>
+                                Hủy đơn
+                            </button>
+                            <% } %>
                         </div>
-                    <% } %>
+                    </div>
+                </div>
+                <% } %>
+            <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <% if ("ALL".equals(currentFilter)) { %>
+                    <h3 class="empty-title">Chưa có đơn hàng nào</h3>
+                    <p class="empty-description">
+                        Bạn chưa thực hiện đơn hàng nào. Hãy khám phá cửa hàng và mua sắm ngay!
+                    </p>
+                    <a href="member-shop" class="shop-now-btn">
+                        <i class="fas fa-store"></i>
+                        Mua sắm ngay
+                    </a>
+                <% } else { %>
+                    <h3 class="empty-title">Không có đơn hàng nào với trạng thái này</h3>
+                    <p class="empty-description">
+                        Không tìm thấy đơn hàng nào với trạng thái "<%= currentFilter.toLowerCase() %>". Hãy thử lọc theo trạng thái khác.
+                    </p>
+                    <a href="my-order?status=ALL" class="shop-now-btn">
+                        <i class="fas fa-list"></i>
+                        Xem tất cả đơn hàng
+                    </a>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+
+        <footer class="footer pt-3">
+            <div class="container-fluid">
+                <div class="row align-items-center justify-content-lg-between">
+                    <div class="col-lg-6 mb-lg-0 mb-4">
+                        <div class="text-muted text-sm text-center text-lg-start">
+                            © <script>document.write(new Date().getFullYear())</script>, CoreFit Gym Management System
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </footer>
     </main>
 
     <!-- Cancel Order Modal -->
-    <div class="modal fade" id="cancelOrderModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content" style="border-radius: 1rem; border: none;">
-                <div class="modal-header" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-bottom: 1px solid #e9ecef;">
-                    <h5 class="modal-title">
-                        <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
-                        Hủy đơn hàng
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Xác nhận hủy đơn hàng
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="my-order" method="post">
+                <form method="post" action="my-order" id="cancelForm">
                     <div class="modal-body">
-                        <input type="hidden" name="action" value="cancel"/>
-                        <input type="hidden" name="orderId" id="cancelOrderId"/>
-
-                        <div class="alert alert-warning" style="border-radius: 0.75rem;">
+                        <input type="hidden" name="action" value="cancel">
+                        <input type="hidden" name="orderId" id="cancelOrderId">
+                        
+                        <div class="alert alert-warning">
                             <i class="fas fa-info-circle me-2"></i>
-                            Bạn có chắc chắn muốn hủy đơn hàng này không?
+                            Bạn có chắc chắn muốn hủy đơn hàng <strong>#<span id="orderNumberDisplay"></span></strong>?
+                            <br><small>Lý do hủy sẽ được gửi đến admin qua email.</small>
                         </div>
-
-                        <div class="form-group">
-                            <label class="form-control-label">
-                                <i class="fas fa-comment me-2"></i>
-                                Lý do hủy đơn hàng:
+                        
+                        <div class="mb-3">
+                            <label for="cancelReason" class="form-label">
+                                <i class="fas fa-comment me-1"></i>
+                                Lý do hủy đơn hàng <span class="text-danger">*</span>
                             </label>
-                            <textarea class="form-control"
-                                      name="reason"
-                                      rows="3"
-                                      placeholder="Vui lòng cho biết lý do hủy đơn hàng..."
-                                      style="border-radius: 0.75rem;"></textarea>
+                            <textarea class="form-control" 
+                                      id="cancelReason" 
+                                      name="reason" 
+                                      rows="4" 
+                                      placeholder="Vui lòng nhập lý do hủy đơn hàng (tối thiểu 10 ký tự)..."
+                                      required
+                                      minlength="10"
+                                      maxlength="500"></textarea>
+                            <div class="form-text">
+                                <span id="charCount">0</span>/500 ký tự
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer" style="border-top: 1px solid #e9ecef;">
-                        <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Đóng
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>
+                            Đóng
                         </button>
-                        <button type="submit" class="btn btn-cancel btn-modern">
-                            <i class="fas fa-check me-2"></i>Xác nhận hủy
+                        <button type="submit" class="btn btn-danger" id="confirmCancelBtn">
+                            <i class="fas fa-trash me-1"></i>
+                            Xác nhận hủy đơn
                         </button>
                     </div>
                 </form>
@@ -618,49 +851,81 @@
         </div>
     </div>
 
-    <!-- Core JS Files -->
-    <script src="assets/js/core/popper.min.js"></script>
-    <script src="assets/js/core/bootstrap.min.js"></script>
+    <!-- Scripts -->
+    <script src="assets/js/core/bootstrap.bundle.min.js"></script>
     <script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
-
     <script>
-        function showCancelModal(orderId) {
-            document.getElementById("cancelOrderId").value = orderId;
-            var modal = new bootstrap.Modal(document.getElementById("cancelOrderModal"));
-            modal.show();
-        }
-
-        // Add loading animation when clicking detail buttons
-        document.addEventListener('DOMContentLoaded', function() {
-            const detailButtons = document.querySelectorAll('.btn-details');
-            detailButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang tải...';
-                });
+        document.addEventListener("DOMContentLoaded", function () {
+            // Initialize and show toasts
+            const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            const toastList = toastElList.map(function(toastEl) {
+                const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+                toast.show();
+                return toast;
             });
 
-            // Add entrance animation to cards
-            const cards = document.querySelectorAll('.order-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
+            // Cancel Modal Logic
+            const cancelModal = document.getElementById('cancelModal');
+            const cancelForm = document.getElementById('cancelForm');
+            const cancelReason = document.getElementById('cancelReason');
+            const charCount = document.getElementById('charCount');
+            const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+
+            // Set up modal data when shown
+            cancelModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const orderId = button.getAttribute('data-order-id');
+                const orderNumber = button.getAttribute('data-order-number');
+
+                document.getElementById('cancelOrderId').value = orderId;
+                document.getElementById('orderNumberDisplay').textContent = orderNumber;
+                
+                // Reset form
+                cancelReason.value = '';
+                charCount.textContent = '0';
+                updateSubmitButton();
             });
 
-            // Add animation to stats cards
-            const statsCards = document.querySelectorAll('.stats-card');
-            statsCards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(30px)';
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 150);
+            // Character counter and validation
+            cancelReason.addEventListener('input', function() {
+                const length = this.value.length;
+                charCount.textContent = length;
+                
+                // Update character counter color
+                if (length < 10) {
+                    charCount.className = 'text-danger';
+                } else if (length > 450) {
+                    charCount.className = 'text-warning';
+                } else {
+                    charCount.className = 'text-success';
+                }
+                
+                updateSubmitButton();
+            });
+
+            function updateSubmitButton() {
+                const reasonLength = cancelReason.value.trim().length;
+                confirmCancelBtn.disabled = reasonLength < 10;
+                
+                if (reasonLength < 10) {
+                    confirmCancelBtn.innerHTML = '<i class="fas fa-trash me-1"></i> Cần tối thiểu 10 ký tự';
+                } else {
+                    confirmCancelBtn.innerHTML = '<i class="fas fa-trash me-1"></i> Xác nhận hủy đơn';
+                }
+            }
+
+            // Form submission with confirmation
+            cancelForm.addEventListener('submit', function(e) {
+                const reason = cancelReason.value.trim();
+                if (reason.length < 10) {
+                    e.preventDefault();
+                    alert('Lý do hủy đơn phải có ít nhất 10 ký tự.');
+                    return;
+                }
+
+                // Show loading state (đã loại bỏ confirm dialog thừa)
+                confirmCancelBtn.disabled = true;
+                confirmCancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang xử lý...';
             });
         });
     </script>

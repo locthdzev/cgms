@@ -220,9 +220,9 @@
             </div>
             
             <!-- Progress Bar -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
+            <!-- <div class="row mb-4"> -->
+                <!-- <div class="col-12"> -->
+                    <!-- <div class="card">
                         <div class="card-header pb-0">
                             <h6>Tiến độ tổng quan</h6>
                         </div>
@@ -250,9 +250,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
+                    </div> -->
+                <!-- </div> -->
+            <!-- </div> -->
             
             <!-- Schedule List -->
             <div class="row">
