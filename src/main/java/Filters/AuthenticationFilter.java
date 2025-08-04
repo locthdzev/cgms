@@ -28,7 +28,7 @@ public class AuthenticationFilter implements Filter {
 
     // Các URL chỉ dành cho Personal Trainer
     private static final List<String> PT_URLS = Arrays.asList(
-            "/pt_dashboard.jsp", "/pt_schedule.jsp", "/pt_clients.jsp", "/pt-availability");
+            "/pt_dashboard.jsp", "/pt_dashboard", "/pt_schedule.jsp", "/pt_clients.jsp", "/pt-availability");
 
     // Các URL chỉ dành cho Member
     private static final List<String> MEMBER_URLS = Arrays.asList(
@@ -143,7 +143,7 @@ public class AuthenticationFilter implements Filter {
         if ("Admin".equals(role)) {
             response.sendRedirect(contextPath + "/dashboard");
         } else if ("Personal Trainer".equals(role)) {
-            response.sendRedirect(contextPath + "/pt_dashboard.jsp");
+            response.sendRedirect(contextPath + "/pt_dashboard");
         } else {
             response.sendRedirect(contextPath + "/member-dashboard");
         }
