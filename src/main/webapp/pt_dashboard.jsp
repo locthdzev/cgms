@@ -1,5 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="Models.User"%>
+<%@page import="Models.Schedule"%>
+<%@page import="java.util.List"%>
+<%@page import="java.time.format.DateTimeFormatter"%>
 <%
     // Lấy thông tin người dùng đăng nhập từ session
     User loggedInUser = (User) session.getAttribute("loggedInUser");
@@ -19,6 +22,38 @@
     String errorMessage = (String) session.getAttribute("errorMessage");
     if (errorMessage != null) {
         session.removeAttribute("errorMessage");
+    }
+    
+    // Lấy dữ liệu từ controller
+    Integer todaySchedulesCount = (Integer) request.getAttribute("todaySchedulesCount");
+    Integer totalClientsCount = (Integer) request.getAttribute("totalClientsCount");
+    Integer thisWeekSchedulesCount = (Integer) request.getAttribute("thisWeekSchedulesCount");
+    Integer completedSchedulesCount = (Integer) request.getAttribute("completedSchedulesCount");
+    
+    List<Schedule> todaySchedules = (List<Schedule>) request.getAttribute("todaySchedules");
+    List<Schedule> upcomingSchedules = (List<Schedule>) request.getAttribute("upcomingSchedules");
+    List<Integer> weeklyStats = (List<Integer>) request.getAttribute("weeklyStats");
+    List<Integer> monthlyStats = (List<Integer>) request.getAttribute("monthlyStats");
+    
+    // Default values nếu null
+    if (todaySchedulesCount == null) todaySchedulesCount = 0;
+    if (totalClientsCount == null) totalClientsCount = 0;
+    if (thisWeekSchedulesCount == null) thisWeekSchedulesCount = 0;
+    if (completedSchedulesCount == null) completedSchedulesCount = 0;
+    
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    
+    // Tạo string cho JavaScript
+    String weeklyStatsJson = "[0,0,0,0,0,0,0]";
+    String monthlyStatsJson = "[0,0,0,0]";
+    
+    if (weeklyStats != null && !weeklyStats.isEmpty()) {
+        weeklyStatsJson = weeklyStats.toString();
+    }
+    
+    if (monthlyStats != null && !monthlyStats.isEmpty()) {
+        monthlyStatsJson = monthlyStats.toString();
     }
 %>
 <!DOCTYPE html>
@@ -113,13 +148,13 @@
     <jsp:include page="navbar.jsp">
         <jsp:param name="pageTitle" value="Dashboard Personal Trainer" />
         <jsp:param name="parentPage" value="Dashboard" />
-        <jsp:param name="parentPageUrl" value="pt_dashboard.jsp" />
+        <jsp:param name="parentPageUrl" value="pt_dashboard" />
         <jsp:param name="currentPage" value="Dashboard" />
     </jsp:include>
     
     <div class="container-fluid py-4">
         <div class="row">
-            <div class="col-xl-4 col-sm-6 mb-4">
+            <div class="col-xl-3 col-sm-6 mb-4">
                 <div class="card card-stats">
                     <div class="card-body p-3">
                         <div class="row">
@@ -127,7 +162,7 @@
                                 <div class="numbers">
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Lịch hẹn hôm nay</p>
                                     <h5 class="font-weight-bolder mb-0">
-                                        0
+                                        <%= todaySchedulesCount %>
                                     </h5>
                                 </div>
                             </div>
@@ -140,15 +175,15 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4 col-sm-6 mb-4">
+            <div class="col-xl-3 col-sm-6 mb-4">
                 <div class="card card-stats">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Khách hàng của bạn</p>
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Tổng khách hàng</p>
                                     <h5 class="font-weight-bolder mb-0">
-                                        0
+                                        <%= totalClientsCount %>
                                     </h5>
                                 </div>
                             </div>
@@ -161,20 +196,41 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4 col-sm-6 mb-4">
+            <div class="col-xl-3 col-sm-6 mb-4">
                 <div class="card card-stats">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Trạng thái</p>
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Lịch tuần này</p>
                                     <h5 class="font-weight-bolder mb-0">
-                                        <span class="text-success">Hoạt động</span>
+                                        <%= thisWeekSchedulesCount %>
                                     </h5>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
                                 <div class="icon icon-shape bg-gradient-info shadow text-center border-radius-md">
+                                    <i class="fas fa-calendar-week text-lg opacity-10" aria-hidden="true"></i>
+                                </div>
+            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 mb-4">
+                <div class="card card-stats">
+                    <div class="card-body p-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Đã hoàn thành</p>
+                                    <h5 class="font-weight-bolder mb-0">
+                                        <%= completedSchedulesCount %>
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-gradient-warning shadow text-center border-radius-md">
                                     <i class="fas fa-check-circle text-lg opacity-10" aria-hidden="true"></i>
                                 </div>
                             </div>
@@ -189,22 +245,12 @@
                 <div class="card mb-4">
                     <div class="card-header pb-0">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h6>Lịch làm việc theo tháng</h6>
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="monthDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Tháng 6/2024
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="monthDropdown">
-                                    <li><a class="dropdown-item" href="#">Tháng 5/2024</a></li>
-                                    <li><a class="dropdown-item" href="#">Tháng 6/2024</a></li>
-                                    <li><a class="dropdown-item" href="#">Tháng 7/2024</a></li>
-                                </ul>
-                            </div>
+                            <h6>Thống kê lịch tập theo tuần</h6>
                         </div>
                     </div>
                     <div class="card-body p-3">
                         <div class="chart-container">
-                            <canvas id="workScheduleChart"></canvas>
+                            <canvas id="weeklyScheduleChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -213,39 +259,11 @@
             <div class="col-lg-5">
                 <div class="card mb-4">
                     <div class="card-header pb-0">
-                        <h6>Phân bổ khách hàng theo mục tiêu</h6>
+                        <h6>Thống kê theo tháng</h6>
                     </div>
                     <div class="card-body p-3">
                         <div class="chart-container" style="height: 250px;">
-                            <canvas id="clientGoalsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="card mb-4">
-                    <div class="card-header pb-0">
-                        <h6>Lịch làm việc tuần này</h6>
-                    </div>
-                    <div class="card-body p-3">
-                        <div class="chart-container" style="height: 250px;">
-                            <canvas id="weeklyScheduleChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6">
-                <div class="card mb-4">
-                    <div class="card-header pb-0">
-                        <h6>Tiến độ khách hàng</h6>
-                    </div>
-                    <div class="card-body p-3">
-                        <div class="chart-container" style="height: 250px;">
-                            <canvas id="clientProgressChart"></canvas>
+                            <canvas id="monthlyChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -257,7 +275,7 @@
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                         <h6 class="mb-0">Lịch hẹn sắp tới</h6>
-                        <a href="pt_schedule.jsp" class="btn btn-sm btn-outline-primary">
+                        <a href="pt-schedule" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-calendar me-1"></i>Xem tất cả
                         </a>
                     </div>
@@ -269,56 +287,51 @@
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ngày</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Giờ</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Khách hàng</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Dịch vụ</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Thời lượng</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Trạng thái</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td class="ps-4">
-                                            <p class="text-xs font-weight-bold mb-0">20/06/2024</p>
-                                        </td>
-                                        <td>
-                                            <p class="text-xs font-weight-bold mb-0">09:00 - 10:00</p>
-                                        </td>
-                                        <td>
-                                            <p class="text-xs font-weight-bold mb-0">Nguyễn Văn A</p>
-                                        </td>
-                                        <td>
-                                            <p class="text-xs font-weight-bold mb-0">Tập luyện cá nhân</p>
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-sm bg-gradient-success">Đã xác nhận</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="#" class="btn btn-link text-dark px-3 mb-0">
-                                                <i class="fas fa-eye text-dark me-2"></i>Chi tiết
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ps-4">
-                                            <p class="text-xs font-weight-bold mb-0">21/06/2024</p>
-                                        </td>
-                                        <td>
-                                            <p class="text-xs font-weight-bold mb-0">15:30 - 16:30</p>
-                                        </td>
-                                        <td>
-                                            <p class="text-xs font-weight-bold mb-0">Trần Thị B</p>
-                                        </td>
-                                        <td>
-                                            <p class="text-xs font-weight-bold mb-0">Yoga</p>
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-sm bg-gradient-warning">Chờ xác nhận</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="#" class="btn btn-link text-dark px-3 mb-0">
-                                                <i class="fas fa-eye text-dark me-2"></i>Chi tiết
-                                            </a>
-                                        </td>
-                                    </tr>
+                                    <% if (upcomingSchedules != null && !upcomingSchedules.isEmpty()) { %>
+                                        <% for (Schedule schedule : upcomingSchedules) { 
+                                            String statusClass = "";
+                                            if ("Confirmed".equals(schedule.getStatus())) {
+                                                statusClass = "bg-gradient-success";
+                                            } else if ("Pending".equals(schedule.getStatus())) {
+                                                statusClass = "bg-gradient-warning";
+                                            } else if ("Completed".equals(schedule.getStatus())) {
+                                                statusClass = "bg-gradient-info";
+                                            } else {
+                                                statusClass = "bg-gradient-secondary";
+                                            }
+                                        %>
+                                        <tr>
+                                            <td class="ps-4">
+                                                <p class="text-xs font-weight-bold mb-0"><%= schedule.getScheduleDate().format(dateFormatter) %></p>
+                                            </td>
+                                            <td>
+                                                <p class="text-xs font-weight-bold mb-0"><%= schedule.getScheduleTime().format(timeFormatter) %></p>
+                                            </td>
+                                            <td>
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    <%= schedule.getMember() != null ? schedule.getMember().getFullName() : "Chưa có khách hàng" %>
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <p class="text-xs font-weight-bold mb-0"><%= schedule.getDurationHours() %> giờ</p>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-sm <%= statusClass %>"><%= schedule.getStatus() %></span>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="5" class="text-center">
+                                                <p class="text-sm text-muted">Không có lịch hẹn sắp tới</p>
+                                            </td>
+                                        </tr>
+                                    <% } %>
                                 </tbody>
                             </table>
                         </div>
@@ -367,22 +380,21 @@
             errorToast.show();
         }
         
-        // Biểu đồ lịch làm việc theo tháng
-        var workScheduleCtx = document.getElementById('workScheduleChart').getContext('2d');
-        var workScheduleChart = new Chart(workScheduleCtx, {
+        // Lấy dữ liệu từ server
+        var weeklyData = <%= weeklyStatsJson %>;
+        var monthlyData = <%= monthlyStatsJson %>;
+        
+        // Biểu đồ thống kê tuần
+        var weeklyCtx = document.getElementById('weeklyScheduleChart').getContext('2d');
+        var weeklyChart = new Chart(weeklyCtx, {
             type: 'bar',
             data: {
-                labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+                labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
                 datasets: [{
-                    label: 'Số buổi đã hoàn thành',
-                    data: [12, 15, 10, 8],
+                    label: 'Số buổi tập',
+                    data: weeklyData,
                     backgroundColor: '#5e72e4',
                     borderRadius: 5
-                }, {
-                    label: 'Số buổi đã đặt',
-                    data: [15, 18, 14, 12],
-                    backgroundColor: '#8392ab',
-                    borderRadius: 5
                 }]
             },
             options: {
@@ -394,74 +406,6 @@
                         grid: {
                             drawBorder: false,
                             color: 'rgba(0,0,0,0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        align: 'end'
-                    }
-                }
-            }
-        });
-        
-        // Biểu đồ phân bổ khách hàng theo mục tiêu
-        var clientGoalsCtx = document.getElementById('clientGoalsChart').getContext('2d');
-        var clientGoalsChart = new Chart(clientGoalsCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Giảm cân', 'Tăng cơ', 'Sức khỏe', 'Phục hồi chấn thương'],
-                datasets: [{
-                    data: [35, 30, 25, 10],
-                    backgroundColor: ['#2dce89', '#5e72e4', '#fb6340', '#11cdef'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right'
-                    }
-                },
-                cutout: '70%'
-            }
-        });
-        
-        // Biểu đồ lịch làm việc tuần này
-        var weeklyScheduleCtx = document.getElementById('weeklyScheduleChart').getContext('2d');
-        var weeklyScheduleChart = new Chart(weeklyScheduleCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'],
-                datasets: [{
-                    label: 'Số giờ làm việc',
-                    data: [5, 7, 4, 6, 8, 3, 0],
-                    backgroundColor: '#fb6340',
-                    borderRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            drawBorder: false,
-                            color: 'rgba(0,0,0,0.1)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return value + 'h';
-                            }
                         }
                     },
                     x: {
@@ -478,15 +422,15 @@
             }
         });
         
-        // Biểu đồ tiến độ khách hàng
-        var clientProgressCtx = document.getElementById('clientProgressChart').getContext('2d');
-        var clientProgressChart = new Chart(clientProgressCtx, {
+        // Biểu đồ thống kê theo tháng
+        var monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+        var monthlyChart = new Chart(monthlyCtx, {
             type: 'line',
             data: {
-                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
                 datasets: [{
-                    label: 'Tiến độ trung bình (%)',
-                    data: [30, 45, 60, 70, 85, 95],
+                    label: 'Số buổi tập',
+                    data: monthlyData,
                     borderColor: '#2dce89',
                     backgroundColor: 'rgba(45, 206, 137, 0.1)',
                     borderWidth: 2,
@@ -500,15 +444,9 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100,
                         grid: {
                             drawBorder: false,
                             color: 'rgba(0,0,0,0.1)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return value + '%';
-                            }
                         }
                     },
                     x: {
@@ -527,4 +465,4 @@
     });
 </script>
 </body>
-</html> 
+</html>
