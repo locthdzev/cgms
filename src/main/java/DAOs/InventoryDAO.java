@@ -36,16 +36,24 @@ public class InventoryDAO {
                 "FROM Inventory i LEFT JOIN Products p ON i.ProductId = p.ProductId " +
                 "WHERE i.InventoryId = ?";
 
+        System.out.println("DEBUG DAO: Searching for inventory ID: " + inventoryId);
+        System.out.println("DEBUG DAO: SQL Query: " + sql);
+
         try (Connection conn = DbConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            System.out.println("DEBUG DAO: Database connection established");
             stmt.setInt(1, inventoryId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    System.out.println("DEBUG DAO: Found inventory record");
                     return mapResultSetToInventory(rs);
+                } else {
+                    System.out.println("DEBUG DAO: No inventory record found");
                 }
             }
         } catch (Exception e) {
+            System.out.println("DEBUG DAO: Exception occurred: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
