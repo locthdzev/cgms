@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
 
 public class OrderService {
     private final OrderDAO orderDAO = new OrderDAO();
@@ -111,6 +112,7 @@ public class OrderService {
             order.setMember(user);
             order.setTotalAmount(totalAmount);
             order.setOrderDate(LocalDate.now());
+            // *** MEMBER ĐẶT HÀNG ONLINE: LUÔN LÀ PENDING (cần admin xác nhận) ***
             order.setStatus(OrderConstants.STATUS_PENDING);
             order.setCreatedAt(Instant.now());
             order.setShippingAddress(shippingAddress);
@@ -146,7 +148,7 @@ public class OrderService {
 
                 orderDAO.createOrderDetail(orderDetail);
 
-                // TRỪ INVENTORY NGAY KHI MEMBER ĐẶT HÀNG
+                // *** MEMBER ĐẶT HÀNG: TRỪ INVENTORY NGAY (cả Cash và PayOS) ***
                 inventoryDAO.updateQuantity(cartItem.getProduct().getId(), -cartItem.getQuantity());
             }
 
@@ -212,8 +214,14 @@ public class OrderService {
             order.setTotalAmount(totalAmount);
             order.setOrderDate(LocalDate.now());
 
-            // *** ADMIN TẠO ORDER LUÔN LÀ CONFIRMED (KỂ CẢ PAYOS) ***
-            order.setStatus(OrderConstants.STATUS_CONFIRMED);
+            // *** ADMIN BÁN TRỰC TIẾP: ***
+            // - Cash: COMPLETED ngay (đã nhận tiền mặt)
+            // - PayOS: PENDING trước, COMPLETED sau khi thanh toán (cần quét mã)
+            if (OrderConstants.PAYMENT_PAYOS.equals(paymentMethod)) {
+                order.setStatus(OrderConstants.STATUS_PENDING); // PayOS cần thanh toán trước
+            } else {
+                order.setStatus(OrderConstants.STATUS_COMPLETED); // Cash hoàn thành ngay
+            }
 
             order.setCreatedAt(Instant.now());
             order.setShippingAddress(shippingAddress);
@@ -223,7 +231,7 @@ public class OrderService {
             order.setNotes(notes);
 
             if (OrderConstants.PAYMENT_PAYOS.equals(paymentMethod)) {
-                String payOSOrderCode = "ADMIN-ORDER-" + System.currentTimeMillis();
+                String payOSOrderCode = "ORDER-" + System.currentTimeMillis();
                 order.setPayOSOrderCode(payOSOrderCode);
             }
 
@@ -233,6 +241,8 @@ public class OrderService {
             }
 
             order.setId(orderId);
+
+            // PayOS order code đã được set đúng từ đầu, không cần update
 
             // Tạo chi tiết đơn hàng và trừ inventory
             for (OrderItem item : orderItems) {
@@ -252,12 +262,27 @@ public class OrderService {
 
                 orderDAO.createOrderDetail(orderDetail);
 
-                // *** TRỪ INVENTORY NGAY KHI ADMIN TẠO CONFIRMED ORDER ***
-                inventoryDAO.updateQuantity(item.getProductId(), -item.getQuantity());
+                // *** ADMIN BÁN TRỰC TIẾP: CHỈ TRỪ INVENTORY KHI LÀ CASH (COMPLETED) ***
+                if (OrderConstants.STATUS_COMPLETED.equals(order.getStatus())) {
+                    inventoryDAO.updateQuantity(item.getProductId(), -item.getQuantity());
+                }
             }
 
-            // Gửi email xác nhận bất đồng bộ
-            sendEmailsAsync(customer, order);
+            // *** GỬI EMAIL XÁC NHẬN ***
+            // - Admin Cash: gửi ngay (COMPLETED)
+            // - Admin PayOS: gửi khi thanh toán thành công (callback sẽ gửi)
+            // - Member: gửi ngay (PENDING, chờ admin xác nhận)
+            if (order.getCreatedByAdmin() != null) {
+                // Admin order
+                if (OrderConstants.PAYMENT_CASH.equals(paymentMethod)) {
+                    // Cash: gửi email ngay vì đã hoàn thành
+                    sendEmailsAsync(customer, order);
+                }
+                // PayOS: không gửi email ngay, sẽ gửi khi thanh toán thành công
+            } else {
+                // Member order: luôn gửi email (PENDING, chờ admin xác nhận)
+                sendEmailsAsync(customer, order);
+            }
 
             return orderId;
         } catch (Exception e) {
@@ -270,11 +295,38 @@ public class OrderService {
      * Cập nhật trạng thái đơn hàng
      */
     public void updateOrderStatus(int orderId, String newStatus) {
+        // Lấy order trước khi update để check status cũ
+        Order order = orderDAO.getOrderById(orderId);
+        String oldStatus = order != null ? order.getStatus() : null;
+
         orderDAO.updateOrderStatus(orderId, newStatus);
 
+        // *** TRỪ INVENTORY KHI PAYOS PAYMENT THÀNH CÔNG ***
+        // - Member: PENDING → PENDING (đã trừ inventory từ đầu)
+        // - Admin: PENDING → COMPLETED (trừ inventory lúc này)
+        if (order != null &&
+                OrderConstants.STATUS_PENDING.equals(oldStatus) &&
+                (OrderConstants.STATUS_CONFIRMED.equals(newStatus)
+                        || OrderConstants.STATUS_COMPLETED.equals(newStatus))) {
+
+            // Chỉ trừ inventory nếu chưa bị trừ trước đó
+            // Admin orders PayOS: chuyển PENDING → COMPLETED
+            // Member orders PayOS: PENDING → PENDING (đã trừ rồi, không trừ lại)
+            if (order.getCreatedByAdmin() != null) {
+                // Admin order: trừ inventory khi PayOS thành công
+                List<OrderDetail> orderDetails = orderDAO.getOrderDetailsByOrderId(orderId);
+                for (OrderDetail detail : orderDetails) {
+                    inventoryDAO.updateQuantity(detail.getProduct().getId(), -detail.getQuantity());
+                }
+                System.out.println("Inventory updated for admin PayOS order completion: " + orderId);
+            }
+            // Member orders đã trừ inventory từ lúc tạo order, không cần trừ lại
+        }
+
         // Gửi email thông báo cập nhật trạng thái bất đồng bộ
-        Order order = orderDAO.getOrderById(orderId);
         if (order != null) {
+            // Refresh order để có status mới
+            order = orderDAO.getOrderById(orderId);
             sendOrderStatusUpdateEmailAsync(order.getMember(), order, newStatus);
         }
     }
@@ -304,18 +356,42 @@ public class OrderService {
             return false;
         }
 
-        // Chỉ cho phép hủy khi đơn hàng chưa được vận chuyển
+        // Chỉ cho phép hủy khi đơn hàng chưa được vận chuyển hoặc hoàn thành
         if (OrderConstants.STATUS_SHIPPING.equals(order.getStatus()) ||
                 OrderConstants.STATUS_COMPLETED.equals(order.getStatus())) {
             return false;
         }
 
         // *** TRẢ LẠI INVENTORY KHI HỦY ĐƠN HÀNG ***
-        // Lấy chi tiết đơn hàng để biết số lượng cần trả về kho
-        List<OrderDetail> orderDetails = orderDAO.getOrderDetailsByOrderId(orderId);
-        for (OrderDetail detail : orderDetails) {
-            // Trả lại số lượng vào kho
-            inventoryDAO.updateQuantity(detail.getProduct().getId(), detail.getQuantity());
+        // Chỉ trả lại inventory khi đã bị trừ trước đó:
+        // - Member orders (cả Cash và PayOS): đã trừ inventory khi tạo order
+        // - Admin Cash orders: đã trừ inventory khi tạo order
+        // - Admin PayOS orders: CHƯA trừ inventory (chỉ trừ khi thanh toán thành công)
+
+        boolean shouldRestoreInventory = false;
+
+        if (order.getCreatedByAdmin() != null) {
+            // Admin order: chỉ restore nếu là Cash (đã trừ inventory) hoặc PayOS đã thanh
+            // toán (COMPLETED)
+            if (OrderConstants.PAYMENT_CASH.equals(order.getPaymentMethod()) ||
+                    OrderConstants.STATUS_COMPLETED.equals(order.getStatus())) {
+                shouldRestoreInventory = true;
+            }
+        } else {
+            // Member order: luôn đã trừ inventory khi tạo order (cả Cash và PayOS)
+            shouldRestoreInventory = true;
+        }
+
+        if (shouldRestoreInventory) {
+            List<OrderDetail> orderDetails = orderDAO.getOrderDetailsByOrderId(orderId);
+            for (OrderDetail detail : orderDetails) {
+                // Trả lại số lượng vào kho
+                inventoryDAO.updateQuantity(detail.getProduct().getId(), detail.getQuantity());
+            }
+            System.out.println("Inventory restored for cancelled order: " + orderId);
+        } else {
+            System.out.println(
+                    "Inventory NOT restored for order " + orderId + " (admin PayOS order, inventory not deducted yet)");
         }
 
         orderDAO.updateOrderStatus(orderId, OrderConstants.STATUS_CANCELLED);
@@ -361,6 +437,29 @@ public class OrderService {
      */
     public List<Order> getOrdersByMemberId(int memberId) {
         return orderDAO.getOrdersByMemberId(memberId);
+    }
+
+    /**
+     * Lấy đơn hàng gần đây của member (giới hạn số lượng)
+     */
+    public List<Order> getRecentOrdersByMemberId(int memberId, int limit) {
+        try {
+            List<Order> allOrders = orderDAO.getOrdersByMemberId(memberId);
+
+            // Sắp xếp theo ngày tạo (mới nhất trước)
+            allOrders.sort((a, b) -> b.getOrderDate().compareTo(a.getOrderDate()));
+
+            // Giới hạn số lượng
+            if (allOrders.size() > limit) {
+                return allOrders.subList(0, limit);
+            }
+
+            return allOrders;
+        } catch (Exception e) {
+            System.err.println("Error getting recent orders: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     /**

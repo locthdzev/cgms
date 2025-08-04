@@ -40,7 +40,7 @@ public class PayOSCallbackController extends HttpServlet {
 
             // Kiểm tra thanh toán thành công
             if (orderCode != null && "PAID".equals(status) && "00".equals(code)) {
-                // Tìm đơn hàng theo PayOS order code (thêm prefix ORDER-)
+                // Tìm đơn hàng theo PayOS order code với format ORDER-
                 String fullOrderCode = "ORDER-" + orderCode;
                 Order order = orderDAO.getOrderByPayOSCode(fullOrderCode);
 
@@ -55,22 +55,21 @@ public class PayOSCallbackController extends HttpServlet {
                     System.out.println("Order PayOS Code: " + order.getPayOSOrderCode());
                     System.out.println("============================");
 
-                    // Kiểm tra xem order được tạo bởi admin hay member
                     boolean isAdminOrder = (order.getCreatedByAdmin() != null);
 
                     if (isAdminOrder) {
-                        // Admin order: Tự động xác nhận
-                        System.out.println("PROCESSING ADMIN ORDER - Updating status to CONFIRMED");
-                        orderService.updateOrderStatus(order.getId(), OrderService.OrderConstants.STATUS_CONFIRMED);
+                        // Admin order: Chuyển thành COMPLETED (bán trực tiếp)
+                        System.out.println("PROCESSING ADMIN ORDER - Updating status to COMPLETED");
+                        orderService.updateOrderStatus(order.getId(), OrderService.OrderConstants.STATUS_COMPLETED);
 
                         req.getSession().setAttribute("successMessage",
-                                "Thanh toán thành công! Đơn hàng #" + order.getId() + " đã được xác nhận.");
+                                "Thanh toán thành công! Đơn hàng #" + order.getId() + " đã hoàn thành.");
 
-                        System.out.println("Admin order payment successful and confirmed: " + order.getId());
+                        System.out.println("Admin order payment successful and completed: " + order.getId());
                         System.out.println("REDIRECTING TO: /admin-orders");
                         resp.sendRedirect(req.getContextPath() + "/admin-orders");
                     } else {
-                        // Member order: Chờ admin xác nhận
+                        // Member order: Giữ PENDING (chờ admin xác nhận, đã trừ inventory)
                         System.out.println("PROCESSING MEMBER ORDER - Keeping PENDING status");
                         req.getSession().setAttribute("successMessage",
                                 "Thanh toán thành công! Đơn hàng #" + order.getId() + " đang chờ xác nhận từ admin.");

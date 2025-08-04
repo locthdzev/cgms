@@ -9,13 +9,17 @@
 <%
     // Không khai báo lại loggedInUser vì navbar.jsp đã khai báo
     // User loggedInUser = (User) session.getAttribute("loggedInUser");
-    if (session.getAttribute("loggedInUser") == null || 
+    if (session.getAttribute("loggedInUser") == null ||
         !"Admin".equals(((User) session.getAttribute("loggedInUser")).getRole())) {
         response.sendRedirect("login");
         return;
     }
 
     List<Order> orders = (List<Order>) request.getAttribute("orders");
+    List<Order> allOrders = (List<Order>) request.getAttribute("allOrders");
+    String currentFilter = (String) request.getAttribute("currentFilter");
+
+    if (currentFilter == null) currentFilter = "ALL";
 
     String errorMessage = (String) session.getAttribute("errorMessage");
     boolean hasErrorMessage = (errorMessage != null);
@@ -129,30 +133,30 @@
         }
 
         /* Stats Cards */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
 
-@media (max-width: 1400px) {
-    .stats-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
+        @media (max-width: 1400px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
 
-@media (max-width: 992px) {
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
+        @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
 
-@media (max-width: 576px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-}
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
         .stats-card {
             background: white;
@@ -163,11 +167,32 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
         }
 
         .stats-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--card-shadow-hover);
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .stats-card.active {
+            background: var(--primary-gradient);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .stats-card.active .stats-number,
+        .stats-card.active .stats-label {
+            color: white;
+        }
+
+        .stats-card.active .stats-icon {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .stats-card::before {
@@ -221,6 +246,66 @@
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .filter-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #718096;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-btn:hover {
+            background: #f8fafc;
+            color: #4a5568;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-btn.active:hover {
+            color: white;
         }
 
         /* Order Cards */
@@ -401,12 +486,14 @@
             display: inline-flex;
             align-items: center;
             gap: 0.75rem;
+            text-decoration: none;
         }
 
         .create-order-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 15px 35px rgba(17, 153, 142, 0.4);
             color: white;
+            text-decoration: none;
         }
 
         .refresh-btn {
@@ -516,12 +603,16 @@
                 flex: 1;
                 justify-content: center;
             }
+
+            .filter-buttons {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body class="g-sidenav-show bg-gray-100">
     <div class="min-height-300 bg-dark position-absolute w-100"></div>
-    
+
     <!-- Toast Container -->
     <div class="toast-container">
         <% if (hasSuccessMessage) { %>
@@ -545,7 +636,7 @@
         </div>
         <% } %>
     </div>
-    
+
     <!-- Sidebar -->
     <%@ include file="sidebar.jsp" %>
 
@@ -582,76 +673,113 @@
 
             <!-- Statistics Cards -->
             <div class="stats-grid">
-                <div class="stats-card primary">
+                <%
+                    int pendingCount = 0, confirmedCount = 0, shippingCount = 0, completedCount = 0, cancelledCount = 0;
+                    if (allOrders != null) {
+                        for (Order order : allOrders) {
+                            switch (order.getStatus()) {
+                                case "PENDING": pendingCount++; break;
+                                case "CONFIRMED": confirmedCount++; break;
+                                case "SHIPPING": shippingCount++; break;
+                                case "COMPLETED": completedCount++; break;
+                                case "CANCELLED": cancelledCount++; break;
+                            }
+                        }
+                    }
+                %>
+
+                <a href="admin-orders?status=ALL" class="stats-card primary <%= "ALL".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
                     <div class="stats-icon primary">
                         <i class="fas fa-shopping-bag"></i>
                     </div>
                     <div class="stats-number">
-                        <%= orders != null ? orders.size() : 0 %>
+                        <%= allOrders != null ? allOrders.size() : 0 %>
                     </div>
-                    <div class="stats-label">
-                        Tổng đơn hàng
-                    </div>
-                </div>
+                    <div class="stats-label">Tổng đơn hàng</div>
+                </a>
 
-                <div class="stats-card warning">
+                <a href="admin-orders?status=PENDING" class="stats-card warning <%= "PENDING".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
                     <div class="stats-icon warning">
                         <i class="fas fa-clock"></i>
                     </div>
                     <div class="stats-number">
-                        <%= orders != null ? orders.stream().mapToInt(o -> "PENDING".equals(o.getStatus()) ? 1 : 0).sum() : 0 %>
+                        <%= pendingCount %>
                     </div>
-                    <div class="stats-label">
-                        Chờ xác nhận
-                    </div>
-                </div>
+                    <div class="stats-label">Chờ xác nhận</div>
+                </a>
 
-                <div class="stats-card confirmed">
+                <a href="admin-orders?status=CONFIRMED" class="stats-card confirmed <%= "CONFIRMED".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
                     <div class="stats-icon confirmed">
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stats-number">
-                        <%= orders != null ? orders.stream().mapToInt(o -> "CONFIRMED".equals(o.getStatus()) ? 1 : 0).sum() : 0 %>
+                        <%= confirmedCount %>
                     </div>
-                    <div class="stats-label">
-                        Đã xác nhận
-                    </div>
-                </div>
+                    <div class="stats-label">Đã xác nhận</div>
+                </a>
 
-                <div class="stats-card info">
+                <a href="admin-orders?status=SHIPPING" class="stats-card info <%= "SHIPPING".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
                     <div class="stats-icon info">
                         <i class="fas fa-truck"></i>
                     </div>
                     <div class="stats-number">
-                        <%= orders != null ? orders.stream().mapToInt(o -> "SHIPPING".equals(o.getStatus()) ? 1 : 0).sum() : 0 %>
+                        <%= shippingCount %>
                     </div>
-                    <div class="stats-label">
-                        Đang vận chuyển
-                    </div>
-                </div>
+                    <div class="stats-label">Đang vận chuyển</div>
+                </a>
 
-                <div class="stats-card success">
+                <a href="admin-orders?status=COMPLETED" class="stats-card success <%= "COMPLETED".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
                     <div class="stats-icon success">
                         <i class="fas fa-check"></i>
                     </div>
                     <div class="stats-number">
-                        <%= orders != null ? orders.stream().mapToInt(o -> "COMPLETED".equals(o.getStatus()) ? 1 : 0).sum() : 0 %>
+                        <%= completedCount %>
                     </div>
-                    <div class="stats-label">
-                        Hoàn thành
-                    </div>
-                </div>
+                    <div class="stats-label">Hoàn thành</div>
+                </a>
 
-                <div class="stats-card cancelled">
+                <a href="admin-orders?status=CANCELLED" class="stats-card cancelled <%= "CANCELLED".equals(currentFilter) ? "active" : "" %>" style="text-decoration: none;">
                     <div class="stats-icon cancelled">
                         <i class="fas fa-times-circle"></i>
                     </div>
                     <div class="stats-number">
-                        <%= orders != null ? orders.stream().mapToInt(o -> "CANCELLED".equals(o.getStatus()) ? 1 : 0).sum() : 0 %>
+                        <%= cancelledCount %>
                     </div>
-                    <div class="stats-label">
-                        Đã hủy
-                    </div>
+                    <div class="stats-label">Đã hủy</div>
+                </a>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-title">
+                    <i class="fas fa-filter"></i>
+                    Lọc theo trạng thái đơn hàng
+                </div>
+                <div class="filter-buttons">
+                    <a href="admin-orders?status=ALL" class="filter-btn <%= "ALL".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-list"></i>
+                        Tất cả (<%= allOrders != null ? allOrders.size() : 0 %>)
+                    </a>
+                    <a href="admin-orders?status=PENDING" class="filter-btn <%= "PENDING".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-clock"></i>
+                        Chờ xác nhận (<%= pendingCount %>)
+                    </a>
+                    <a href="admin-orders?status=CONFIRMED" class="filter-btn <%= "CONFIRMED".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-check-circle"></i>
+                        Đã xác nhận (<%= confirmedCount %>)
+                    </a>
+                    <a href="admin-orders?status=SHIPPING" class="filter-btn <%= "SHIPPING".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-truck"></i>
+                        Đang vận chuyển (<%= shippingCount %>)
+                    </a>
+                    <a href="admin-orders?status=COMPLETED" class="filter-btn <%= "COMPLETED".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-check"></i>
+                        Hoàn thành (<%= completedCount %>)
+                    </a>
+                    <a href="admin-orders?status=CANCELLED" class="filter-btn <%= "CANCELLED".equals(currentFilter) ? "active" : "" %>">
+                        <i class="fas fa-times-circle"></i>
+                        Đã hủy (<%= cancelledCount %>)
+                    </a>
                 </div>
             </div>
 
@@ -699,7 +827,7 @@
                                         }
                                     %>
                                     <span class="status-badge <%= statusClass %>">
-                                        <i class="fas fa-circle me-2" style="font-size: 0.5rem;"></i>
+                                        <i class="fas fa-circle me-2" style="font-size: 0.5rem"></i>
                                         <%= statusText %>
                                     </span>
                                 </div>
@@ -713,8 +841,12 @@
                                         <i class="fas fa-user me-1"></i>
                                         Khách hàng
                                     </div>
-                                    <div class="info-value"><%= order.getMember().getFullName() %></div>
-                                    <div class="info-sub"><%= order.getMember().getEmail() %></div>
+                                    <div class="info-value">
+                                        <%= order.getMember().getFullName() %>
+                                    </div>
+                                    <div class="info-sub">
+                                        <%= order.getMember().getEmail() %>
+                                    </div>
                                 </div>
 
                                 <div class="info-item">
@@ -722,7 +854,7 @@
                                         <i class="fas fa-money-bill-wave me-1"></i>
                                         Tổng tiền
                                     </div>
-                                    <div class="info-value" style="color: #059669;">
+                                    <div class="info-value" style="color: #059669">
                                         <%= formatter.format(order.getTotalAmount().longValue()) %> VNĐ
                                     </div>
                                     <div class="info-sub">
@@ -736,10 +868,10 @@
                                         Địa chỉ giao hàng
                                     </div>
                                     <div class="info-value">
-                                        <%= order.getShippingAddress() != null ? 
-                                            (order.getShippingAddress().length() > 50 ? 
-                                             order.getShippingAddress().substring(0, 50) + "..." : 
-                                             order.getShippingAddress()) : "N/A" %>
+                                        <%= order.getShippingAddress() != null ?
+                                            (order.getShippingAddress().length() > 50 ?
+                                                order.getShippingAddress().substring(0, 50) + "..." :
+                                                order.getShippingAddress()) : "N/A" %>
                                     </div>
                                     <div class="info-sub">
                                         <%= order.getReceiverName() != null ? order.getReceiverName() : "N/A" %>
@@ -752,23 +884,20 @@
                                         Thao tác
                                     </div>
                                     <div class="action-buttons">
-                                        <a href="admin-orders?action=details&id=<%= order.getId() %>" 
-                                           class="btn btn-modern btn-primary-modern">
+                                        <a href="admin-orders?action=details&id=<%= order.getId() %>" class="btn btn-modern btn-primary-modern">
                                             <i class="fas fa-eye"></i>
                                             Chi tiết
                                         </a>
 
                                         <% if (!"CANCELLED".equals(order.getStatus()) && !"COMPLETED".equals(order.getStatus())) { %>
-                                        <button type="button" 
-                                                class="btn btn-modern btn-success-modern update-status-btn"
+                                        <button type="button" class="btn btn-modern btn-success-modern update-status-btn"
                                                 data-order-id="<%= order.getId() %>"
                                                 data-current-status="<%= order.getStatus() %>">
                                             <i class="fas fa-edit"></i>
                                             Cập nhật
                                         </button>
 
-                                        <button type="button" 
-                                                class="btn btn-modern btn-danger-modern cancel-order-btn"
+                                        <button type="button" class="btn btn-modern btn-danger-modern cancel-order-btn"
                                                 data-order-id="<%= order.getId() %>">
                                             <i class="fas fa-times"></i>
                                             Hủy
@@ -785,14 +914,31 @@
                     <div class="empty-icon">
                         <i class="fas fa-shopping-bag"></i>
                     </div>
-                    <h3 class="empty-title">Chưa có đơn hàng nào</h3>
-                    <p class="empty-description">
-                        Hệ thống chưa có đơn hàng nào được tạo. Hãy tạo đơn hàng đầu tiên!
-                    </p>
-                    <a href="admin-orders?action=create" class="create-order-btn">
-                        <i class="fas fa-plus"></i>
-                        Tạo đơn hàng đầu tiên
-                    </a>
+                    <% if ("ALL".equals(currentFilter)) { %>
+                        <h3 class="empty-title">Chưa có đơn hàng nào</h3>
+                        <p class="empty-description">
+                            Hệ thống chưa có đơn hàng nào được tạo. Hãy tạo đơn hàng đầu tiên!
+                        </p>
+                        <a href="admin-orders?action=create" class="create-order-btn">
+                            <i class="fas fa-plus"></i>
+                            Tạo đơn hàng đầu tiên
+                        </a>
+                    <% } else { %>
+                        <h3 class="empty-title">Không có đơn hàng nào với trạng thái này</h3>
+                        <p class="empty-description">
+                            Không tìm thấy đơn hàng nào với trạng thái "<%= currentFilter.toLowerCase() %>". Hãy thử lọc theo trạng thái khác hoặc tạo đơn hàng mới.
+                        </p>
+                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <a href="admin-orders?status=ALL" class="create-order-btn" style="background: var(--info-gradient);">
+                                <i class="fas fa-list"></i>
+                                Xem tất cả đơn hàng
+                            </a>
+                            <a href="admin-orders?action=create" class="create-order-btn">
+                                <i class="fas fa-plus"></i>
+                                Tạo đơn hàng mới
+                            </a>
+                        </div>
+                    <% } %>
                 </div>
                 <% } %>
             </div>
@@ -833,7 +979,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-modern" style="background: #6c757d; color: white;" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-modern" style="background: #6c757d; color: white" data-bs-dismiss="modal">
                             Hủy
                         </button>
                         <button type="submit" class="btn btn-modern btn-primary-modern">
@@ -850,7 +996,7 @@
     <div class="modal fade" id="cancelOrderModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header" style="background: var(--danger-gradient);">
+                <div class="modal-header" style="background: var(--danger-gradient)">
                     <h5 class="modal-title">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Hủy đơn hàng
@@ -859,24 +1005,26 @@
                 </div>
                 <form action="admin-orders" method="post">
                     <div class="modal-body">
-                        <input type="hidden" name="action" value="admin-cancel">
-                        <input type="hidden" name="orderId" id="cancelOrderId">
-                        
+                        <input type="hidden" name="action" value="admin-cancel"/>
+                        <input type="hidden" name="orderId" id="cancelOrderId"/>
+
                         <div class="alert" style="background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%); color: #92400e; border-radius: 12px;">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!
                         </div>
-                        
-                        <p class="mb-3 fw-medium">Bạn có chắc chắn muốn hủy đơn hàng này không?</p>
-                        
+
+                        <p class="mb-3 fw-medium">
+                            Bạn có chắc chắn muốn hủy đơn hàng này không?
+                        </p>
+
                         <div class="form-group">
                             <label class="form-control-label fw-bold">Lý do hủy đơn hàng *</label>
                             <textarea class="form-control" name="reason" rows="3" required
-                                placeholder="Nhập lý do hủy đơn hàng" style="border-radius: 12px;"></textarea>
+                                      placeholder="Nhập lý do hủy đơn hàng" style="border-radius: 12px"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-modern" style="background: #6c757d; color: white;" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-modern" style="background: #6c757d; color: white" data-bs-dismiss="modal">
                             Đóng
                         </button>
                         <button type="submit" class="btn btn-modern btn-danger-modern">
@@ -896,15 +1044,15 @@
 
     <script>
         function showUpdateStatusModal(orderId, currentStatus) {
-            document.getElementById("updateOrderId").value = orderId;
-            document.getElementById("newStatusSelect").value = currentStatus;
-            var modal = new bootstrap.Modal(document.getElementById("updateStatusModal"));
+            document.getElementById('updateOrderId').value = orderId;
+            document.getElementById('newStatusSelect').value = currentStatus;
+            var modal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
             modal.show();
         }
 
         function showCancelOrderModal(orderId) {
-            document.getElementById("cancelOrderId").value = orderId;
-            var modal = new bootstrap.Modal(document.getElementById("cancelOrderModal"));
+            document.getElementById('cancelOrderId').value = orderId;
+            var modal = new bootstrap.Modal(document.getElementById('cancelOrderModal'));
             modal.show();
         }
 
@@ -913,7 +1061,7 @@
             const refreshBtn = document.querySelector('.refresh-btn');
             const icon = refreshBtn.querySelector('i');
             icon.style.animation = 'spin 1s linear infinite';
-            
+
             setTimeout(() => {
                 window.location.reload();
             }, 500);
@@ -930,33 +1078,33 @@
         document.head.appendChild(style);
 
         // Add event listeners
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener('DOMContentLoaded', function () {
             // Initialize toasts
             var toastElList = [].slice.call(document.querySelectorAll('.toast'));
-            var toastList = toastElList.map(function(toastEl) {
+            var toastList = toastElList.map(function (toastEl) {
                 return new bootstrap.Toast(toastEl);
             });
-            
+
             // Show toasts
-            toastList.forEach(function(toast) {
+            toastList.forEach(function (toast) {
                 toast.show();
             });
 
             // Update status buttons
-            const updateButtons = document.querySelectorAll(".update-status-btn");
+            const updateButtons = document.querySelectorAll('.update-status-btn');
             updateButtons.forEach(function (button) {
-                button.addEventListener("click", function () {
-                    const orderId = this.getAttribute("data-order-id");
-                    const currentStatus = this.getAttribute("data-current-status");
+                button.addEventListener('click', function () {
+                    const orderId = this.getAttribute('data-order-id');
+                    const currentStatus = this.getAttribute('data-current-status');
                     showUpdateStatusModal(orderId, currentStatus);
                 });
             });
 
             // Cancel order buttons
-            const cancelButtons = document.querySelectorAll(".cancel-order-btn");
+            const cancelButtons = document.querySelectorAll('.cancel-order-btn');
             cancelButtons.forEach(function (button) {
-                button.addEventListener("click", function () {
-                    const orderId = this.getAttribute("data-order-id");
+                button.addEventListener('click', function () {
+                    const orderId = this.getAttribute('data-order-id');
                     showCancelOrderModal(orderId);
                 });
             });
@@ -966,7 +1114,7 @@
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(20px)';
-                
+
                 setTimeout(() => {
                     card.style.transition = 'all 0.6s ease';
                     card.style.opacity = '1';

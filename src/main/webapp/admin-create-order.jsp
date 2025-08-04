@@ -685,14 +685,14 @@
                                     <label class="form-control-label">Phương thức thanh toán *</label>
                                     <div class="payment-methods">
                                         <div class="payment-option">
-                                            <input type="radio" name="paymentMethod" value="Cash" id="cashPayment" checked>
+                                            <input type="radio" name="paymentMethod" value="CASH" id="cashPayment" checked>
                                             <label class="payment-label" for="cashPayment">
                                                 <i class="fas fa-money-bill-wave"></i>
                                                 Tiền mặt
                                             </label>
                                         </div>
                                         <div class="payment-option">
-                                            <input type="radio" name="paymentMethod" value="PayOS" id="payosPayment">
+                                            <input type="radio" name="paymentMethod" value="PAYOS" id="payosPayment">
                                             <label class="payment-label" for="payosPayment">
                                                 <i class="fas fa-credit-card"></i>
                                                 PayOS
