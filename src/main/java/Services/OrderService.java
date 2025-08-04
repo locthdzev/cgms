@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
 
 public class OrderService {
     private final OrderDAO orderDAO = new OrderDAO();
@@ -436,6 +437,29 @@ public class OrderService {
      */
     public List<Order> getOrdersByMemberId(int memberId) {
         return orderDAO.getOrdersByMemberId(memberId);
+    }
+
+    /**
+     * Lấy đơn hàng gần đây của member (giới hạn số lượng)
+     */
+    public List<Order> getRecentOrdersByMemberId(int memberId, int limit) {
+        try {
+            List<Order> allOrders = orderDAO.getOrdersByMemberId(memberId);
+
+            // Sắp xếp theo ngày tạo (mới nhất trước)
+            allOrders.sort((a, b) -> b.getOrderDate().compareTo(a.getOrderDate()));
+
+            // Giới hạn số lượng
+            if (allOrders.size() > limit) {
+                return allOrders.subList(0, limit);
+            }
+
+            return allOrders;
+        } catch (Exception e) {
+            System.err.println("Error getting recent orders: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     /**

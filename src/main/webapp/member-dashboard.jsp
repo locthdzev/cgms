@@ -1,13 +1,17 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="Models.User"%>
+<%@page import="Models.Schedule"%>
+<%@page import="java.util.List"%>
+<%@page import="java.time.format.DateTimeFormatter"%>
+<%@page import="java.time.LocalDate"%>
 <%
     // Lấy thông tin người dùng đăng nhập từ session
     User loggedInUser = (User) session.getAttribute("loggedInUser");
     
     // Kiểm tra xem người dùng đã đăng nhập và có vai trò Member không
     if (loggedInUser == null || !"Member".equals(loggedInUser.getRole())) {
-      response.sendRedirect("login");
-      return;
+        response.sendRedirect("login");
+        return;
     }
     
     // Lấy thông báo từ session nếu có
@@ -21,8 +25,34 @@
         session.removeAttribute("errorMessage");
     }
     
-    // Đặt tiêu đề trang cho navbar
-    request.setAttribute("pageTitle", "Dashboard");
+    // Lấy dữ liệu từ controller
+    Integer completedSessionsCount = (Integer) request.getAttribute("completedSessionsCount");
+    Integer upcomingSessionsCount = (Integer) request.getAttribute("upcomingSessionsCount");
+    Integer totalOrdersCount = (Integer) request.getAttribute("totalOrdersCount");
+    
+    List<Schedule> upcomingSchedules = (List<Schedule>) request.getAttribute("upcomingSchedules");
+    List<Integer> weeklyWorkoutStats = (List<Integer>) request.getAttribute("weeklyWorkoutStats");
+    List<Double> monthlySpendingStats = (List<Double>) request.getAttribute("monthlySpendingStats");
+    
+    // Default values nếu null
+    if (completedSessionsCount == null) completedSessionsCount = 0;
+    if (upcomingSessionsCount == null) upcomingSessionsCount = 0;
+    if (totalOrdersCount == null) totalOrdersCount = 0;
+    
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    
+    // Tạo JSON strings cho biểu đồ
+    String weeklyWorkoutStatsJson = "[0,0,0,0,0,0,0]";
+    String monthlySpendingStatsJson = "[0,0,0,0]";
+    
+    if (weeklyWorkoutStats != null && !weeklyWorkoutStats.isEmpty()) {
+        weeklyWorkoutStatsJson = weeklyWorkoutStats.toString();
+    }
+    
+    if (monthlySpendingStats != null && !monthlySpendingStats.isEmpty()) {
+        monthlySpendingStatsJson = monthlySpendingStats.toString();
+    }
 %>
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -31,38 +61,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="assets/img/icons8-gym-96.png" />
     <link rel="icon" type="image/png" href="assets/img/icons8-gym-96.png" />
-    <title>Dashboard Member - CGMS</title>
+    <title>Member Dashboard - CGMS</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
     <link id="pagestyle" href="assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
     <style>
-        .user-welcome {
-            text-align: right;
-            margin-left: auto;
-        }
-        .user-welcome .user-name {
-            font-weight: 600;
-            color: white;
-            font-size: 1rem;
-            margin-bottom: 0;
-        }
-        .user-welcome .user-email {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.875rem;
-        }
-        
-        /* Toast styles */
         .toast-container {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 9999;
-        }
-        
-        .toast {
-            min-width: 300px;
         }
         
         .card-stats {
@@ -74,106 +84,53 @@
             box-shadow: 0 15px 30px rgba(0,0,0,0.1);
         }
         
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-        
-        .membership-card {
-            background: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%);
+        .welcome-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 15px;
             overflow: hidden;
             position: relative;
         }
         
-        .membership-card .card-body {
+        .chart-container {
             position: relative;
-            z-index: 2;
-        }
-        
-        .membership-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+            height: 350px;
             width: 100%;
-            height: 100%;
-            background: url('assets/img/curved-images/white-curved.jpg');
-            background-size: cover;
-            opacity: 0.1;
-            z-index: 1;
-        }
-        
-        .membership-info {
-            font-size: 0.875rem;
-        }
-        
-        .membership-info .value {
-            font-weight: 600;
-            font-size: 1rem;
         }
         
         .upcoming-session {
-            border-left: 4px solid #5e72e4;
-            padding-left: 15px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
             margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #5e72e4;
             transition: all 0.3s ease;
         }
         
         .upcoming-session:hover {
             transform: translateX(5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
         
         .session-time {
             font-weight: 600;
             color: #5e72e4;
+            font-size: 0.9rem;
         }
         
-        .progress-container {
-            margin-top: 10px;
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
         }
         
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        
-        .progress-label .value {
-            font-weight: 600;
-        }
-        
-        .activity-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f2f5;
-        }
-        
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-        }
-        
-        .activity-content {
-            flex: 1;
-        }
-        
-        .activity-title {
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-        
-        .activity-time {
+        .stats-label {
             font-size: 0.75rem;
-            color: #8392ab;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -210,97 +167,92 @@
 <main class="main-content position-relative border-radius-lg">
     <!-- Include Navbar Component -->
     <jsp:include page="navbar.jsp">
-        <jsp:param name="pageTitle" value="Dashboard Member" />
+        <jsp:param name="pageTitle" value="Member Dashboard" />
         <jsp:param name="parentPage" value="Dashboard" />
         <jsp:param name="parentPageUrl" value="member-dashboard" />
         <jsp:param name="currentPage" value="Dashboard" />
     </jsp:include>
     
     <div class="container-fluid py-4">
-        <!-- Greeting section -->
+        <!-- Welcome section -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card">
-                    <div class="card-body p-3">
-    <div class="row">
-                            <div class="col-lg-6">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xl bg-gradient-primary rounded-circle">
-                                        <i class="fas fa-user text-white position-relative" style="font-size: 24px; top: 10px; left: 12px;"></i>
-                                    </div>
-                                    <div class="ms-3">
-                                        <h5 class="mb-0">Xin chào, <%= loggedInUser.getFullName() %>!</h5>
-                                        <p class="text-sm mb-0">Chúc bạn một ngày tập luyện hiệu quả!</p>
-                                    </div>
+                <div class="card welcome-card">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-lg-8">
+                                <h3 class="text-white mb-2">Chào mừng trở lại, <%= loggedInUser.getFullName() %>! 🎯</h3>
+                                <p class="text-white-75 mb-0">Hãy tiếp tục hành trình rèn luyện sức khỏe của bạn hôm nay</p>
+                            </div>
+                            <div class="col-lg-4 text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="member-training-schedule" class="btn btn-white btn-sm">
+                                        <i class="fas fa-calendar-alt me-2"></i>Lịch tập
+                                    </a>
+                                    <a href="member-shop" class="btn btn-outline-white btn-sm">
+                                        <i class="fas fa-shopping-cart me-2"></i>Cửa hàng
+                                    </a>
                                 </div>
                             </div>
-                            <div class="col-lg-6 text-end d-flex align-items-center justify-content-end">
-                                <a href="member-schedule.jsp" class="btn btn-sm btn-primary me-2">
-                                    <i class="fas fa-calendar-alt me-2"></i>Xem lịch tập
-                                </a>
-                                <a href="member-shop.jsp" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-shopping-cart me-2"></i>Mua sản phẩm
-                                </a>
-                            </div>
                         </div>
-          </div>
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- Stats cards -->
-        <div class="row">
-            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="row mb-4">
+            <div class="col-xl-4 col-sm-6 mb-3">
                 <div class="card card-stats">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Buổi tập đã hoàn thành</p>
-                                    <h5 class="font-weight-bolder mb-0">
-                                        15
+                                    <p class="stats-label text-primary mb-0">Buổi tập hoàn thành</p>
+                                    <h5 class="stats-number text-primary mb-0">
+                                        <%= completedSessionsCount %>
                                     </h5>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
                                 <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
-                                    <i class="fas fa-check-circle text-lg opacity-10" aria-hidden="true"></i>
+                                    <i class="fas fa-dumbbell text-lg opacity-10" aria-hidden="true"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+            <div class="col-xl-4 col-sm-6 mb-3">
                 <div class="card card-stats">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Buổi tập sắp tới</p>
-                                    <h5 class="font-weight-bolder mb-0">
-                                        3
+                                    <p class="stats-label text-warning mb-0">Lịch sắp tới</p>
+                                    <h5 class="stats-number text-warning mb-0">
+                                        <%= upcomingSessionsCount %>
                                     </h5>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
                                 <div class="icon icon-shape bg-gradient-warning shadow text-center border-radius-md">
-                                    <i class="fas fa-calendar-alt text-lg opacity-10" aria-hidden="true"></i>
+                                    <i class="fas fa-calendar-check text-lg opacity-10" aria-hidden="true"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+            <div class="col-xl-4 col-sm-6 mb-3">
                 <div class="card card-stats">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Đơn hàng</p>
-                                    <h5 class="font-weight-bolder mb-0">
-                                        2
+                                    <p class="stats-label text-success mb-0">Đơn hàng đã hoàn tất</p>
+                                    <h5 class="stats-number text-success mb-0">
+                                        <%= totalOrdersCount %>
                                     </h5>
                                 </div>
                             </div>
@@ -313,229 +265,92 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-                <div class="card card-stats">
-                    <div class="card-body p-3">
-                        <div class="row">
-                            <div class="col-8">
-                                <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Điểm tích lũy</p>
-                                    <h5 class="font-weight-bolder mb-0">
-                                        150
-                                    </h5>
-                                </div>
-                            </div>
-                            <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-gradient-info shadow text-center border-radius-md">
-                                    <i class="fas fa-star text-lg opacity-10" aria-hidden="true"></i>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </div>
-  
-        <!-- Membership and schedule section -->
-        <div class="row mt-4">
-            <div class="col-lg-5 mb-lg-0 mb-4">
-                <div class="card membership-card z-index-2 h-100">
+        
+        <!-- Charts section -->
+        <div class="row mb-4">
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header pb-0 p-3">
+                        <h6 class="mb-0">Thống kê hoạt động tập luyện</h6>
+                        <p class="text-sm mb-0">Biểu đồ hoạt động 7 ngày gần đây</p>
+                    </div>
                     <div class="card-body p-3">
-                        <div class="d-flex justify-content-between">
-                            <h6 class="text-white mb-2">Gói tập hiện tại</h6>
-                            <span class="badge bg-gradient-light text-dark">Đang hoạt động</span>
-                        </div>
-                        <h4 class="text-white mb-3">Gói Premium 3 tháng</h4>
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="membership-info mb-2">
-                                    <span>Ngày bắt đầu</span><br>
-                                    <span class="value">01/06/2024</span>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="membership-info mb-2">
-                                    <span>Ngày kết thúc</span><br>
-                                    <span class="value">01/09/2024</span>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="membership-info mb-2">
-                                    <span>Còn lại</span><br>
-                                    <span class="value">45 ngày</span>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="membership-info mb-2">
-                                    <span>Buổi PT còn lại</span><br>
-                                    <span class="value">8 buổi</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="progress-container">
-                            <div class="progress-label">
-                                <span>Tiến độ gói tập</span>
-                                <span class="value">50%</span>
-                            </div>
-                            <div class="progress bg-light bg-opacity-10">
-                                <div class="progress-bar bg-white" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="member-packages-controller" class="btn btn-sm btn-outline-light">Xem chi tiết</a>
-                            <a href="member-packages-controller" class="btn btn-sm btn-light">Gia hạn gói tập</a>
+                        <div class="chart-container">
+                            <canvas id="workoutChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-7">
-                <div class="card z-index-2 h-100">
+            <div class="col-lg-6 mb-4">
+                <div class="card">
                     <div class="card-header pb-0 p-3">
-                        <div class="d-flex justify-content-between">
-                            <h6 class="mb-0">Lịch tập sắp tới</h6>
-                            <a href="member-schedule.jsp" class="btn btn-link text-primary text-sm">Xem tất cả</a>
-                        </div>
+                        <h6 class="mb-0">Thống kê chi tiêu</h6>
+                        <p class="text-sm mb-0">Chi tiêu theo tuần trong tháng gần đây</p>
                     </div>
                     <div class="card-body p-3">
-                        <div class="upcoming-session">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="session-time">Hôm nay, 17:30 - 18:30</span>
-                                    <h6 class="mb-0">Tập luyện với PT Nguyễn Văn A</h6>
-                                    <p class="text-sm text-muted mb-0">Phòng tập chính, Tầng 2</p>
-                                </div>
-                                <div>
-                                    <span class="badge bg-gradient-success">Xác nhận</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="upcoming-session">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="session-time">Ngày mai, 08:00 - 09:00</span>
-                                    <h6 class="mb-0">Lớp Yoga cơ bản</h6>
-                                    <p class="text-sm text-muted mb-0">Phòng Yoga, Tầng 3</p>
-                                </div>
-                                <div>
-                                    <span class="badge bg-gradient-warning">Chờ xác nhận</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="upcoming-session">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="session-time">20/07/2024, 19:00 - 20:00</span>
-                                    <h6 class="mb-0">Tập luyện với PT Nguyễn Văn A</h6>
-                                    <p class="text-sm text-muted mb-0">Phòng tập chính, Tầng 2</p>
-                                </div>
-                                <div>
-                                    <span class="badge bg-gradient-success">Xác nhận</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-center mt-4">
-                            <a href="member-schedule.jsp" class="btn btn-sm btn-outline-primary">Đặt lịch tập mới</a>
+                        <div class="chart-container">
+                            <canvas id="spendingChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Activity and products section -->
-        <div class="row mt-4">
-            <div class="col-lg-8 mb-lg-0 mb-4">
+        <!-- Schedule section -->
+        <div class="row">
+            <div class="col-12 mb-4">
                 <div class="card">
                     <div class="card-header pb-0 p-3">
                         <div class="d-flex justify-content-between">
-                            <h6 class="mb-0">Hoạt động gần đây</h6>
+                            <h6 class="mb-0">Lịch tập sắp tới</h6>
+                            <a href="member-training-schedule" class="btn btn-link text-primary text-sm p-0">Xem tất cả</a>
                         </div>
                     </div>
                     <div class="card-body p-3">
-                        <div class="activity-item">
-                            <div class="activity-icon bg-gradient-primary text-white">
-                                <i class="fas fa-dumbbell"></i>
+                        <% if (upcomingSchedules != null && !upcomingSchedules.isEmpty()) { %>
+                            <% for (Schedule schedule : upcomingSchedules) { 
+                                String statusClass = "";
+                                String statusText = "";
+                                if ("Confirmed".equals(schedule.getStatus())) {
+                                    statusClass = "bg-gradient-success";
+                                    statusText = "Đã xác nhận";
+                                } else if ("Pending".equals(schedule.getStatus())) {
+                                    statusClass = "bg-gradient-warning";
+                                    statusText = "Chờ xác nhận";
+                                }
+                                
+                                String dateText = "";
+                                LocalDate today = LocalDate.now();
+                                if (schedule.getScheduleDate().isEqual(today)) {
+                                    dateText = "Hôm nay";
+                                } else if (schedule.getScheduleDate().isEqual(today.plusDays(1))) {
+                                    dateText = "Ngày mai";
+                                } else {
+                                    dateText = schedule.getScheduleDate().format(dateFormatter);
+                                }
+                            %>
+                            <div class="upcoming-session">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <span class="session-time"><%= dateText %> • <%= schedule.getScheduleTime().format(timeFormatter) %></span>
+                                        <h6 class="mb-1 mt-1">PT <%= schedule.getTrainer().getFullName() %></h6>
+                                        <p class="text-sm text-muted mb-0">
+                                            <i class="fas fa-clock me-1"></i><%= schedule.getDurationHours() %> giờ
+                                        </p>
+                                    </div>
+                                    <span class="badge <%= statusClass %>"><%= statusText %></span>
+                                </div>
                             </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Hoàn thành buổi tập với PT</div>
-                                <div class="activity-description text-sm">Bạn đã hoàn thành buổi tập với PT Nguyễn Văn A</div>
-                                <div class="activity-time">Hôm qua, 18:30</div>
+                            <% } %>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="fas fa-calendar-times text-muted mb-3" style="font-size: 3rem;"></i>
+                                <h6 class="text-muted mb-2">Chưa có lịch tập nào</h6>
+                                <p class="text-sm text-muted mb-3">Hãy đặt lịch tập với PT để bắt đầu</p>
+                                <a href="member-training-schedule" class="btn btn-primary btn-sm">Đặt lịch ngay</a>
                             </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon bg-gradient-success text-white">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Mua sản phẩm</div>
-                                <div class="activity-description text-sm">Bạn đã mua Whey Protein 1kg</div>
-                                <div class="activity-time">15/07/2024, 10:15</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon bg-gradient-warning text-white">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Đặt lịch tập</div>
-                                <div class="activity-description text-sm">Bạn đã đặt lịch tập với PT Nguyễn Văn A</div>
-                                <div class="activity-time">14/07/2024, 09:30</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon bg-gradient-info text-white">
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Nhận điểm thưởng</div>
-                                <div class="activity-description text-sm">Bạn đã nhận 50 điểm thưởng từ việc check-in liên tục 5 ngày</div>
-                                <div class="activity-time">12/07/2024, 17:45</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header pb-0 p-3">
-                        <div class="d-flex justify-content-between">
-                            <h6 class="mb-0">Sản phẩm đề xuất</h6>
-                            <a href="member-shop.jsp" class="btn btn-link text-primary text-sm">Xem tất cả</a>
-                        </div>
-                    </div>
-                    <div class="card-body p-3">
-                        <div class="d-flex mb-3">
-                            <img src="assets/img/products/whey-protein.jpg" alt="Whey Protein" class="border-radius-lg shadow" style="width: 80px; height: 80px; object-fit: cover;">
-                            <div class="ms-3">
-                                <h6 class="mb-0">Whey Protein Isolate</h6>
-                                <p class="text-sm mb-1">Hỗ trợ phục hồi cơ bắp</p>
-                                <span class="text-primary font-weight-bold">750.000đ</span>
-                                <a href="member-shop.jsp" class="btn btn-link text-primary p-0 ms-2">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="d-flex mb-3">
-                            <img src="assets/img/products/bcaa.jpg" alt="BCAA" class="border-radius-lg shadow" style="width: 80px; height: 80px; object-fit: cover;">
-                            <div class="ms-3">
-                                <h6 class="mb-0">BCAA 5000</h6>
-                                <p class="text-sm mb-1">Phục hồi và tăng sức bền</p>
-                                <span class="text-primary font-weight-bold">450.000đ</span>
-                                <a href="member-shop.jsp" class="btn btn-link text-primary p-0 ms-2">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="d-flex">
-                            <img src="assets/img/products/shaker.jpg" alt="Shaker" class="border-radius-lg shadow" style="width: 80px; height: 80px; object-fit: cover;">
-                            <div class="ms-3">
-                                <h6 class="mb-0">Bình lắc Protein</h6>
-                                <p class="text-sm mb-1">Tiện lợi khi tập luyện</p>
-                                <span class="text-primary font-weight-bold">150.000đ</span>
-                                <a href="member-shop.jsp" class="btn btn-link text-primary p-0 ms-2">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </a>
-                            </div>
-                        </div>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -546,7 +361,7 @@
                 <div class="row align-items-center justify-content-lg-between">
                     <div class="col-lg-6 mb-lg-0 mb-4">
                         <div class="copyright text-center text-sm text-muted text-lg-start">
-                            © <script>document.write(new Date().getFullYear())</script>, CoreFit Gym Management System
+                            © <script>document.write(new Date().getFullYear())</script>, CGMS - Gym Management System
                         </div>
                     </div>
                 </div>
@@ -555,12 +370,12 @@
     </div>
 </main>
 
-<!-- Core JS Files -->
-  <script src="assets/js/core/popper.min.js"></script>
-  <script src="assets/js/core/bootstrap.min.js"></script>
+<script src="assets/js/core/popper.min.js"></script>
+<script src="assets/js/core/bootstrap.min.js"></script>
 <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
 <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
 <script src="assets/js/plugins/chartjs.min.js"></script>
+<script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -580,20 +395,136 @@
             });
             errorToast.show();
         }
+        
+        // Lấy dữ liệu từ server
+        var workoutData = <%= weeklyWorkoutStatsJson %>;
+        var spendingData = <%= monthlySpendingStatsJson %>;
+        
+        console.log('Workout Data:', workoutData);
+        console.log('Spending Data:', spendingData);
+        
+        // Biểu đồ hoạt động tập luyện
+        var workoutCtx = document.getElementById('workoutChart').getContext('2d');
+        var workoutChart = new Chart(workoutCtx, {
+            type: 'line',
+            data: {
+                labels: ['6 ngày trước', '5 ngày trước', '4 ngày trước', '3 ngày trước', '2 ngày trước', 'Hôm qua', 'Hôm nay'],
+                datasets: [{
+                    label: 'Buổi tập',
+                    data: workoutData,
+                    borderColor: '#5e72e4',
+                    backgroundColor: 'rgba(94, 114, 228, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#5e72e4',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: Math.max(...workoutData) + 1,
+                        grid: {
+                            drawBorder: false,
+                            color: 'rgba(0,0,0,0.05)'
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#8392ab'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#8392ab'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+        
+        // Biểu đồ chi tiêu
+        var spendingCtx = document.getElementById('spendingChart').getContext('2d');
+        var spendingChart = new Chart(spendingCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+                datasets: [{
+                    label: 'Chi tiêu (VNĐ)',
+                    data: spendingData,
+                    backgroundColor: [
+                        'rgba(45, 206, 137, 0.8)',
+                        'rgba(255, 159, 64, 0.8)',
+                        'rgba(94, 114, 228, 0.8)',
+                        'rgba(245, 87, 108, 0.8)'
+                    ],
+                    borderColor: [
+                        '#2dce89',
+                        '#ff9f40',
+                        '#5e72e4',
+                        '#f5576c'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false,
+                            color: 'rgba(0,0,0,0.05)'
+                        },
+                        ticks: {
+                            color: '#8392ab',
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#8392ab'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
     });
 </script>
-
-<script>
-    var win = navigator.platform.indexOf('Win') > -1;
-    if (win && document.querySelector('#sidenav-scrollbar')) {
-        var options = {
-            damping: '0.5'
-        }
-        Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-    }
-</script>
-
-<!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-<script src="assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 </body>
-</html> 
+</html>
