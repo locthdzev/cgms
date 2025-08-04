@@ -1,8 +1,10 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ page import="Models.User" %>
 <%@ page import="Models.Product" %>
+<%@ page import="Models.Inventory" %>
 <%@ page import="Services.UserService" %>
 <%@ page import="Services.ProductService" %>
+<%@ page import="Services.InventoryService" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.util.Locale" %>
@@ -18,6 +20,7 @@
     // Lấy danh sách members và products
     UserService userService = new UserService();
     ProductService productService = new ProductService();
+    InventoryService inventoryService = new InventoryService();
     
     List<User> members = userService.getAllMembers();
     List<Product> products = productService.getAllActiveProducts();
@@ -341,6 +344,26 @@
             font-size: 1.1rem;
         }
 
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .stock-info.in-stock {
+            color: #059669;
+        }
+
+        .stock-info.low-stock {
+            color: #d97706;
+        }
+
+        .stock-info.out-of-stock {
+            color: #dc2626;
+        }
+
         .quantity-controls {
             display: flex;
             align-items: center;
@@ -360,10 +383,15 @@
             transition: all 0.3s ease;
         }
 
-        .quantity-btn:hover {
+        .quantity-btn:hover:not(:disabled) {
             border-color: #667eea;
             background: #667eea;
             color: white;
+        }
+
+        .quantity-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .quantity-input {
@@ -717,11 +745,16 @@
 
                                 <div class="product-grid">
                                     <% if (products != null && !products.isEmpty()) { 
-                                        for (Product product : products) { %>
+                                        for (Product product : products) { 
+                                            Inventory inventory = inventoryService.getInventoryByProductId(product.getId());
+                                            int stockQuantity = (inventory != null && inventory.getQuantity() != null) ? inventory.getQuantity() : 0;
+                                            String stockClass = stockQuantity <= 0 ? "out-of-stock" : (stockQuantity <= 10 ? "low-stock" : "in-stock");
+                                    %>
                                     <div class="product-item" 
                                         data-product-id="<%= product.getId() %>" 
                                         data-product-price="<%= product.getPrice() %>"
-                                        data-product-name="<%= product.getName().toLowerCase() %>">
+                                        data-product-name="<%= product.getName().toLowerCase() %>"
+                                        data-stock-quantity="<%= stockQuantity %>">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0">
                                                 <% if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) { %>
@@ -737,16 +770,23 @@
                                                 <div class="product-price">
                                                     <%= formatter.format(product.getPrice().longValue()) %> VNĐ
                                                 </div>
+                                                <div class="stock-info <%= stockClass %>">
+                                                    <i class="fas <%= stockQuantity <= 0 ? "fa-times-circle" : (stockQuantity <= 10 ? "fa-exclamation-triangle" : "fa-check-circle") %>"></i>
+                                                    <span>Kho: <%= stockQuantity %> sản phẩm</span>
+                                                </div>
                                             </div>
                                             <div class="flex-shrink-0">
                                                 <div class="quantity-controls">
-                                                    <button type="button" class="quantity-btn" onclick="decreaseQuantity(this)">
+                                                    <button type="button" class="quantity-btn" onclick="decreaseQuantity(this)"
+                                                            <%= stockQuantity <= 0 ? "disabled" : "" %>>
                                                         <i class="fas fa-minus"></i>
                                                     </button>
                                                     <input type="number" class="quantity-input" 
-                                                        min="0" max="100" value="0" 
-                                                        onchange="updateProductSelection(this)">
-                                                    <button type="button" class="quantity-btn" onclick="increaseQuantity(this)">
+                                                        min="0" max="<%= stockQuantity %>" value="0" 
+                                                        onchange="updateProductSelection(this)"
+                                                        <%= stockQuantity <= 0 ? "disabled" : "" %>>
+                                                    <button type="button" class="quantity-btn" onclick="increaseQuantity(this)"
+                                                            <%= stockQuantity <= 0 ? "disabled" : "" %>>
                                                         <i class="fas fa-plus"></i>
                                                     </button>
                                                 </div>
@@ -876,7 +916,8 @@
             const quantityInput = button.parentElement.querySelector('.quantity-input');
             if (quantityInput) {
                 const currentValue = parseInt(quantityInput.value) || 0;
-                quantityInput.value = Math.min(100, currentValue + 1);
+                const maxStock = parseInt(quantityInput.getAttribute('max')) || 100;
+                quantityInput.value = Math.min(maxStock, currentValue + 1);
                 console.log('New quantity:', quantityInput.value);
                 updateProductSelection(quantityInput);
             }

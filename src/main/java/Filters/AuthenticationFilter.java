@@ -24,16 +24,17 @@ public class AuthenticationFilter implements Filter {
     private static final List<String> ADMIN_URLS = Arrays.asList(
             "/dashboard", "/user", "/addUser", "/editUser", "/trainer", "/addTrainer", "/editTrainer",
             "/listPackage", "/addPackage", "/editPackage", "/product", "/voucher", "/inventory", "/feedback",
-            "/admin-orders");
+            "/admin-orders", "/admin-membership-card", "/admin-member-packages", "/admin-pt-availability");
 
     // Các URL chỉ dành cho Personal Trainer
     private static final List<String> PT_URLS = Arrays.asList(
-            "/pt_dashboard.jsp", "/pt_schedule.jsp", "/pt_clients.jsp");
+            "/pt_dashboard.jsp", "/pt_dashboard", "/pt_schedule.jsp", "/pt_clients.jsp", "/pt-availability");
 
     // Các URL chỉ dành cho Member
     private static final List<String> MEMBER_URLS = Arrays.asList(
             "/member-dashboard", "/member-packages-controller", "/all-packages-controller", "/all-packages",
-            "/member-schedule.jsp", "/member-shop.jsp", "member-shop", "/member-cart.jsp", "/member-feedback.jsp");
+            "/member-schedule.jsp", "/member-shop.jsp", "member-shop", "/member-cart.jsp", "/member-feedback.jsp",
+            "/select-voucher");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -142,7 +143,7 @@ public class AuthenticationFilter implements Filter {
         if ("Admin".equals(role)) {
             response.sendRedirect(contextPath + "/dashboard");
         } else if ("Personal Trainer".equals(role)) {
-            response.sendRedirect(contextPath + "/pt_dashboard.jsp");
+            response.sendRedirect(contextPath + "/pt_dashboard");
         } else {
             response.sendRedirect(contextPath + "/member-dashboard");
         }
